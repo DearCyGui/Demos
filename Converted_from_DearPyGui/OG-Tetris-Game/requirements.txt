@@ -1,0 +1,4 @@
+dearcygui
+imageio
+pandas==1.3.4
+playsound2==0.1
