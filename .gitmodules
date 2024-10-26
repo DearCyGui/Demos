@@ -1,0 +1,3 @@
+[submodule "IntegratedImageProcessingViewer"]
+	path = IntegratedImageProcessingViewer
+	url = git@github.com:axeldavy/IntegratedImageProcessingViewer.git
