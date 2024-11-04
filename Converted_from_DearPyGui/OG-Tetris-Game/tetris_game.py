@@ -213,4 +213,5 @@ background_theme()
 
 welcome_screen.primary = True
 while C.running:
+    C.viewport.scale = 1./C.viewport.dpi
     C.viewport.render_frame()
