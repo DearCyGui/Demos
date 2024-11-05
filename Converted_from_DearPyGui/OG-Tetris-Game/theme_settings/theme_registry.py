@@ -45,3 +45,5 @@ with dcg.ThemeList(C) as play_button_theme:
 with dcg.ThemeList(C) as no_border_board_theme:
     dcg.ThemeColorImPlot(C,
                         PlotBorder=(0, 0, 0))
+
+sharp_lines_theme = dcg.ThemeStyleImPlot(C, LineWeight=0.9, no_scaling=True)

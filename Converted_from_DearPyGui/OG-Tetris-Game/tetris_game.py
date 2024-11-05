@@ -37,10 +37,11 @@ def set_main_window(sender, target, value):
                    no_move=True,
                    primary=True,
                    no_scrollbar=True,
+                   no_scroll_with_mouse=True,
                    no_title_bar=True):
         with dcg.HorizontalLayout(C):
             # Score board and help window config
-            with dcg.ChildWindow(C, width=320):
+            with dcg.ChildWindow(C, width=320, no_scrollbar=True, no_scroll_with_mouse=True):
                 dcg.Spacer(C, height=10)
 
                 with dcg.HorizontalLayout(C):
@@ -85,12 +86,16 @@ def set_main_window(sender, target, value):
                 next_block_board.X1.configure(no_gridlines=True,
                                               no_tick_marks=True,
                                               no_tick_labels=True,
+                                              no_highlight=True,
+                                              no_side_switch=True,
                                               lock_min=True,
                                               lock_max=True,
                                               min=0, max=8)
                 next_block_board.Y1.configure(no_gridlines=True,
                                               no_tick_marks=True,
                                               no_tick_labels=True,
+                                              no_highlight=True,
+                                              no_side_switch=True,
                                               lock_min=True,
                                               lock_max=True,
                                               min=0, max=4)
@@ -101,20 +106,24 @@ def set_main_window(sender, target, value):
                 with dcg.Plot(C, no_menus=False, no_title=True,
                               no_mouse_pos=True, width=325,
                               height=650, equal_aspects=True) as tetris_board:
-                    tetris_board.X1.configure(no_gridlines=False,
+                    tetris_board.X1.configure(no_gridlines=True,
                                               no_tick_marks=True,
                                               no_tick_labels=True,
+                                              no_highlight=True,
+                                              no_side_switch=True,
                                               lock_min=True,
                                               lock_max=True,
                                               min=0, max=10)
-                    tetris_board.Y1.configure(no_gridlines=False,
+                    tetris_board.Y1.configure(no_gridlines=True,
                                               no_tick_marks=True,
                                               no_tick_labels=True,
+                                              no_highlight=True,
+                                              no_side_switch=True,
                                               lock_min=True,
                                               lock_max=True,
                                               min=0, max=20)
-                    dcg.PlotInfLines(C, X=[n for n in range(10)])
-                    dcg.PlotInfLines(C, X=[n for n in range(120)], horizontal=True)
+                    dcg.PlotInfLines(C, X=[n for n in range(10)], theme=sharp_lines_theme)
+                    dcg.PlotInfLines(C, X=[n for n in range(120)], horizontal=True, theme=sharp_lines_theme)
                     dcg.DrawInPlot(C, tag="tetris_board")
 
                 dcg.Button(C, label="Play TETRIS !",
@@ -125,7 +134,7 @@ def set_main_window(sender, target, value):
                            theme=play_button_theme)
 
             # Statistics window config
-            with dcg.ChildWindow(C):
+            with dcg.ChildWindow(C, no_scrollbar=True, no_scroll_with_mouse=True):
                 dcg.Spacer(C, height=10)
 
                 dcg.Button(C, label="STATISTICS", width=-1, theme=dummy_button_theme)
@@ -136,11 +145,21 @@ def set_main_window(sender, target, value):
                               tag="statistics_window") as statistics_window:
 
                     statistics_window.X1.configure(no_gridlines=True,
-                                                   no_tick_marks=True, no_tick_labels=True,
-                                                   lock_min=True, lock_max=True,min=0, max=10)
+                                                   no_tick_marks=True,
+                                                   no_tick_labels=True,
+                                                   lock_min=True,
+                                                   lock_max=True,
+                                                   no_highlight=True,
+                                                   no_side_switch=True,
+                                                   min=0, max=10)
                     statistics_window.Y1.configure(no_gridlines=True,
-                                                   no_tick_marks=True, no_tick_labels=True,
-                                                   lock_min=True, lock_max=True,min=0, max=19)
+                                                   no_tick_marks=True,
+                                                   no_tick_labels=True,
+                                                   no_highlight=True,
+                                                   no_side_switch=True,
+                                                   lock_min=True,
+                                                   lock_max=True,
+                                                   min=0, max=19)
                     with dcg.DrawInPlot(C):
                         tetrominos_handler.BlockStatistics(C)
 
@@ -170,7 +189,7 @@ def press_any_key_to_start():
 # Welcome screen config
 with dcg.Window(C, modal=True, autosize=True, no_collapse=True,
                 no_resize=True, has_close_button=False, no_move=True,
-                no_title_bar=True) as welcome_screen:
+                no_title_bar=True, no_scrollbar=True, no_scroll_with_mouse=True) as welcome_screen:
     data = imageio.imread("textures/welcome_screen.jpg")
     dcg.Image(C, texture=dcg.Texture(C, data))
 welcome_screen.handlers = [
@@ -181,8 +200,8 @@ welcome_screen.handlers = [
 
 # Enter level screen config
 with dcg.Window(C, autosize=True, no_collapse=True, no_resize=True,
-                has_close_button=False, no_move=True,
-                no_title_bar=True, show=False) as enter_level_screen:
+                has_close_button=False, no_move=True, no_scrollbar=True,
+                no_scroll_with_mouse=True, no_title_bar=True, show=False) as enter_level_screen:
     dcg.Spacer(C, height=350)
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.alignment.CENTER):
@@ -213,5 +232,5 @@ background_theme()
 
 welcome_screen.primary = True
 while C.running:
-    C.viewport.scale = 1./C.viewport.dpi
+    #C.viewport.scale = 1./C.viewport.dpi
     C.viewport.render_frame()
