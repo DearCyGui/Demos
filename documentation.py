@@ -4,6 +4,9 @@ import pydoc
 
 from utils import create_new_font
 
+import marko
+import os
+
 def expand_or_restore_height(_, item):
     item.height = (50 if item.height == -1 else -1)
 
@@ -167,6 +170,173 @@ class Basics(dcg.Layout):
             dcg.Text(C, wrap=0, value=f"By default items try to attach to a parent unless "
                      f"{make_bold("attach=False")} is set during item creation.")
 
+class TextFormatter(marko.Renderer):
+    def __init__(self, C):
+        self.C = C
+        self.huge_font = create_new_font(C, 51)
+        self.big_font = create_new_font(C, 31)
+        self.default_font = C.viewport.font
+        self.raw_font = create_new_font(C, 17, hinter="monochrome")
+        # A strong or monochrome hinter helps fonts
+        # being readable at small sizes
+        self.small_font = create_new_font(C, 9, hinter="strong")
+        super().__init__()
+
+    def render_children_if_not_str(self, element):
+        if isinstance(element, str):
+            return element
+        elif isinstance(element.children, str):
+            return element.children
+        else:
+            return self.render_children(element)
+
+    def render_document(self, element):
+        text = self.render_children_if_not_str(element)
+        if text != "":
+            dcg.Text(self.C, wrap=0, value=text)
+        return ""
+
+    def render_paragraph(self, element):
+        print("render_paragraph", element)
+        with dcg.VerticalLayout(self.C):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, wrap=0, value=text)
+        dcg.Spacer(self.C)
+        return ""
+
+    def render_list(self, element):
+        print("render_list", element)
+        with dcg.VerticalLayout(self.C, indent=-1):
+            self.render_children_if_not_str(element)
+        return ""
+
+    def render_list_item(self, element):
+        print("render_list_item", element)
+        with dcg.VerticalLayout(self.C):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, value=text)
+        return ""
+
+    def render_quote(self, element):
+        print("render_quote", element)
+        return make_italic(self.render_children_if_not_str(element))
+
+    def render_fenced_code(self, element):
+        print("render_fc", element)
+        with dcg.VerticalLayout(self.C, indent=-1):
+            text = self.render_children_if_not_str(element)#element.children[0].children
+            lines = text.split("\n")
+            for line in lines:
+                if line == "":
+                    dcg.Spacer(self.C)
+                else:
+                    dcg.Text(self.C, wrap=0, value=make_bold(line))
+        return ""
+
+    def render_thematic_break(self, element):
+        print("render_tb", element)
+        with dcg.DrawInWindow(self.C, height=8, width=10000):
+            dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
+        #dcg.Spacer(self.C)
+        return ""
+
+    def render_heading(self, element):
+        print("render_heading", element)
+        level = element.level
+        font = self.huge_font if level > 1 else self.big_font
+        with dcg.Layout(self.C, font=font):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, wrap=0, value=text)
+        return ""
+
+    def render_blank_line(self, element):
+        print("render_blank_line", element)
+        dcg.Spacer(self.C)
+        return ""
+
+    def render_emphasis(self, element) -> str:
+        print("render_emphasis", element)
+        return make_italic(self.render_children_if_not_str(element))
+
+    def render_strong_emphasis(self, element) -> str:
+        print("render_strong_emphasis", element)
+        return make_bold_italic(self.render_children_if_not_str(element))
+
+    def render_plain_text(self, element):
+        print("render_plain", element)
+        return self.render_children_if_not_str(element)
+
+    def render_raw_text(self, element):
+        print("render_raw", element)
+        return " ".join(self.render_children_if_not_str(element).split("\n"))
+
+    def render_image(self, element) -> str:
+        print("TODO image: ", element) # TODO
+        return ""
+
+    def render_line_break(self, element):
+        print("render_lb", element)
+        if element.soft:
+            return " "
+        return "\n"
+
+    def render_code_span(self, element) -> str:
+        print("render_code_span", element)
+        return make_bold(self.render_children_if_not_str(element))
+
+
+class Callbacks(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "callbacks.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
+        with self:
+            renderer.render(parsed_text)
+
+class Drawing(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        with self:
+            """
+            
+            """
+
+class UI(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        with self:
+            """
+            
+            """
+
+class Plot(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        with self:
+            """
+            
+            """
+
+class Themes(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        with self:
+            """
+            
+            """
+
 class DocumentationWindow(dcg.Window):
     def __init__(self, C, width=1000, height=600, label="Documentation", **kwargs):
         super().__init__(self, width=width, height=height, label=label, **kwargs)
@@ -175,7 +345,12 @@ class DocumentationWindow(dcg.Window):
             radio_button = dcg.RadioButton(C)
             selection = {
                 "Available items": AvailableItems(C, show=False),
-                "Basics": Basics(C, show=False)
+                "Basics": Basics(C, show=False),
+                "Callbacks": Callbacks(C, show=False),
+                "Drawing": Drawing(C, show=False),
+                "User-Interface": UI(C, show=False),
+                "Plot": Plot(C, show=False),
+                "Themes": Themes(C, show=False),
             }
             radio_button.items = selection.keys()
             def pick_selection(sender, target, value):
