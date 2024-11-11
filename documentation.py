@@ -67,7 +67,8 @@ class AvailableItems(dcg.Layout):
                 "Handlers": [dcg.baseHandler],
                 "Drawings": [dcg.drawingItem, dcg.Texture],
                 "Plots": [dcg.plotElement, dcg.Plot, dcg.PlotAxisConfig, dcg.PlotLegendConfig],
-                "Themes": [dcg.baseTheme]
+                "Themes": [dcg.baseTheme],
+                "Values": [dcg.SharedValue]
             }
             filter.items=filter_names.keys()
             filter.value="All"

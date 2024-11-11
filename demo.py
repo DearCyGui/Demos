@@ -20,13 +20,21 @@ def create_demo_window(C):
                 dcg.Text(C, value="Click to open this section")
             #display_docstring_in_child_window(C, dcg.Button)
 
+def center_window(sender, item):
+    real_pixel_size = item.rect_size
+    available_width = item.parent.width
+    available_height = item.parent.height
+    target_left = round(available_width / 2. - real_pixel_size[0] / 2.)
+    target_top = round(available_height / 2. - real_pixel_size[1] / 2.)
+    item.pos_to_viewport = [target_left, target_top]
+    item.context.viewport.wake()
 
 def make_welcome_window(C):
     huge_font = create_new_font(C, 51)
     # A strong or monochrome hinter helps fonts
     # being readable at small sizes
     small_font = create_new_font(C, 9, hinter="strong")
-    with dcg.Window(C, popup=True, autosize=True):
+    with dcg.Window(C, popup=True, autosize=True) as welcome_window:
         with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
             dcg.Text(C, value="Welcome", font=huge_font)
         dcg.Spacer(C)
@@ -41,6 +49,11 @@ def make_welcome_window(C):
         dcg.Spacer(C)
         with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
             dcg.Text(C, value="Click anywhere outside this window to start", font=small_font)
+        welcome_window.handlers = [
+            # The window doesn't have its final size right away, thus why we
+            # use ResizeHandler and not GotRenderHandler
+            dcg.ResizeHandler(C, callback=center_window)
+        ]
         
 
 def launch_demo():
