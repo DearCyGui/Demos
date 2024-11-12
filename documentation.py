@@ -107,6 +107,7 @@ class AvailableItems(dcg.Layout):
             update_item_list(filter, filter, filter.value)
             filter.callbacks = [update_item_list]
 
+"""
 class Basics(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(self, **kwargs)
@@ -169,17 +170,16 @@ class Basics(dcg.Layout):
             dcg.Text(C, indent=-1, value=f"    item = create_my_new_item()")
             dcg.Text(C, wrap=0, value=f"By default items try to attach to a parent unless "
                      f"{make_bold("attach=False")} is set during item creation.")
+"""
+
 
 class TextFormatter(marko.Renderer):
     def __init__(self, C):
         self.C = C
-        self.huge_font = create_new_font(C, 51)
-        self.big_font = create_new_font(C, 31)
+        self.huge_font = create_new_font(C, 31)
+        self.big_font = create_new_font(C, 25)
         self.default_font = C.viewport.font
-        self.raw_font = create_new_font(C, 17, hinter="monochrome")
-        # A strong or monochrome hinter helps fonts
-        # being readable at small sizes
-        self.small_font = create_new_font(C, 9, hinter="strong")
+        self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
         super().__init__()
 
     def render_children_if_not_str(self, element):
@@ -197,7 +197,6 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_paragraph(self, element):
-        print("render_paragraph", element)
         with dcg.VerticalLayout(self.C):
             text = self.render_children_if_not_str(element)
             if text != "":
@@ -206,27 +205,35 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_list(self, element):
-        print("render_list", element)
         with dcg.VerticalLayout(self.C, indent=-1):
             self.render_children_if_not_str(element)
         return ""
 
     def render_list_item(self, element):
-        print("render_list_item", element)
-        with dcg.VerticalLayout(self.C):
-            text = self.render_children_if_not_str(element)
-            if text != "":
-                dcg.Text(self.C, value=text)
+        with dcg.Layout(self.C, theme=self.no_spacing) as l:
+            with dcg.VerticalLayout(self.C) as vl:
+                text = self.render_children_if_not_str(element)
+                if text != "":
+                    dcg.Text(self.C, bullet=True, value=text)
+                else:
+                    # text rendered inside render_children_if_not_str
+                    # insert the bullet
+                    l.children = [dcg.Text(self.C, bullet=True, no_newline=True, value="", attach=False), vl]
+        dcg.Spacer(self.C) # TODO: somehow the no_spacing theme affects the spacer !
+        dcg.Spacer(self.C)
+        dcg.Spacer(self.C)
         return ""
 
     def render_quote(self, element):
-        print("render_quote", element)
-        return make_italic(self.render_children_if_not_str(element))
+        with dcg.ChildWindow(self.C, width=0, height=0):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, bullet=True, value=make_italic(text))
+        return ""
 
     def render_fenced_code(self, element):
-        print("render_fc", element)
-        with dcg.VerticalLayout(self.C, indent=-1):
-            text = self.render_children_if_not_str(element)#element.children[0].children
+        with dcg.VerticalLayout(self.C, indent=-1, theme=self.no_spacing):
+            text = element.children[0].children # self.render_children_if_not_str(element)
             lines = text.split("\n")
             for line in lines:
                 if line == "":
@@ -236,16 +243,14 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_thematic_break(self, element):
-        print("render_tb", element)
-        with dcg.DrawInWindow(self.C, height=8, width=10000):
+        with dcg.DrawInWindow(self.C, height=8, width=10000): # TODO: fix height=1 not working
             dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
         #dcg.Spacer(self.C)
         return ""
 
     def render_heading(self, element):
-        print("render_heading", element)
         level = element.level
-        font = self.huge_font if level > 1 else self.big_font
+        font = self.huge_font if level <= 1 else self.big_font
         with dcg.Layout(self.C, font=font):
             text = self.render_children_if_not_str(element)
             if text != "":
@@ -253,24 +258,19 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_blank_line(self, element):
-        print("render_blank_line", element)
         dcg.Spacer(self.C)
         return ""
 
     def render_emphasis(self, element) -> str:
-        print("render_emphasis", element)
         return make_italic(self.render_children_if_not_str(element))
 
     def render_strong_emphasis(self, element) -> str:
-        print("render_strong_emphasis", element)
         return make_bold_italic(self.render_children_if_not_str(element))
 
     def render_plain_text(self, element):
-        print("render_plain", element)
         return self.render_children_if_not_str(element)
 
     def render_raw_text(self, element):
-        print("render_raw", element)
         return " ".join(self.render_children_if_not_str(element).split("\n"))
 
     def render_image(self, element) -> str:
@@ -278,15 +278,25 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_line_break(self, element):
-        print("render_lb", element)
         if element.soft:
             return " "
         return "\n"
 
     def render_code_span(self, element) -> str:
-        print("render_code_span", element)
         return make_bold(self.render_children_if_not_str(element))
 
+class Basics(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(self, **kwargs)
+
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "basics.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
+        with self:
+            renderer.render(parsed_text)
 
 class Callbacks(dcg.Layout):
     def __init__(self, C, **kwargs):
@@ -305,37 +315,53 @@ class Drawing(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(self, **kwargs)
 
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "drawings.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
         with self:
-            """
-            
-            """
+            renderer.render(parsed_text)
 
 class UI(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(self, **kwargs)
 
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "UI.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
         with self:
-            """
-            
-            """
+            renderer.render(parsed_text)
 
 class Plot(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(self, **kwargs)
 
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "plots.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
         with self:
-            """
-            
-            """
+            renderer.render(parsed_text)
 
 class Themes(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(self, **kwargs)
 
+        base_dir = os.path.dirname(__file__)
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "themes.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
         with self:
-            """
-            
-            """
+            renderer.render(parsed_text)
 
 class DocumentationWindow(dcg.Window):
     def __init__(self, C, width=1000, height=600, label="Documentation", **kwargs):
@@ -347,9 +373,9 @@ class DocumentationWindow(dcg.Window):
                 "Available items": AvailableItems(C, show=False),
                 "Basics": Basics(C, show=False),
                 "Callbacks": Callbacks(C, show=False),
-                "Drawing": Drawing(C, show=False),
-                "User-Interface": UI(C, show=False),
-                "Plot": Plot(C, show=False),
+                "Drawings": Drawing(C, show=False),
+                "User-Interfaces": UI(C, show=False),
+                "Plots": Plot(C, show=False),
                 "Themes": Themes(C, show=False),
             }
             radio_button.items = selection.keys()

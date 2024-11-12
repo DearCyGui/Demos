@@ -13,7 +13,7 @@ It can be the same as the first argument, but for instance in the case
 of handlers attached to an item, that is the way to know for which item
 the handler reacted. Indeed a handler can be attached to many items.
 The third argument is specific to how the callback was issued. In the
-case of UI items, it is generally the same as item.value. For handlers,
+case of UI items, it is generally the same as `item.value`. For handlers,
 see the description of the handler. The idea is that the value should
 be something immediately useful to react to the callback.
 
@@ -56,7 +56,7 @@ to filter the handlers. We'll delve into them later in the last section.
 
 # Base handlers
 
-Handlers can be detect various specific events happening to your event.
+Handlers can detect various specific events happening to your event.
 The complete list of handlers can be found in the Available items section,
 but here are the description of a few:
 
@@ -99,7 +99,7 @@ the whole content being shown. These four handlers enable to react
 to these states, and the changes of these states.
 
 - `RenderHandler/GotRenderHandler/LostRenderHandler`. An item is considered
-"CPU-rendered" if during render_frame the item was seen by the rendered.
+"CPU-rendered" if during `render_frame` the item was seen by the rendered.
 To be considered rendered, an item must be in the render tree, its
 show attribute must be set to True, as well as all its parents. In
 addition, no parent must have skipped rendering some its children
