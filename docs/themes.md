@@ -98,7 +98,7 @@ global_scale = C.viewport.dpi * C.viewport.scale
 # how the glyphs are rendered.
 height, character_images, character_positioning, target_origin_y = dcg.fonts.load_font(path, target_size=round(my_size*global_scale))
 # Center properly the font glyphs
-height, character_positionings, target_origin_y = center_font(height, character_positionings, target_origin_y)
+height, character_positionings, target_origin_y = dcg.fonts.center_font(height, character_positionings, target_origin_y)
 # If your font contains some huge characters
 # you might want to reduce the reserved vertical space
 # with fit_font_to_new_height

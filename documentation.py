@@ -6,9 +6,139 @@ from utils import create_new_font
 
 import marko
 import os
+import inspect
 
-def expand_or_restore_height(_, item):
-    item.height = (50 if item.height == -1 else -1)
+class TextFormatter(marko.Renderer):
+    """
+    A markdown renderer to use with marko
+    """
+    def __init__(self, C : dcg.Context, wrap : int = 0):
+        """
+        C: the context
+        wrap: Text() wrap attribute. 0 means
+            wrap at the end of the window. > 0 means
+            a specified size.
+        """
+        self.C = C
+        self.huge_font = create_new_font(C, 31)
+        self.big_font = create_new_font(C, 25)
+        self.default_font = C.viewport.font
+        self.wrap = wrap
+        self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
+        super().__init__()
+
+    def render_children_if_not_str(self, element):
+        if isinstance(element, str):
+            return element
+        elif isinstance(element.children, str):
+            return element.children
+        else:
+            return self.render_children(element)
+
+    def render_document(self, element):
+        text = self.render_children_if_not_str(element)
+        if text != "":
+            dcg.Text(self.C, wrap=self.wrap, value=text)
+        return ""
+
+    def render_paragraph(self, element):
+        with dcg.VerticalLayout(self.C):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, wrap=self.wrap, value=text)
+        dcg.Spacer(self.C)
+        return ""
+
+    def render_list(self, element):
+        with dcg.VerticalLayout(self.C, indent=-1):
+            self.render_children_if_not_str(element)
+        return ""
+
+    def render_list_item(self, element):
+        with dcg.Layout(self.C, theme=self.no_spacing) as l:
+            with dcg.VerticalLayout(self.C) as vl:
+                text = self.render_children_if_not_str(element)
+                if text != "":
+                    dcg.Text(self.C, bullet=True, value=text)
+                else:
+                    # text rendered inside render_children_if_not_str
+                    # insert the bullet
+                    l.children = [dcg.Text(self.C, wrap=self.wrap, bullet=True, no_newline=True, value="", attach=False), vl]
+        dcg.Spacer(self.C) # TODO: somehow the no_spacing theme affects the spacer !
+        dcg.Spacer(self.C)
+        dcg.Spacer(self.C)
+        return ""
+
+    def render_quote(self, element):
+        with dcg.ChildWindow(self.C, width=0, height=0):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, bullet=True, value=make_italic(text))
+        return ""
+
+    def render_fenced_code(self, element):
+        with dcg.VerticalLayout(self.C, indent=-1, theme=self.no_spacing):
+            text = element.children[0].children # self.render_children_if_not_str(element)
+            lines = text.split("\n")
+            for line in lines:
+                if line == "":
+                    dcg.Spacer(self.C)
+                else:
+                    dcg.Text(self.C, wrap=self.wrap, value=make_bold(line))
+        return ""
+
+    def render_thematic_break(self, element):
+        with dcg.DrawInWindow(self.C, height=8, width=10000): # TODO: fix height=1 not working
+            dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
+        #dcg.Spacer(self.C)
+        return ""
+
+    def render_heading(self, element):
+        level = element.level
+        font = self.huge_font if level <= 1 else self.big_font
+        with dcg.Layout(self.C, font=font):
+            text = self.render_children_if_not_str(element)
+            if text != "":
+                dcg.Text(self.C, wrap=self.wrap, value=text)
+        return ""
+
+    def render_blank_line(self, element):
+        dcg.Spacer(self.C)
+        return ""
+
+    def render_emphasis(self, element) -> str:
+        return make_italic(self.render_children_if_not_str(element))
+
+    def render_strong_emphasis(self, element) -> str:
+        return make_bold_italic(self.render_children_if_not_str(element))
+
+    def render_plain_text(self, element):
+        return self.render_children_if_not_str(element)
+
+    def render_raw_text(self, element):
+        # Trim spaces after a "\n"
+        text = self.render_children_if_not_str(element)
+        subtexts = text.split('\n')
+        new_subtexts = subtexts[0:1]
+        for subtext in subtexts[1:]:
+            i = 0
+            while i < len(subtext) and text[i] == ' ':
+                i = i + 1
+            new_subtexts.append(subtext[i:]) 
+        # convert newline into spaces
+        return " ".join(new_subtexts)
+
+    def render_image(self, element) -> str:
+        print("TODO image: ", element) # TODO
+        return ""
+
+    def render_line_break(self, element):
+        if element.soft:
+            return " "
+        return "\n"
+
+    def render_code_span(self, element) -> str:
+        return make_bold(self.render_children_if_not_str(element))
 
 def display_docstring(C, object):
     """
@@ -25,25 +155,112 @@ def display_docstring(C, object):
         text = ' '.join(words)
         dcg.Text(C, wrap=0, value=text)
 
-def display_docstring_in_child_window(C, object):
-    """
-    Retrieve the docstring of the target
-    object and display the text in a box
-    """
-    with dcg.ChildWindow(C, width=-1, height=50) as cw:
-        display_docstring(C, object)
-    # show we can expand
-    with dcg.ConditionalHandler(C) as display_mouse_when_hovered:
-        dcg.MouseCursorHandler(C, cursor=dcg.mouse_cursor.Hand)
-        dcg.HoverHandler(C)
 
-    cw.handlers = [
-        display_mouse_when_hovered,
-        # React to click anywhere inside the window
-        dcg.ClickedHandler(C, button=0, callback=expand_or_restore_height)
-    ]
-    # Reduce spacing between lines
-    cw.theme = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
+class TextWithDocstring(dcg.Text):
+    def __init__(self, C, target, **kwargs):
+        super().__init__(C, **kwargs)
+        self.target = target
+        self.value = target.__name__
+        self.handlers = [
+            dcg.GotHoverHandler(C, callback=self.display_tooltip)
+        ]
+
+    def display_tooltip(self):
+        # Using a normal tooltip would have been fine,
+        # but this is the occasion to show one use of
+        # TemporaryTooltip
+        docstring = getattr(self.target, '__doc__', None)
+        if docstring is None:
+            return
+        window = self
+        while window is not None and not(isinstance(window, dcg.Window)):
+            window = window.parent
+
+        # prerender else it appears not smooth
+        # to have the tooltip render first empty
+        parsed_text = marko.Markdown().parse(docstring)
+        with dcg.Layout(self.context, attach=False) as temporary_layout:
+            renderer = TextFormatter(self.context, wrap=1200)
+            renderer.render(parsed_text)
+
+        with dcg.TemporaryTooltip(self.context, target=self, parent=window) as tt:
+            for child in temporary_layout.children:
+                child.parent = tt
+            
+        # Indicate we have updated content
+        self.context.viewport.wake()
+
+class InteractiveDocstring(dcg.ChildWindow):
+    def __init__(self, C, object_class, **kwargs):
+        super().__init__(C, **kwargs)
+
+        class_attributes = [v[0] for v in inspect.getmembers_static(object_class)]
+        instance = object_class(C, attach=False)
+        attributes = dir(instance)
+        dynamic_attributes = set(attributes).difference(set(class_attributes))
+        disabled_properties = []
+        read_only_properties = []
+        writable_properties = []
+        dynamic_properties = []
+        methods = []
+        for attr in sorted(attributes):
+            if attr[:2] == "__":
+                continue
+            attr_inst = getattr(object_class, attr, None)
+            if attr_inst is not None and inspect.isbuiltin(attr_inst):
+                continue
+            is_dynamic = attr in dynamic_attributes
+            default_value = None
+            is_accessible = False
+            is_writable = False
+            is_property = inspect.isdatadescriptor(attr_inst)
+            is_class_method = inspect.ismethoddescriptor(attr_inst)
+            try:
+                default_value = getattr(instance, attr)
+                is_accessible = True
+                setattr(instance, attr, default_value)
+                is_writable = True
+            except AttributeError:
+                pass
+            except (TypeError, ValueError):
+                is_writable = True
+                pass
+            if is_property:
+                if is_writable:
+                    writable_properties.append(attr)
+                elif is_accessible:
+                    read_only_properties.append(attr)
+                else:
+                    disabled_properties.append(attr)
+            elif is_dynamic and is_accessible:
+                dynamic_properties.append(attr)
+            elif is_class_method:
+                methods.append(attr)
+
+        with self:
+            if len(writable_properties) > 0:
+                dcg.Text(C, value="Read-Write properties:")
+                with dcg.HorizontalLayout(C, indent=-1):
+                    for attr in writable_properties:
+                        TextWithDocstring(C, getattr(object_class, attr))
+            if len(read_only_properties) > 0:
+                dcg.Text(C, value="Read-only properties:")
+                with dcg.HorizontalLayout(C, indent=-1):
+                    for attr in read_only_properties:
+                        TextWithDocstring(C, getattr(object_class, attr))
+            if len(dynamic_properties) > 0:
+                dcg.Text(C, value="Dynamic properties:")
+                with dcg.HorizontalLayout(C, indent=-1):
+                    for attr in dynamic_properties:
+                        dcg.Text(C, value=attr)
+            if len(methods) > 0:
+                dcg.Text(C, value="Methods:")
+                with dcg.HorizontalLayout(C, indent=-1):
+                    for attr in methods:
+                        TextWithDocstring(C, getattr(object_class, attr))
+
+
+        
 
 class AvailableItems(dcg.Layout):
     def __init__(self, C, **kwargs):
@@ -102,7 +319,13 @@ class AvailableItems(dcg.Layout):
                 right.children = []
                 # Display text
                 with right:
-                    display_docstring(C, getattr(dcg, item.label))
+                    object_class = getattr(dcg, item.label)
+                    try:
+                        InteractiveDocstring(C, object_class, width=0, auto_resize_y=True,
+                                             theme=dcg.ThemeStyleImGui(C, FramePadding=(4,3), FrameBorderSize=1, ItemSpacing=(8, 4)))
+                    except: # Shared*
+                        pass
+                    display_docstring(C, object_class)
                 C.viewport.wake()
             update_item_list(filter, filter, filter.value)
             filter.callbacks = [update_item_list]
@@ -172,118 +395,6 @@ class Basics(dcg.Layout):
                      f"{make_bold("attach=False")} is set during item creation.")
 """
 
-
-class TextFormatter(marko.Renderer):
-    def __init__(self, C):
-        self.C = C
-        self.huge_font = create_new_font(C, 31)
-        self.big_font = create_new_font(C, 25)
-        self.default_font = C.viewport.font
-        self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
-        super().__init__()
-
-    def render_children_if_not_str(self, element):
-        if isinstance(element, str):
-            return element
-        elif isinstance(element.children, str):
-            return element.children
-        else:
-            return self.render_children(element)
-
-    def render_document(self, element):
-        text = self.render_children_if_not_str(element)
-        if text != "":
-            dcg.Text(self.C, wrap=0, value=text)
-        return ""
-
-    def render_paragraph(self, element):
-        with dcg.VerticalLayout(self.C):
-            text = self.render_children_if_not_str(element)
-            if text != "":
-                dcg.Text(self.C, wrap=0, value=text)
-        dcg.Spacer(self.C)
-        return ""
-
-    def render_list(self, element):
-        with dcg.VerticalLayout(self.C, indent=-1):
-            self.render_children_if_not_str(element)
-        return ""
-
-    def render_list_item(self, element):
-        with dcg.Layout(self.C, theme=self.no_spacing) as l:
-            with dcg.VerticalLayout(self.C) as vl:
-                text = self.render_children_if_not_str(element)
-                if text != "":
-                    dcg.Text(self.C, bullet=True, value=text)
-                else:
-                    # text rendered inside render_children_if_not_str
-                    # insert the bullet
-                    l.children = [dcg.Text(self.C, bullet=True, no_newline=True, value="", attach=False), vl]
-        dcg.Spacer(self.C) # TODO: somehow the no_spacing theme affects the spacer !
-        dcg.Spacer(self.C)
-        dcg.Spacer(self.C)
-        return ""
-
-    def render_quote(self, element):
-        with dcg.ChildWindow(self.C, width=0, height=0):
-            text = self.render_children_if_not_str(element)
-            if text != "":
-                dcg.Text(self.C, bullet=True, value=make_italic(text))
-        return ""
-
-    def render_fenced_code(self, element):
-        with dcg.VerticalLayout(self.C, indent=-1, theme=self.no_spacing):
-            text = element.children[0].children # self.render_children_if_not_str(element)
-            lines = text.split("\n")
-            for line in lines:
-                if line == "":
-                    dcg.Spacer(self.C)
-                else:
-                    dcg.Text(self.C, wrap=0, value=make_bold(line))
-        return ""
-
-    def render_thematic_break(self, element):
-        with dcg.DrawInWindow(self.C, height=8, width=10000): # TODO: fix height=1 not working
-            dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
-        #dcg.Spacer(self.C)
-        return ""
-
-    def render_heading(self, element):
-        level = element.level
-        font = self.huge_font if level <= 1 else self.big_font
-        with dcg.Layout(self.C, font=font):
-            text = self.render_children_if_not_str(element)
-            if text != "":
-                dcg.Text(self.C, wrap=0, value=text)
-        return ""
-
-    def render_blank_line(self, element):
-        dcg.Spacer(self.C)
-        return ""
-
-    def render_emphasis(self, element) -> str:
-        return make_italic(self.render_children_if_not_str(element))
-
-    def render_strong_emphasis(self, element) -> str:
-        return make_bold_italic(self.render_children_if_not_str(element))
-
-    def render_plain_text(self, element):
-        return self.render_children_if_not_str(element)
-
-    def render_raw_text(self, element):
-        return " ".join(self.render_children_if_not_str(element).split("\n"))
-
-    def render_image(self, element) -> str:
-        print("TODO image: ", element) # TODO
-        return ""
-
-    def render_line_break(self, element):
-        if element.soft:
-            return " "
-        return "\n"
-
-    def render_code_span(self, element) -> str:
-        return make_bold(self.render_children_if_not_str(element))
 
 class Basics(dcg.Layout):
     def __init__(self, C, **kwargs):
