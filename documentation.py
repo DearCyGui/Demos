@@ -264,7 +264,7 @@ class InteractiveDocstring(dcg.ChildWindow):
 
 class AvailableItems(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         with self:
             with dcg.HorizontalLayout(C, theme=dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))):
@@ -333,7 +333,7 @@ class AvailableItems(dcg.Layout):
 """
 class Basics(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         with self:
             dcg.Text(C, wrap=0, value=f"{make_bold_italic("DearCyGui")} is a tool "
@@ -398,7 +398,7 @@ class Basics(dcg.Layout):
 
 class Basics(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -411,7 +411,7 @@ class Basics(dcg.Layout):
 
 class Callbacks(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -424,7 +424,7 @@ class Callbacks(dcg.Layout):
 
 class Drawing(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -437,7 +437,7 @@ class Drawing(dcg.Layout):
 
 class UI(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -450,7 +450,7 @@ class UI(dcg.Layout):
 
 class Plot(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -463,7 +463,7 @@ class Plot(dcg.Layout):
 
 class Themes(dcg.Layout):
     def __init__(self, C, **kwargs):
-        super().__init__(self, **kwargs)
+        super().__init__(C, **kwargs)
 
         base_dir = os.path.dirname(__file__)
         doc_dir = os.path.join(base_dir, 'docs')
@@ -476,7 +476,7 @@ class Themes(dcg.Layout):
 
 class DocumentationWindow(dcg.Window):
     def __init__(self, C, width=1000, height=600, label="Documentation", **kwargs):
-        super().__init__(self, width=width, height=height, label=label, **kwargs)
+        super().__init__(C, width=width, height=height, label=label, **kwargs)
 
         with self:
             radio_button = dcg.RadioButton(C)

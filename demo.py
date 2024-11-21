@@ -10,13 +10,13 @@ def display_text(C, text):
     parsed_text = marko.Markdown().parse(text)
     renderer.render(parsed_text)
 
-def expand_or_restore_height(_, item):
+def expand_or_restore_height(_, item : dcg.ChildWindow):
     item.height = (50 if item.height == -1 else -1)
 
 class ItemNotExpanded(dcg.CustomHandler):
     def check_can_bind(self, item):
         return isinstance(item, dcg.ChildWindow)
-    def check_status(self, item):
+    def check_status(self, item : dcg.ChildWindow):
         return item.height != -1
 
 def display_docstring_in_child_window(C, object):
@@ -48,7 +48,7 @@ def display_docstring_in_child_window(C, object):
     # Reduce spacing between lines
     cw.theme = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
 
-def create_demo_window(C):
+def create_demo_window(C : dcg.Context):
     huge_font = create_new_font(C, 51)
     big_font = create_new_font(C, 31)
     default_font = C.viewport.font
@@ -64,7 +64,7 @@ def create_demo_window(C):
                 dcg.Text(C, value="Click to open this section")
             display_docstring_in_child_window(C, dcg.Button)
 
-def center_window(sender, item):
+def center_window(sender, item : dcg.Window):
     real_pixel_size = item.rect_size
     available_width = item.parent.width
     available_height = item.parent.height
