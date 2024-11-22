@@ -1239,7 +1239,7 @@ def show_demo():
                     dpg.add_text("All those beautiful files will be deleted.\nThis operation cannot be undone!")
                     dpg.add_separator()
                     dpg.add_checkbox(label="Don't ask me next time")
-                    with dpg.group(horizontal=True, alignment_mode=dpg.dcg.alignment.JUSTIFIED): # Wanted to show DCG's justified
+                    with dpg.group(horizontal=True, alignment_mode=dpg.dcg.Alignment.JUSTIFIED): # Wanted to show DCG's justified
                         dpg.add_button(label="OK", width=75, callback=lambda: dpg.configure_item("__demo_popup3", show=False))
                         dpg.add_button(label="Cancel", width=75, callback=lambda: dpg.configure_item("__demo_popup3", show=False))
             """

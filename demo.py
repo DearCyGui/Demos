@@ -28,11 +28,11 @@ def display_docstring_in_child_window(C, object):
         display_docstring(C, object)
     # show we can expand
     with dcg.ConditionalHandler(C) as display_mouse_when_hovered:
-        dcg.MouseCursorHandler(C, cursor=dcg.mouse_cursor.Hand)
+        dcg.MouseCursorHandler(C, cursor=dcg.MouseCursor.Hand)
         dcg.HoverHandler(C)
 
     # Tooltip to display hint, but only if not expanded
-    with dcg.HandlerList(C, op=dcg.handlerListOP.ALL) as hl:
+    with dcg.HandlerList(C, op=dcg.HandlerListOP.ALL) as hl:
         ItemNotExpanded(C)
         dcg.HoverHandler(C)
 
@@ -79,19 +79,19 @@ def make_welcome_window(C):
     # being readable at small sizes
     small_font = create_new_font(C, 9, hinter="strong")
     with dcg.Window(C, popup=True, autosize=True) as welcome_window:
-        with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
+        with dcg.HorizontalLayout(C, alignment_mode = dcg.Alignment.CENTER):
             dcg.Text(C, value="Welcome", font=huge_font)
         dcg.Spacer(C)
-        with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
+        with dcg.HorizontalLayout(C, alignment_mode = dcg.Alignment.CENTER):
             dcg.Text(C, value=f"We are pleased to welcome you to {make_bold_italic('DearCyGui')}.")
         dcg.Spacer(C)
         dcg.Text(C, value=f"In this demo, we will demonstrate several features of"
                  f" {make_bold_italic('DearCyGui')} and how to start writing your program.")
         dcg.Spacer(C)
-        with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
+        with dcg.HorizontalLayout(C, alignment_mode = dcg.Alignment.CENTER):
             dcg.Text(C, value=f"Use the {make_bold('documentation.py')} script for documentation.")
         dcg.Spacer(C)
-        with dcg.HorizontalLayout(C, alignment_mode = dcg.alignment.CENTER):
+        with dcg.HorizontalLayout(C, alignment_mode = dcg.Alignment.CENTER):
             dcg.Text(C, value="Click anywhere outside this window to start", font=small_font)
         welcome_window.handlers = [
             # The window doesn't have its final size right away, thus why we

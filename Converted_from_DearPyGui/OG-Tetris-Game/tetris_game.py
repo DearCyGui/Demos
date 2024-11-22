@@ -204,7 +204,7 @@ with dcg.Window(C, autosize=True, no_collapse=True, no_resize=True,
                 no_scroll_with_mouse=True, no_title_bar=True, show=False) as enter_level_screen:
     dcg.Spacer(C, height=350)
 
-    with dcg.HorizontalLayout(C, alignment_mode=dcg.alignment.CENTER):
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
         dcg.Text(C, value="Enter your level (0-9) > ")
         dcg.InputValue(C, format="int", label="", step=0, min_value=0,
                            max_value=9, width=100, on_enter=True,
