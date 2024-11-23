@@ -1,8 +1,15 @@
 # Sets up all important config variables
 import dearcygui as dcg
+import dearcygui.dearpygui
 
 # Context
-C = dcg.Context()
+# We use DPGContext, which has support
+# for "tag" arguments
+class ContextWithTag(dearcygui.dearpygui.DPGContext):
+    # Use C[] syntax for tag instead of C.get
+    def __getitem__(self, tag):
+        return self.get(tag)
+C = ContextWithTag()
 
 textures = []
 
