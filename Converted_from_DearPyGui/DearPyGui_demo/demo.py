@@ -1158,8 +1158,8 @@ def show_demo():
                         dpg.add_text("Image (2x texture size)")
                         dpg.add_image("__demo_static_texture_3", width=200, height=200)
 
-                if dpg.DCG_CONTEXT.viewport.font is not None:
-                    dpg.add_image(dpg.DCG_CONTEXT.viewport.font.texture.texture)
+                if dpg.CONTEXT.viewport.font is not None:
+                    dpg.add_image(dpg.CONTEXT.viewport.font.texture.texture)
 
             with dpg.tree_node(label="Dynamic Textures"):
 
@@ -1305,9 +1305,9 @@ def show_demo():
                             dpg.add_plot_legend()
                             dpg.add_plot_axis(dpg.mvXAxis, label="x")
                             dpg.add_plot_axis(dpg.mvYAxis, label="y")
-                            with dpg.dcg.DrawInPlot(dpg.DCG_CONTEXT):
-                                dpg.dcg.DragPoint(dpg.DCG_CONTEXT, label="dpoint1", color=[255, 0, 255, 255], x=0.5, y = 0.5, clamp_inside=True)
-                                dpg.dcg.DragPoint(dpg.DCG_CONTEXT, label="dpoint2", x = 0.3, y=0.5)
+                            with dpg.dcg.DrawInPlot(dpg.CONTEXT):
+                                dpg.dcg.DragPoint(dpg.CONTEXT, label="dpoint1", color=[255, 0, 255, 255], x=0.5, y = 0.5, clamp_inside=True)
+                                dpg.dcg.DragPoint(dpg.CONTEXT, label="dpoint2", x = 0.3, y=0.5)
         """
         with dpg.collapsing_header(label="Tables"):
 
@@ -3441,19 +3441,19 @@ def launch_demo():
     dpg.create_viewport(title='Custom Title', width=600, height=600)
 
     # Manual dpi -if glfw detected wrong-
-    #dpg.DCG_CONTEXT.viewport.dpi = 1.5
+    #dpg.CONTEXT.viewport.dpi = 1.5
 
 
     # Loading your favorite font
-    #default_font_texture = dpg.dcg.FontTexture(dpg.DCG_CONTEXT)
+    #default_font_texture = dpg.dcg.FontTexture(dpg.CONTEXT)
     #path = os.path.join(os.path.dirname(__file__), 'lmromandemi10-regular.otf')
-    #default_font_texture.add_font_file(path, size=int(13*dpg.DCG_CONTEXT.viewport.dpi), density_scale=2., subpixel=True)
+    #default_font_texture.add_font_file(path, size=int(13*dpg.CONTEXT.viewport.dpi), density_scale=2., subpixel=True)
     #default_font_texture.build()
     #font = default_font_texture[0]
-    #dpg.DCG_CONTEXT.viewport.font = font
+    #dpg.CONTEXT.viewport.font = font
 
     #wait_for_input works well on DCG
-    #dpg.DCG_CONTEXT.viewport.wait_for_input=True
+    #dpg.CONTEXT.viewport.wait_for_input=True
 
     dpg.setup_dearpygui()
     show_demo()
@@ -3462,8 +3462,8 @@ def launch_demo():
     dpg.start_dearpygui()
 
     # --- Some fun windows to play with ----
-    #w = dpg.dcg.MetricsWindow(dpg.DCG_CONTEXT)
-    #w2 = dpg.dcg.ItemInspecter(dpg.DCG_CONTEXT)
+    #w = dpg.dcg.MetricsWindow(dpg.CONTEXT)
+    #w2 = dpg.dcg.ItemInspecter(dpg.CONTEXT)
 
 
 
