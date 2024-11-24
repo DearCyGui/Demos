@@ -33,7 +33,7 @@ def play_audio_effect(file_name):
 def create_blocksDispatcher():
     # Function creates a new thread that controls the continuous movement of the new blocks
     C.viewport.handlers += [
-        dcg.KeyPressHandler(C, callback=tetrominos_handler.key_press_handler)
+        dcg.utils.AnyKeyPressHandler(C, callback=tetrominos_handler.key_press_handler)
     ]
     C["play_button"].enabled = False
     C["play_button"].theme = play_button_theme
@@ -193,18 +193,18 @@ def check_complete_line():
 def key_press_handler(sender, target, key):
     current_block_lock.acquire(blocking=True)
     if config.current_block is not None:
-        if key == dcg.constants.mvKey_Up:
+        if key == dcg.Key.UPARROW:
             config.current_block.try_rotate()
-        elif key == dcg.constants.mvKey_Left:
+        elif key == dcg.Key.LEFTARROW:
             config.current_block.try_left()
-        elif key == dcg.constants.mvKey_Right:
+        elif key == dcg.Key.RIGHTARROW:
             config.current_block.try_right()
-        elif key == dcg.constants.mvKey_Down:
+        elif key == dcg.Key.DOWNARROW:
             if config.current_block.move_block_down():
                 config.score += 1
                 C["score_text"].value = str(config.score)
                 audio_effectsDispatcher("fall.wav")
-        elif key == dcg.constants.mvKey_Spacebar:
+        elif key == dcg.Key.SPACE:
             # Hard drop block
             cells_dropped = 0  # Count of number of cells the block dropped. Used to calculate the score
 

@@ -1306,8 +1306,8 @@ def show_demo():
                             dpg.add_plot_axis(dpg.mvXAxis, label="x")
                             dpg.add_plot_axis(dpg.mvYAxis, label="y")
                             with dpg.dcg.DrawInPlot(dpg.CONTEXT):
-                                dpg.dcg.DragPoint(dpg.CONTEXT, label="dpoint1", color=[255, 0, 255, 255], x=0.5, y = 0.5, clamp_inside=True)
-                                dpg.dcg.DragPoint(dpg.CONTEXT, label="dpoint2", x = 0.3, y=0.5)
+                                dpg.dcg.utils.DragPoint(dpg.CONTEXT, label="dpoint1", color=[255, 0, 255, 255], x=0.5, y = 0.5, clamp_inside=True)
+                                dpg.dcg.utils.DragPoint(dpg.CONTEXT, label="dpoint2", x = 0.3, y=0.5)
         """
         with dpg.collapsing_header(label="Tables"):
 
