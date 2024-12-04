@@ -15,12 +15,27 @@ from stransi.color import ColorRole as AnsiColorRole
 import marko
 import os
 import inspect
+import time
+import imageio
+
+
+def blinking_callback(sender, item):
+    t = int(time.time())
+    text_color = item.theme.children[0].Text
+    c = dcg.color_as_floats(text_color)
+    # Alternate between transparent and full
+    if t % 2 == 0:
+        c = (c[0], c[1], c[2], 0)
+    else:
+        c = (c[0], c[1], c[2], 1.)
+    item.theme.children[0].Text = c
+    item.context.viewport.wake()
 
 class TextAnsi(dcg.HorizontalLayout):
     """
     Similar to dcg.Text, but has a limited support
-    for ainsi escape sequences.
-    Similar to dcg.Text, newlines are not supported.
+    for ANSI escape sequences.
+    Unlike dcg.Text, newlines are not supported.
     """
     def __init__(self, context, wrap=0, **kwargs):
         self.textline = ""
@@ -31,25 +46,49 @@ class TextAnsi(dcg.HorizontalLayout):
     def render_text(self):
         self.children = [] # detach any previous text
         color = (255, 255, 255, 255) # Start with white
-        bold_on = False
-        italic_on = False
+        bold = False
+        italic = False
+        background_color = None
+        blinking = False
+        underline = False # TODO
+        strikethrough = False # TODO
         with self:
             if self._bullet:
                 dcg.Text(self.context, bullet=True, value="")
             for instr in Ansi(self.textline).instructions():
                 if isinstance(instr, SetAttribute):
                     if instr.attribute == AnsiAttribute.NORMAL:
-                        bold_on = False
-                        italic_on = False
+                        bold = False
+                        italic = False
+                        background_color = None
+                        blinking = False
+                        underline = False
+                        strikethrough = False
                     elif instr.attribute == AnsiAttribute.BOLD:
-                        bold_on = True
+                        bold = True
                     elif instr.attribute == AnsiAttribute.ITALIC:
-                        italic_on = True
+                        italic = True
+                    elif instr.attribute == AnsiAttribute.UNDERLINE:
+                        underline = True
+                    elif instr.attribute == AnsiAttribute.BLINK:
+                        blinking = True
+                    elif instr.attribute == AnsiAttribute.NEITHER_BOLD_NOR_DIM:
+                        bold = False
+                    elif instr.attribute == AnsiAttribute.NOT_ITALIC:
+                        italic = False
+                    elif instr.attribute == AnsiAttribute.NOT_UNDERLINE:
+                        underline = False
+                    elif instr.attribute == AnsiAttribute.NOT_BLINK:
+                        blinking = False
                     else:
-                        print("Unparsed Ainsi: ", instr)
+                        raise RuntimeWarning("Unparsed Ansi: ", instr)
                 elif isinstance(instr, SetColor):
                     if instr.role == AnsiColorRole.BACKGROUND:
-                        print(instr)
+                        if instr.color is None:
+                            background_color = None
+                        else:
+                            background_color = instr.color.rgb
+                            background_color = (background_color.red, background_color.green, background_color.blue)
                         continue
                     if instr.color is None:
                         # reset color
@@ -59,22 +98,45 @@ class TextAnsi(dcg.HorizontalLayout):
                     color = (color.red, color.green, color.blue)
                 elif isinstance(instr, str):
                     text = instr
-                    if bold_on and italic_on:
+                    if bold and italic:
                         text = make_bold_italic(text)
-                    elif italic_on:
+                    elif italic:
                         text = make_italic(text)
-                    elif bold_on:
+                    elif bold:
                         text = make_bold(text)
-                    if self.no_wrap:
-                        dcg.Text(self.context, value=text, color=color)
-                    else:
-                        words = text.split(" ")
-                        # add the spaces a the end of words
+                    words = text.split(" ")
+                    if background_color is None and not(blinking):
+                        # add a space at the end of each words,
+                        # except the last one.
                         words = [w + " " for w in words[:-1]] + words[-1:]
                         for word in words:
                             dcg.Text(self.context, value=word, color=color)
+                    else:
+                        current_theme = dcg.ThemeList(self.context)
+                        current_theme_style = dcg.ThemeStyleImGui(self.context,
+                                                  ItemSpacing=(0, 0),
+                                                  FrameBorderSize=0,
+                                                  FramePadding=(0, 0),
+                                                  FrameRounding=0,
+                                                  ItemInnerSpacing=(0, 0))
+                        current_theme_color = dcg.ThemeColorImGui(self.context)
+                        current_theme.children = [current_theme_color, current_theme_style]
+                        bg_color = background_color if background_color is not None else (0, 0, 0, 0)
+                        current_theme_color.Button = bg_color
+                        current_theme_color.ButtonHovered = bg_color
+                        current_theme_color.ButtonActive = bg_color
+                        current_theme_color.Text = color
+                        words = [w + " " for w in words[:-1]] + words[-1:]
+                        # Wrapping the text within a button window.
+                        for word in words:
+                            dcg.Button(self.context,
+                                       label=word,
+                                       small=True,
+                                       theme=current_theme,
+                                       handlers=dcg.RenderHandler(self.context, callback=blinking_callback) if blinking else [])
+
                 else:
-                    print("Unparsed Ainsi: ", instr)
+                    raise RuntimeWarning("Unparsed Ansi: ", instr)
 
     @property
     def bullet(self):
@@ -125,11 +187,40 @@ def make_color(text : str, color : str | list = "white"):
         transformed = f"{escape}[38;2;{r};{g};{b}m{text}{escape}[39m"
     return transformed
 
-class TextFormatter(marko.Renderer):
+def make_bg_color(text : str, color : str | list = "white"):
     """
-    A markdown renderer to use with marko
+    Add ANSI escape codes to add a colored background to text
+    using TextAnsi.
+    text: the text string to color
+    color: the color name or color code
+        Supported names are black, red, green, yellow, blue,
+        magenta, cyan and white
+        Else a color in any dcg color format is supported.
     """
-    def __init__(self, C : dcg.Context, wrap : int = 0):
+    escape = "\u001b"
+    if isinstance(color, str):
+        transformed = f"{escape}[{str(int(color_to_ansi[color])+10)}m{text}{escape}[49m"
+    else:
+        color = dcg.color_as_ints(color)
+        (r, g, b, _) = color
+        transformed = f"{escape}[48;2;{r};{g};{b}m{text}{escape}[49m"
+    return transformed
+
+def make_blinking(text : str):
+    """
+    Add ANSI escape codes to make a text blinking
+    using TextAnsi.
+    text: the text string to blink
+    """
+    escape = "\u001b"
+    transformed = f"{escape}[5m{text}{escape}[25m"
+    return transformed
+
+class MarkDownText(dcg.Layout, marko.Renderer):
+    """
+    Text displayed in DearCyGui using Marko to render
+    """
+    def __init__(self, C : dcg.Context, wrap : int = 0, **kwargs):
         """
         C: the context
         wrap: Text() wrap attribute. 0 means
@@ -142,7 +233,23 @@ class TextFormatter(marko.Renderer):
         self.default_font = C.viewport.font
         self.wrap = wrap
         self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
-        super().__init__()
+        self._text = None
+        marko.Renderer.__init__(self)
+        dcg.Layout.__init__(self, C, **kwargs)
+
+    @property
+    def value(self):
+        """Content text"""
+        return self._text
+
+    @value.setter
+    def value(self, text):
+        if not(isinstance(text, str)):
+            raise ValueError("Expected a string as text")
+        self._text = text
+        parsed_text = marko.Markdown().parse(text)
+        with self:
+            self.render(parsed_text)
 
     def render_children_if_not_str(self, element):
         if isinstance(element, str):
@@ -256,7 +363,19 @@ class TextFormatter(marko.Renderer):
         return " ".join(new_subtexts)
 
     def render_image(self, element) -> str:
-        print("TODO image: ", element) # TODO
+        with dcg.ChildWindow(self.context, auto_resize_x=True, auto_resize_y=True):
+            image_path = element.dest
+            if not(os.path.exists(image_path)):
+                alternate_text = self.render_children_if_not_str(element)
+                dcg.Text(self.context, alternate_text)
+            else:
+                image_content = imageio.v3.imread(image_path)
+                image_texture = dcg.Texture(self.context)
+                image_texture.set_value(image_content)
+                dcg.Image(self.context, texture=image_texture)
+            if element.title:
+                with dcg.HorizontalLayout(self.context, alignment_mode=dcg.Alignment.CENTER):
+                    dcg.Text(self.context, value=element.title)
         return ""
 
     def render_line_break(self, element):
@@ -320,10 +439,7 @@ def display_docstring(C, object):
         else:
             markdown_end = markdown.split("MARKDOWNSTOP")
             assert(len(markdown_end) <= 2)
-            parsed_text = marko.Markdown().parse(markdown_end[0])
-            with dcg.Layout(C):
-                renderer = TextFormatter(C)
-                renderer.render(parsed_text)
+            MarkDownText(C, markdown_end[0])
             in_markdown = False
             if len(markdown_end) == 2:
                 lines_of_text = markdown_end[1].split("\n")
@@ -356,13 +472,10 @@ class TextWithDocstring(dcg.Text):
 
         # prerender else it appears not smooth
         # to have the tooltip render first empty
-        parsed_text = marko.Markdown().parse(docstring)
-        with dcg.Layout(self.context, attach=False) as temporary_layout:
-            renderer = TextFormatter(self.context, wrap=1200)
-            renderer.render(parsed_text)
+        md_text = MarkDownText(self.context, attach=False, wrap=1200, value=docstring)
 
         with dcg.utils.TemporaryTooltip(self.context, target=self, parent=window) as tt:
-            for child in temporary_layout.children:
+            for child in md_text.children:
                 child.parent = tt
             
         # Indicate we have updated content
@@ -508,162 +621,6 @@ class AvailableItems(dcg.Layout):
             update_item_list(filter, filter, filter.value)
             filter.callbacks = [update_item_list]
 
-"""
-class Basics(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        with self:
-            dcg.Text(C, wrap=0, value=f"{make_bold_italic("DearCyGui")} is a tool "
-                     f"to write {make_bold("GUI")} applications in {make_bold_italic("Python")}. "
-                     f"It is mainly written in {make_bold_italic("Cython")}, thus the name. "
-                     f"{make_bold_italic("Cython")} knowledge is not required and 99% of your "
-                     f"needs should be met using {make_bold_italic("Python")} only."
-            )
-            dcg.Spacer(C)
-            dcg.Text(C, wrap=0, value=f"{make_bold_italic("Python")} is quite handy, "
-                     f"but is not performant enough to render at full frame-rate "
-                     f"complex UIs. The main idea of this library is to create items "
-                     f"and declare how they should behave, and let the library handle "
-                     f"rendering the items and check the conditions you registered for. "
-                     f"The library is written mostly using {make_bold_italic("Cython")} code, "
-                     f"which is converted into efficient {make_bold_italic("C ++")} code and "
-                     f"compiled."
-            )
-            dcg.Spacer(C)
-            dcg.Text(C, wrap=0, value=f"The first item you need to create is a "
-                    f"{make_italic("Context")}."
-            )
-            dcg.Text(C, wrap=0, indent=-1, value=make_bold("C = dcg.Context()"))
-            dcg.Text(C, wrap=0, value=f"The Context manages the state "
-                    f"of your UI items."
-            )
-            dcg.Spacer(C)
-            dcg.Text(C, wrap=0, value=f"With the Context is attached a single {make_italic("Viewport")}. "
-                     f"The Viewport basically corresponds to your application window as seen "
-                     f"by the operating system. It has a title, decoration, etc (this is configurable). "
-                     f"Every frame, rendering starts from the viewport and, in a tree traversal fashion, "
-                     f"all children of the viewport, their children, the children of their children, "
-                     f"etc will be rendered. An item outside of this {make_italic("rendering")} tree can "
-                     f"exist, but will not be rendered. In addition items attached in the rendering tree "
-                     f"can prevent being rendered using the {make_bold("show")} attribute."
-            )
-            dcg.Text(C, wrap=0, value=f"Items can be created as soon as the Context is created, "
-                     f"but for anything to be displayed, you need to initialize the viewport."
-            )
-            dcg.Text(C, wrap=0, indent=-1, value=make_bold("C.viewport.initialize()"))
-            dcg.Spacer(C)
-            dcg.Text(C, wrap=0, value=f"Once attached to the rendering tree, you do not need "
-                     f"to retain a reference to the item for it to remain alive. You can "
-                     f"retain a reference if you want to access later the object, or you "
-                     f"can assign the {make_bold("tag")} field in order to give a name "
-                     f"to your object and later reaccess it by indexing the Context with "
-                     f"the assigned tag."
-            )
-            dcg.Text(C, wrap=0, value=f"To attach an item to another, several options are available")
-            dcg.Text(C, wrap=0, bullet=True, value=f"You can set the {make_bold("parent")} attribute of your "
-                     f"item to a reference to the parent or its {make_bold("tag")}.")
-            dcg.Text(C, wrap=0, bullet=True, value=f"You can append the item to the {make_bold("children")} "
-                     f"attribute of the target parent.")
-            dcg.Text(C, wrap=0, bullet=True, value=f"Using the {make_bold("with")} syntax on the parent "
-                     f"will attach all items inside the {make_bold("with")} to that parent")
-            dcg.Text(C, indent=-1, value=f"with my_parent_item:")
-            dcg.Text(C, indent=-1, value=f"    item = create_my_new_item()")
-            dcg.Text(C, wrap=0, value=f"By default items try to attach to a parent unless "
-                     f"{make_bold("attach=False")} is set during item creation.")
-"""
-
-
-class Basics(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "basics.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class Callbacks(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "callbacks.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class Drawing(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "drawings.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class UI(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "UI.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class Plot(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "plots.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class Themes(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "themes.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
-
-class Advanced(dcg.Layout):
-    def __init__(self, C, **kwargs):
-        super().__init__(C, **kwargs)
-
-        base_dir = dcg.__path__[0]
-        doc_dir = os.path.join(base_dir, 'docs')
-        with open(os.path.join(doc_dir, "advanced.md"), 'r') as fp:
-            text = fp.read()
-        renderer = TextFormatter(C)
-        parsed_text = marko.Markdown().parse(text)
-        with self:
-            renderer.render(parsed_text)
 
 class DocumentationWindow(dcg.Window):
     def __init__(self, C, width=1000, height=600, label="Documentation", **kwargs):
@@ -673,14 +630,18 @@ class DocumentationWindow(dcg.Window):
             radio_button = dcg.RadioButton(C)
             selection = {
                 "Available items": AvailableItems(C, show=False),
-                "Basics": Basics(C, show=False),
-                "Callbacks": Callbacks(C, show=False),
-                "Drawings": Drawing(C, show=False),
-                "User-Interfaces": UI(C, show=False),
-                "Plots": Plot(C, show=False),
-                "Themes": Themes(C, show=False),
-                "Advanced": Advanced(C, show=False)
             }
+            base_dir = dcg.__path__[0]
+            doc_dir = os.path.join(base_dir, 'docs')
+            for doc in os.listdir(doc_dir):
+                if doc[-3:] == '.md':
+                    docpath = os.path.join(doc_dir, doc)
+                    docname = os.path.basename(doc)[:-3]
+                    docname = "".join([str.upper(docname[0]), docname[1:]])
+                    with open(docpath, 'r') as fp:
+                        text = fp.read()
+                    selection[docname] = MarkDownText(C, show=False, value=text)
+
             radio_button.items = selection.keys()
             def pick_selection(sender, target, value):
                 # Unselect previous items:
