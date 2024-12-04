@@ -4,9 +4,126 @@ import pydoc
 
 from utils import create_new_font
 
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.util import ClassNotFound
+from stransi import Ansi, SetAttribute, SetColor
+from stransi.attribute import Attribute as AnsiAttribute
+from stransi.color import ColorRole as AnsiColorRole
+
 import marko
 import os
 import inspect
+
+class TextAnsi(dcg.HorizontalLayout):
+    """
+    Similar to dcg.Text, but has a limited support
+    for ainsi escape sequences.
+    Similar to dcg.Text, newlines are not supported.
+    """
+    def __init__(self, context, wrap=0, **kwargs):
+        self.textline = ""
+        self._bullet = False
+        self.theme = dcg.ThemeStyleImGui(self.context, ItemSpacing=(0, 0))
+        super().__init__(context, width=wrap, **kwargs)
+
+    def render_text(self):
+        self.children = [] # detach any previous text
+        color = (255, 255, 255, 255) # Start with white
+        bold_on = False
+        italic_on = False
+        with self:
+            if self._bullet:
+                dcg.Text(self.context, bullet=True, value="")
+            for instr in Ansi(self.textline).instructions():
+                if isinstance(instr, SetAttribute):
+                    if instr.attribute == AnsiAttribute.NORMAL:
+                        bold_on = False
+                        italic_on = False
+                    elif instr.attribute == AnsiAttribute.BOLD:
+                        bold_on = True
+                    elif instr.attribute == AnsiAttribute.ITALIC:
+                        italic_on = True
+                    else:
+                        print("Unparsed Ainsi: ", instr)
+                elif isinstance(instr, SetColor):
+                    if instr.role == AnsiColorRole.BACKGROUND:
+                        print(instr)
+                        continue
+                    if instr.color is None:
+                        # reset color
+                        color = (255, 255, 255, 255)
+                        continue
+                    color = instr.color.rgb
+                    color = (color.red, color.green, color.blue)
+                elif isinstance(instr, str):
+                    text = instr
+                    if bold_on and italic_on:
+                        text = make_bold_italic(text)
+                    elif italic_on:
+                        text = make_italic(text)
+                    elif bold_on:
+                        text = make_bold(text)
+                    if self.no_wrap:
+                        dcg.Text(self.context, value=text, color=color)
+                    else:
+                        words = text.split(" ")
+                        # add the spaces a the end of words
+                        words = [w + " " for w in words[:-1]] + words[-1:]
+                        for word in words:
+                            dcg.Text(self.context, value=word, color=color)
+                else:
+                    print("Unparsed Ainsi: ", instr)
+
+    @property
+    def bullet(self):
+        return self._bullet
+
+    @bullet.setter
+    def bullet(self, value):
+        self._bullet = value
+        self.render_text()
+
+    @property
+    def value(self):
+        return self.textline
+
+    @value.setter
+    def value(self, value):
+        self.textline = value
+        self.render_text()
+
+
+color_to_ansi = {
+    "black": "90",
+    "red": "91",
+    "green": "92",
+    "yellow": "93",
+    "blue": "94",
+    "magenta": "95",
+    "cyan": "96",
+    "white": "97"
+}
+
+def make_color(text : str, color : str | list = "white"):
+    """
+    Add ANSI escape codes to a text to render in color
+    using TextAnsi.
+    text: the text string to color
+    color: the color name or color code
+        Supported names are black, red, green, yellow, blue,
+        magenta, cyan and white
+        Else a color in any dcg color format is supported.
+    """
+    escape = "\u001b"
+    if isinstance(color, str):
+        transformed = f"{escape}[{color_to_ansi[color]}m{text}{escape}[39m"
+    else:
+        color = dcg.color_as_ints(color)
+        (r, g, b, _) = color
+        transformed = f"{escape}[38;2;{r};{g};{b}m{text}{escape}[39m"
+    return transformed
 
 class TextFormatter(marko.Renderer):
     """
@@ -38,14 +155,14 @@ class TextFormatter(marko.Renderer):
     def render_document(self, element):
         text = self.render_children_if_not_str(element)
         if text != "":
-            dcg.Text(self.C, wrap=self.wrap, value=text)
+            TextAnsi(self.C, wrap=self.wrap, value=text)
         return ""
 
     def render_paragraph(self, element):
         with dcg.VerticalLayout(self.C):
             text = self.render_children_if_not_str(element)
             if text != "":
-                dcg.Text(self.C, wrap=self.wrap, value=text)
+                TextAnsi(self.C, wrap=self.wrap, value=text)
         dcg.Spacer(self.C)
         return ""
 
@@ -59,11 +176,11 @@ class TextFormatter(marko.Renderer):
             with dcg.VerticalLayout(self.C) as vl:
                 text = self.render_children_if_not_str(element)
                 if text != "":
-                    dcg.Text(self.C, bullet=True, value=text)
+                    TextAnsi(self.C, bullet=True, value="text")
                 else:
                     # text rendered inside render_children_if_not_str
                     # insert the bullet
-                    l.children = [dcg.Text(self.C, wrap=self.wrap, bullet=True, no_newline=True, value="", attach=False), vl]
+                    l.children = [TextAnsi(self.C, wrap=self.wrap, bullet=True, no_newline=True, value="", attach=False), vl]
         dcg.Spacer(self.C) # TODO: somehow the no_spacing theme affects the spacer !
         dcg.Spacer(self.C)
         dcg.Spacer(self.C)
@@ -73,18 +190,28 @@ class TextFormatter(marko.Renderer):
         with dcg.ChildWindow(self.C, width=0, height=0):
             text = self.render_children_if_not_str(element)
             if text != "":
-                dcg.Text(self.C, bullet=True, value=make_italic(text))
+                TextAnsi(self.C, bullet=True, value=make_italic(text))
         return ""
 
     def render_fenced_code(self, element):
-        with dcg.VerticalLayout(self.C, indent=-1, theme=self.no_spacing):
-            text = element.children[0].children # self.render_children_if_not_str(element)
+        code = element.children[0].children
+        if element.lang:
+            try:
+                lexer = get_lexer_by_name(element.lang, stripall=True, encoding='utf-8')
+            except ClassNotFound:
+                lexer = guess_lexer(code, encoding='utf-8')
+        else:
+            lexer = guess_lexer(code, encoding='utf-8')
+
+        formatter = Terminal256Formatter(bg='dark', style='monokai')
+        text = highlight(code, lexer, formatter)
+        with dcg.ChildWindow(self.C, indent=-1, auto_resize_y=True, theme=self.no_spacing):
             lines = text.split("\n")
             for line in lines:
                 if line == "":
                     dcg.Spacer(self.C)
-                else:
-                    dcg.Text(self.C, wrap=self.wrap, value=make_bold(line))
+                    continue
+                TextAnsi(self.C, value=line, no_wrap=True)
         return ""
 
     def render_thematic_break(self, element):
@@ -99,7 +226,7 @@ class TextFormatter(marko.Renderer):
         with dcg.Layout(self.C, font=font):
             text = self.render_children_if_not_str(element)
             if text != "":
-                dcg.Text(self.C, wrap=self.wrap, value=text)
+                TextAnsi(self.C, wrap=self.wrap, value=text)
         return ""
 
     def render_blank_line(self, element):
@@ -107,10 +234,10 @@ class TextFormatter(marko.Renderer):
         return ""
 
     def render_emphasis(self, element) -> str:
-        return make_italic(self.render_children_if_not_str(element))
+        return make_color(make_italic(self.render_children_if_not_str(element)), color="green")
 
     def render_strong_emphasis(self, element) -> str:
-        return make_bold_italic(self.render_children_if_not_str(element))
+        return make_color(make_bold_italic(self.render_children_if_not_str(element)), color="red")
 
     def render_plain_text(self, element):
         return self.render_children_if_not_str(element)
@@ -138,22 +265,73 @@ class TextFormatter(marko.Renderer):
         return "\n"
 
     def render_code_span(self, element) -> str:
-        return make_bold(self.render_children_if_not_str(element))
+        text = make_bold(self.render_children_if_not_str(element))
+        if True:#hasattr(dcg, text) or '_' in text:
+            text = make_color(text, color="cyan")
+        return text
+
+class DocStringRenderer(pydoc.TextDoc):
+    def __init__(self, context):
+        self.context = context
+        super().__init__()
+
+    def bold(self, text):
+        print(text)
+        return make_color(make_bold(text), color="cyan")
+    def indent(self, text, prefix='    '):
+        if '|' in prefix and text[0] == ' ':
+            return text
+        return super().indent(text, prefix=prefix)
+
+    def docdata(self, object, name=None, mod=None, cl=None, *ignored):
+        results = []
+        push = results.append
+
+        if name:
+            push(self.bold(name))
+            push('\n')
+        doc = pydoc.getdoc(object) or ''
+        if doc:
+            push("MARKDOWNSTART")
+            push(doc)
+            push("MARKDOWNSTOP")
+            push('\n')
+        return ''.join(results)
+
+    docproperty = docdata
+
 
 def display_docstring(C, object):
     """
     Retrieve the docstring of the target
     object and display the text in a box
     """
-    docstring = pydoc.render_doc(object, renderer=pydoc.plaintext)
+    docstring = pydoc.render_doc(object, renderer=DocStringRenderer(C))
     keyword = dir(dcg) + dir(object)
-    lines_of_text = docstring.split("\n")
-    for text in lines_of_text:
-        words = text.split(' ')
-        # make words with '_' bold.
-        words = [make_bold(w) if ('_' in w or w in keyword) else w for w in words]
-        text = ' '.join(words)
-        dcg.Text(C, wrap=0, value=text)
+    markdown_starts = docstring.split("MARKDOWNSTART")
+    in_markdown = False
+    for markdown in markdown_starts:
+        if not(in_markdown):
+            assert(not("MARKDOWNSTOP" in markdown))
+            lines_of_text = markdown.split("\n")
+            for text in lines_of_text:
+                TextAnsi(C, value=text)
+            in_markdown = True
+        else:
+            markdown_end = markdown.split("MARKDOWNSTOP")
+            assert(len(markdown_end) <= 2)
+            parsed_text = marko.Markdown().parse(markdown_end[0])
+            with dcg.Layout(C):
+                renderer = TextFormatter(C)
+                renderer.render(parsed_text)
+            in_markdown = False
+            if len(markdown_end) == 2:
+                lines_of_text = markdown_end[1].split("\n")
+                for text in lines_of_text:
+                    TextAnsi(C, value=text)
+            in_markdown = True
+
+
 
 
 class TextWithDocstring(dcg.Text):
@@ -183,7 +361,7 @@ class TextWithDocstring(dcg.Text):
             renderer = TextFormatter(self.context, wrap=1200)
             renderer.render(parsed_text)
 
-        with dcg.TemporaryTooltip(self.context, target=self, parent=window) as tt:
+        with dcg.utils.TemporaryTooltip(self.context, target=self, parent=window) as tt:
             for child in temporary_layout.children:
                 child.parent = tt
             
@@ -240,7 +418,7 @@ class InteractiveDocstring(dcg.ChildWindow):
         with self:
             if len(writable_properties) > 0:
                 dcg.Text(C, value="Read-Write properties:")
-                with dcg.HorizontalLayout(C, indent=-1):
+                with dcg.HorizontalLayout(C, indent=-1, alignment_mode=dcg.Alignment.JUSTIFIED):
                     for attr in writable_properties:
                         TextWithDocstring(C, getattr(object_class, attr))
             if len(read_only_properties) > 0:
@@ -400,7 +578,7 @@ class Basics(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "basics.md"), 'r') as fp:
             text = fp.read()
@@ -413,7 +591,7 @@ class Callbacks(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "callbacks.md"), 'r') as fp:
             text = fp.read()
@@ -426,7 +604,7 @@ class Drawing(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "drawings.md"), 'r') as fp:
             text = fp.read()
@@ -439,7 +617,7 @@ class UI(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "UI.md"), 'r') as fp:
             text = fp.read()
@@ -452,7 +630,7 @@ class Plot(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "plots.md"), 'r') as fp:
             text = fp.read()
@@ -465,9 +643,22 @@ class Themes(dcg.Layout):
     def __init__(self, C, **kwargs):
         super().__init__(C, **kwargs)
 
-        base_dir = os.path.dirname(__file__)
+        base_dir = dcg.__path__[0]
         doc_dir = os.path.join(base_dir, 'docs')
         with open(os.path.join(doc_dir, "themes.md"), 'r') as fp:
+            text = fp.read()
+        renderer = TextFormatter(C)
+        parsed_text = marko.Markdown().parse(text)
+        with self:
+            renderer.render(parsed_text)
+
+class Advanced(dcg.Layout):
+    def __init__(self, C, **kwargs):
+        super().__init__(C, **kwargs)
+
+        base_dir = dcg.__path__[0]
+        doc_dir = os.path.join(base_dir, 'docs')
+        with open(os.path.join(doc_dir, "advanced.md"), 'r') as fp:
             text = fp.read()
         renderer = TextFormatter(C)
         parsed_text = marko.Markdown().parse(text)
@@ -488,6 +679,7 @@ class DocumentationWindow(dcg.Window):
                 "User-Interfaces": UI(C, show=False),
                 "Plots": Plot(C, show=False),
                 "Themes": Themes(C, show=False),
+                "Advanced": Advanced(C, show=False)
             }
             radio_button.items = selection.keys()
             def pick_selection(sender, target, value):
