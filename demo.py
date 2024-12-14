@@ -1,16 +1,9 @@
 import dearcygui as dcg
-from dearcygui.fonts import make_bold, make_bold_italic, make_italic
-from documentation import display_docstring, TextFormatter
-import marko
+from dearcygui.font import make_bold, make_bold_italic, make_italic
+from documentation import display_docstring, MarkDownText
 import math
 import time
 
-from utils import create_new_font
-
-def display_text(C, text):
-    renderer = TextFormatter(C)
-    parsed_text = marko.Markdown().parse(text)
-    renderer.render(parsed_text)
 
 def expand_or_restore_height(_, item : dcg.ChildWindow):
     item.height = (50 if item.height == -1 else -1)
@@ -51,12 +44,12 @@ def display_docstring_in_child_window(C, object):
     cw.theme = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
 
 def create_demo_window(C : dcg.Context):
-    huge_font = create_new_font(C, 51)
-    big_font = create_new_font(C, 31)
+    huge_font = dcg.AutoFont(C, 51)
+    big_font = dcg.AutoFont(C, 31)
     default_font = C.viewport.font
     # A strong or monochrome hinter helps fonts
     # being readable at small sizes
-    small_font = create_new_font(C, 9, hinter="strong")
+    small_font = dcg.AutoFont(C, 9, hinter="strong")
 
     with dcg.Window(C, width=1000, height=600, label="Demo window") as window:
         with dcg.CollapsingHeader(C, label="Buttons") as first_header:
@@ -74,30 +67,12 @@ def create_demo_window(C : dcg.Context):
                 dcg.DrawEllipse(C, pmin=[250, 20], pmax=[300, 80], color = (0, 255, 0), fill=(0, 200, 0))
                 dcg.DrawLine(C, p1=[50, 100], p2 = [300, 100], color = [0, 0, 255])
                 dcg.DrawPolygon(C, points=[[50, 120], [30, 150], [50, 180], [80, 180], [80, 120]], fill=(80, 0, 125))
-                """
-                dcg.DrawRegularPolygon(C, center=[50, 80], radius=-30, num_points=1, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawRegularPolygon(C, center=[150, 80], radius=-30, num_points=2, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawRegularPolygon(C, center=[250, 80], radius=-30, num_points=3, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawRegularPolygon(C, center=[350, 80], radius=-30, num_points=4, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawRegularPolygon(C, center=[450, 80], radius=-30, num_points=5, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawRegularPolygon(C, center=[550, 80], radius=-30, num_points=6, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[100, 120], radius=-30, num_points=3, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[200, 120], radius=-30, num_points=4, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[300, 120], radius=-30, num_points=5, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[400, 120], radius=-30, num_points=6, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[500, 120], radius=-30, num_points=7, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[50, 80], radius=-30, num_points=3, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[150, 80], radius=-30, num_points=4, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[250, 80], radius=-30, num_points=5, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[350, 80], radius=-30, num_points=6, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[450, 80], radius=-30, num_points=7, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[550, 80], radius=-30, num_points=8, direction = 0.1, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[100, 120], radius=-30, num_points=3, direction = 0.1, inner_radius=30, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[200, 120], radius=-30, num_points=4, direction = 0.1, inner_radius=30, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[300, 120], radius=-30, num_points=5, direction = 0.1, inner_radius=30, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[400, 120], radius=-30, num_points=6, direction = 0.1, inner_radius=30, fill=(40, 40, 40))
-                dcg.DrawStar(C, center=[500, 120], radius=-30, num_points=7, direction = 0.1, inner_radius=30, fill=(40, 40, 40))
-                """
+                dcg.DrawCircle(C, center=[100, 200], radius=40, color=(255, 0, 0), fill=(255, 200, 200))
+                dcg.DrawRect(C, pmin=[150, 150], pmax=[200, 200], color=(0, 255, 0), fill=(200, 255, 200))
+                dcg.DrawText(C, pos=[250, 250], text="Hello, DearCyGui!", color=(0, 0, 255))
+                dcg.DrawTriangle(C, p1=[300, 300], p2=[350, 350], p3=[300, 350], color=(255, 255, 0), fill=(255, 255, 200))
+                dcg.DrawPolyline(C, points=[[400, 400], [450, 450], [400, 450]], color=(0, 255, 255))
+                dcg.DrawQuad(C, p1=[500, 500], p2=[550, 500], p3=[550, 550], p4=[500, 550], color=(255, 0, 255), fill=(255, 200, 255))
             with dcg.DrawInWindow(C, width=600, height=200) as diw:
                 # Update loop
                 def update_items(_, target):
@@ -125,6 +100,44 @@ def create_demo_window(C : dcg.Context):
                 dcg.DrawStar(C, center=[400, 120], radius=30, num_points=6, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
                 dcg.DrawStar(C, center=[500, 120], radius=30, num_points=7, direction = 0.1, inner_radius=10, fill=(40, 40, 40))
 
+        # Add new section for ChildWindow demos
+        with dcg.CollapsingHeader(C, label="Child Windows"):
+            dcg.Text(C, value="Different types of child windows:")
+            
+            # Basic child window with border
+            with dcg.ChildWindow(C, width=200, height=100, label="Basic Child"):
+                dcg.Text(C, value="A basic child window with border")
+            
+            # Horizontal layout of child windows
+            with dcg.HorizontalLayout(C):
+                # Scrollable content
+                with dcg.ChildWindow(C, width=200, height=100, label="Scrollable"):
+                    for i in range(20):
+                        dcg.Text(C, value=f"Scrollable content line {i}")
+                
+                # No scrollbar child
+                with dcg.ChildWindow(C, width=200, height=100, label="No Scrollbar", no_scrollbar=True):
+                    for i in range(20):
+                        dcg.Text(C, value=f"No scroll content line {i}")
+            
+            # Child window with horizontal scrollbar
+            with dcg.ChildWindow(C, width=200, height=100, label="H-Scroll", horizontal_scrollbar=True):
+                dcg.Text(C, value="This is a very long text that will cause horizontal scrolling to appear in this child window")
+            
+            # Frameless child window
+            with dcg.ChildWindow(C, width=200, height=100, no_frame=True):
+                dcg.Text(C, value="A frameless child window\nwithout borders")
+            
+            # Resizable child window
+            with dcg.ChildWindow(C, width=200, height=100, label="Resizable", 
+                               resizable_x=True, resizable_y=True):
+                dcg.Text(C, value="Drag bottom-right corner to resize")
+
+            # Auto-resizing child window
+            with dcg.ChildWindow(C, width=0, height=0, label="Auto-size", 
+                               auto_resize_x=True, auto_resize_y=True):
+                dcg.Text(C, value="This child window auto-resizes\nto fit its content")
+
 def center_window(sender, item : dcg.Window):
     real_pixel_size = item.rect_size
     available_width = item.parent.width
@@ -135,10 +148,10 @@ def center_window(sender, item : dcg.Window):
     item.context.viewport.wake()
 
 def make_welcome_window(C):
-    huge_font = create_new_font(C, 51)
+    huge_font = dcg.AutoFont(C, 51)
     # A strong or monochrome hinter helps fonts
     # being readable at small sizes
-    small_font = create_new_font(C, 9, hinter="strong")
+    small_font = dcg.AutoFont(C, 9, hinter="strong")
     with dcg.Window(C, popup=True, autosize=True) as welcome_window:
         with dcg.HorizontalLayout(C, alignment_mode = dcg.Alignment.CENTER):
             dcg.Text(C, value="Welcome", font=huge_font)

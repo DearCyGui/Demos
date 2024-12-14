@@ -1,8 +1,6 @@
 import dearcygui as dcg
-from dearcygui.fonts import make_bold, make_bold_italic, make_italic
+from dearcygui.font import make_bold, make_bold_italic, make_italic
 import pydoc
-
-from utils import create_new_font
 
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -219,6 +217,9 @@ def make_blinking(text : str):
 class MarkDownText(dcg.Layout, marko.Renderer):
     """
     Text displayed in DearCyGui using Marko to render
+
+    Will use the viewport font or the font passed in the 
+    initialization arguments.
     """
     def __init__(self, C : dcg.Context, wrap : int = 0, **kwargs):
         """
@@ -228,8 +229,20 @@ class MarkDownText(dcg.Layout, marko.Renderer):
             a specified size.
         """
         self.C = C
-        self.huge_font = create_new_font(C, 31)
-        self.big_font = create_new_font(C, 25)
+
+        self.font = kwargs.pop("font", self.context.viewport.font)
+        if isinstance(self.font, dcg.AutoFont):
+            # We will cheat by using the AutoFont feature
+            # to build various scales for us.
+            # This enables to avoid duplicating fonts if we
+            # have several MarkDownText instances.
+            self.huge_font_scale = 2.
+            self.big_font_scale = 1.5
+            self.use_auto_scale = True
+        else:
+            self.huge_font = dcg.AutoFont(C, 34)
+            self.big_font = dcg.AutoFont(C, 25)
+            self.use_auto_scale = False
         self.default_font = C.viewport.font
         self.wrap = wrap
         self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
@@ -308,10 +321,10 @@ class MarkDownText(dcg.Layout, marko.Renderer):
             except ClassNotFound:
                 lexer = guess_lexer(code, encoding='utf-8')
         else:
-            lexer = guess_lexer(code, encoding='utf-8')
+            lexer = None
 
         formatter = Terminal256Formatter(bg='dark', style='monokai')
-        text = highlight(code, lexer, formatter)
+        text = text if lexer is None else highlight(code, lexer, formatter)
         with dcg.ChildWindow(self.C, indent=-1, auto_resize_y=True, theme=self.no_spacing):
             lines = text.split("\n")
             for line in lines:
@@ -329,11 +342,20 @@ class MarkDownText(dcg.Layout, marko.Renderer):
 
     def render_heading(self, element):
         level = element.level
-        font = self.huge_font if level <= 1 else self.big_font
-        with dcg.Layout(self.C, font=font):
-            text = self.render_children_if_not_str(element)
-            if text != "":
-                TextAnsi(self.C, wrap=self.wrap, value=text)
+        if self.use_auto_scale:
+            # Cheat by applying a global scale only on the AutoFont attached
+            scaling = self.huge_font_scale if level <= 1 else self.big_font_scale
+            with dcg.Layout(self.C, font=self.default_font, scaling_factor=scaling):
+                with dcg.Layout(self.C, scaling_factor=1./scaling):
+                    text = self.render_children_if_not_str(element)
+                    if text != "":
+                        TextAnsi(self.C, wrap=self.wrap, value=text)
+        else:
+            font = self.huge_font if level <= 1 else self.big_font
+            with dcg.Layout(self.C, font=font):
+                text = self.render_children_if_not_str(element)
+                if text != "":
+                    TextAnsi(self.C, wrap=self.wrap, value=text)
         return ""
 
     def render_blank_line(self, element):
@@ -574,7 +596,8 @@ class AvailableItems(dcg.Layout):
                     return False
             filter_names = {
                 "All": [dcg.baseItem, dcg.SharedValue],
-                "Ui items": [dcg.uiItem, dcg.Texture, dcg.Font],
+                "Ui items": [dcg.uiItem, dcg.Texture],
+                "Fonts": [dcg.baseFont],
                 "Handlers": [dcg.baseHandler],
                 "Drawings": [dcg.drawingItem, dcg.Texture],
                 "Plots": [dcg.plotElement, dcg.Plot, dcg.PlotAxisConfig, dcg.PlotLegendConfig],
