@@ -33,7 +33,7 @@ def display_docstring_in_child_window(C, object):
 
     with cw:
         with dcg.Tooltip(C, condition_from_handler=hl, target=cw) as to:
-            dcg.Text(C, value=f"Click to see {dcg.fonts.make_bold_italic(object.__name__)} docstring")
+            dcg.Text(C, value=f"Click to see {dcg.font.make_bold_italic(object.__name__)} docstring")
 
     cw.handlers = [
         display_mouse_when_hovered,
