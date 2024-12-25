@@ -103,6 +103,9 @@ def demo_moderngl_sharing():
         ], axis=2)
     
     input_texture = ctx.texture(image.shape[:2], 4, data=image.tobytes())
+    input_texture.filter = (moderngl.LINEAR, moderngl.LINEAR)
+    input_texture.repeat_x = False
+    input_texture.repeat_y = False
     input_texture.use(0)
     
     # Create framebuffer using the DCG texture ID
