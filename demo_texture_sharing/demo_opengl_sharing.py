@@ -20,6 +20,7 @@ import imageio
 import os
 import numpy as np
 import ctypes
+import argparse
 
 vertex_shader = """
 #version 330 core
@@ -61,7 +62,7 @@ void main() {
 
 
 
-def demo_opengl_sharing():
+def demo_opengl_sharing(use_dcg_context=True):
     # This demo demonstrates how to create
     # a shared context with OpenGL and import
     # a dcg Texture into the Opengl context
@@ -81,13 +82,23 @@ def demo_opengl_sharing():
     texture.set_value(image) # initialize the texture
     C.viewport.render_frame()
     backend = "NONE"
+    # First method to get a shared gl context: ask DCG
+    if use_dcg_context:
+        try:
+            shared_context = C.create_new_shared_gl_context(3, 3)
+            if shared_context is None:
+                raise ValueError("Failed to create shared context")
+            backend = "DCG"
+        except:
+            pass
+    # Second method: More manual, but more freedom.
     # Make current the context
     with C.rendering_context as rc:
         if rc.name != "GL":
             raise ValueError("This demo requires an OpenGL rendering context")
 
         # Try retrieving the EGL context and display
-        if egl is not None:
+        if backend == "NONE" and egl is not None:
             egl_display = egl.eglGetCurrentDisplay()
             egl_context = egl.eglGetCurrentContext()
             if egl_display != egl.EGL_NO_DISPLAY and egl_context != egl.EGL_NO_CONTEXT:
@@ -118,6 +129,9 @@ def demo_opengl_sharing():
 
     if backend == "NONE":
         raise ValueError("Couldn't determine the context type")
+
+    if backend == "DCG":
+        shared_context.make_current()
 
     if backend == "EGL":
         # Create config for shared context
@@ -313,11 +327,25 @@ def demo_opengl_sharing():
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
     gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, texture.width, texture.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, image.data)
 
+    # Release context
+    if backend == "DCG":
+        shared_context.release()
+    elif backend == "EGL":
+        egl.eglMakeCurrent(egl_display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT)
+    elif backend == "GLX":
+        glx.glXMakeContextCurrent(glx_display, 0, 0, None)
+    elif backend == "WGL":
+        wgl.wglMakeCurrent(None, None)
+    elif backend == "CGL":
+        cgl.CGLSetCurrentContext(None)
+
 
     def refresh_image():
         """Render blur effect to texture"""
         # Make shared context current
-        if backend == "EGL":
+        if backend == "DCG":
+            shared_context.make_current()
+        elif backend == "EGL":
             egl.eglMakeCurrent(egl_display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, shared_context)
         elif backend == "GLX":
             glx.glXMakeContextCurrent(glx_display, pbuffer, pbuffer, shared_context)
@@ -349,7 +377,9 @@ def demo_opengl_sharing():
         C.viewport.wake()
         
         # Release context
-        if backend == "EGL":
+        if backend == "DCG":
+            shared_context.release()
+        elif backend == "EGL":
             egl.eglMakeCurrent(egl_display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT)
         elif backend == "GLX":
             glx.glXMakeContextCurrent(glx_display, 0, 0, None)
@@ -370,4 +400,9 @@ def demo_opengl_sharing():
         C.viewport.render_frame()
 
 if __name__ == "__main__":
-    demo_opengl_sharing()
+    parser = argparse.ArgumentParser(description='OpenGL sharing demo')
+    parser.add_argument('--no-dcg-context', action='store_false', 
+                      dest='use_dcg_context',
+                      help='Do not use the shared context provided by DearCyGui')
+    args = parser.parse_args()
+    demo_opengl_sharing(use_dcg_context=args.use_dcg_context)
