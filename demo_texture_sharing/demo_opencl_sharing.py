@@ -131,13 +131,20 @@ def demo_opencl_sharing():
         program = cl.Program(ctx, blur_kernel).build(options=build_flags)
             
         # Run the kernel
-        cl.enqueue_acquire_gl_objects(queue, [tex_cl])
         program.blur(queue, image.shape, None,
                      src, 
                      np.int32(image.shape[1]),
                      np.int32(image.shape[0]),
                      dst)
-        cl.enqueue_copy(queue, tex_cl, dst, offset=0, origin=(0,0), region=(image.shape[0], image.shape[1]))
+        # It is possible to render to the texture directly,
+        # using different syntax for the kernel. However
+        # it is often simpler to reason in terms of buffers
+        # with no tiling when writing OpenCL kernels, and
+        # texture tiling can be quite complex. Thus in most
+        # cases it should be simpler to just do a copy.
+        cl.enqueue_acquire_gl_objects(queue, [tex_cl])
+        cl.enqueue_copy(queue, tex_cl, dst, offset=0, origin=(0,0),
+                        region=(image.shape[0], image.shape[1]))
         cl.enqueue_release_gl_objects(queue, [tex_cl])
         queue.flush()
         C.viewport.wake()
