@@ -1,5 +1,6 @@
 import colorsys
 import dearcygui as dcg
+from math import cos
 
 # This file is a direct DearCyGui equivalent to the original DearPyGui demo.py
 
@@ -105,6 +106,7 @@ def show_demo(C : dcg.Context):
                              "unsaved_document"
                              )
 
+
         with dcg.CollapsingHeader(C, label="Widgets"):
             with dcg.TreeNode(C, label="Basic"):
                 with dcg.HorizontalLayout(C):
@@ -199,6 +201,20 @@ def show_demo(C : dcg.Context):
                 dcg.ListBox(C, items=("Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", 
                                      "Strawberry", "Watermelon"), label="listbox", num_items=4, callback=_log)
                 dcg.ColorButton(C, color=(255, 0, 0, 255), label="color button", callback=_log)
+
+            with dcg.TreeNode(C, label="Combo"):
+                items = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+                combo_demo = dcg.Combo(C, items=items, label="combo", height_mode="small")
+
+                def change_combo_height(sender, target, mode):
+                    combo_demo.configure(height_mode=mode)
+
+                dcg.RadioButton(C, items=("small", "regular", "large", "largest"),
+                              callback=change_combo_height, horizontal=True)
+
+                ConfigureOptions(C, combo_demo, 1, 
+                               "popup_align_left", "no_arrow_button", 
+                               "no_preview", "fit_width")
 
             with dcg.TreeNode(C, label="Color Picker & Edit"):
 
@@ -330,19 +346,15 @@ def show_demo(C : dcg.Context):
                              "no_label", "no_drag_drop", "alpha_bar",
                              before=_before_id)
 
-            with dcg.TreeNode(C, label="Combo"):
-                items = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-                combo_demo = dcg.Combo(C, items=items, label="combo", height_mode="small")
-
-                def change_combo_height(sender, target, mode):
-                    combo_demo.configure(height_mode=mode)
-
-                dcg.RadioButton(C, items=("small", "regular", "large", "largest"),
-                              callback=change_combo_height, horizontal=True)
-
-                ConfigureOptions(C, combo_demo, 1, 
-                               "popup_align_left", "no_arrow_button", 
-                               "no_preview", "fit_width")
+            with dcg.TreeNode(C, label="List Boxes"):
+                items = ("A","B","C","D","E","F","G","H","I","J","K","L","M" "O","P","Q","R","S","T","U","V","W","X","Y","Z")
+                listbox_1 = dcg.ListBox(C, items=items, label="listbox 1 (full)")
+                listbox_2 = dcg.ListBox(C, items=items, label="listbox 2", width=200)
+                dcg.InputValue(C, format="int", label="num_items",
+                               callback=_config, user_data=[listbox_1, listbox_2], before = listbox_1)
+                dcg.Slider(C, format="int", label="width",
+                           value=200, callback=_config, user_data=listbox_2,
+                           before = listbox_1, max_value=500)
 
             with dcg.TreeNode(C, label="Selectables"):
                 with dcg.TreeNode(C, label="Basic"):
@@ -362,6 +374,282 @@ def show_demo(C : dcg.Context):
                         )
                     for sel in items:
                         sel.user_data = items
+
+            with dcg.TreeNode(C, label="Bullets"):
+
+                dcg.Text(C, value="Bullet point 1", bullet=True)
+                dcg.Text(C, value="Bullet point 2\nbullet text can be\nOn multiple lines", bullet=True)
+                with dcg.TreeNode(C, label="Tree node"):
+                    dcg.Text(C, value="Another bullet point", bullet=True)
+                
+                with dcg.HorizontalLayout(C):
+                    dcg.Text(C, value="1", bullet=True)
+                    dcg.Button(C, label="Button", small=True)
+
+            with dcg.TreeNode(C, label="Text"):
+
+                with dcg.TreeNode(C, label="Colored Text"):
+                    dcg.Text(C, value="Pink", color=(255, 0, 255))
+                    dcg.Text(C, value="Yellow", color=(255, 255, 0))
+
+                with dcg.TreeNode(C, label="Word Wrapping"):
+                    paragraph1 = 'This text should automatically wrap on the edge of the window.The current implementation for the text wrapping follows simple rules suited for English and possibly other languages'
+                    paragraph2 = 'The lazy dong is a good dog. This paragraph should fit within the child. Testing a 1 character word. The quick brown fox jumps over the lazy dog.'
+
+                    dcg.Text(C, value=paragraph1, wrap=0)
+                    widget_id = dcg.Slider(C, format="int", label="wrap width",
+                                           value=500, max_value=1000, 
+                                           callback=lambda s, t, d: t.user_data.configure(wrap=d))
+                    widget_id.user_data = dcg.Text(C, value=paragraph2, wrap=500)
+
+            with dcg.TreeNode(C, label="Text Input"):
+                
+                with dcg.TreeNode(C, label="Multi-line Text Input"):
+                    paragraph = """/*\n
+                        The Pentium F00F bug, shorthand for F0 0F C7 C8,\n
+                        the hexadecimal encoding of one offending instruction,\n
+                        more formally, the invalid operand with locked CMPXCHG8B\n
+                        instruction bug, is a design flaw in the majority of\n
+                        Intel Pentium, Pentium MMX, and Pentium OverDrive\n
+                        processors (all in the P5 microarchitecture).\n
+                        */\n\n
+                        label:\n
+                        \tlock cmpxchg8b eax\n"""
+
+                    text_input = dcg.InputText(C, label="input text", multiline=True, value=paragraph, 
+                                             height=300, callback=_log, tab_input=True)
+                    ConfigureOptions(C, text_input, 1, "readonly", "on_enter")
+
+                with dcg.TreeNode(C, label="Filtered Text Input"):
+                    dcg.InputText(C, callback=_log, label="default")
+                    dcg.InputText(C, callback=_log, label="decimal", decimal=True)
+                    dcg.InputText(C, callback=_log, label="no blank", no_spaces=True)
+                    dcg.InputText(C, callback=_log, label="uppercase", uppercase=True)
+                    dcg.InputText(C, callback=_log, label="scientific", scientific=True)
+                    dcg.InputText(C, callback=_log, label="hexdecimal", hexadecimal=True)
+
+                with dcg.TreeNode(C, label="Password Input"):
+                    password = dcg.InputText(C, label="password", password=True, callback=_log)
+                    dcg.InputText(C, label="password (w/ hint)", password=True, hint="<password>", 
+                                source=password, callback=_log)
+                    dcg.InputText(C, label="password (clear)", source=password, callback=_log)
+
+            with dcg.TreeNode(C, label="Simple Plots"):
+                data = (0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2)
+                dcg.SimplePlot(C, label="Frame Times", value=data)
+                dcg.SimplePlot(C, label="Histogram", value=data, height=80, 
+                             histogram=True, min_scale=0.0)
+
+                data1 = []
+                for i in range(70):
+                    data1.append(cos(3.14*6*i/180))
+
+                dcg.SimplePlot(C, label="Lines", value=data1, height=80)
+                dcg.SimplePlot(C, label="Histogram", value=data1, height=80, histogram=True)
+                
+                with dcg.HorizontalLayout(C):
+                    dcg.ProgressBar(C, label="Progress Bar", value=0.78, overlay="78%")
+                    dcg.Text(C, value="Progress Bar")
+
+                theme = dcg.ThemeColorImPlot(C, PlotHistogram=(255,0,0,255))
+                dcg.ProgressBar(C, value=0.78, overlay="1367/1753", theme=theme)
+
+            with dcg.TreeNode(C, label="Multi-component Widgets"):
+
+                for i in range(2, 5):
+                    with dcg.VerticalLayout(C):
+                        float_source = dcg.InputValue(C, label=f"input float {i}",
+                                                      min_value=0.0, max_value=100.0,
+                                                      format="float", array_size=i)
+                        dcg.Slider(C, label=f"drag float {i}", source=float_source,
+                                   format="float", array_size=i, drag=True)
+                        dcg.Slider(C, label=f"slider float {i}", source=float_source,
+                                   format="float", array_size=i)
+
+                    with dcg.VerticalLayout(C):
+                        double_source = dcg.InputValue(C, label=f"input double {i}",
+                                                       min_value=0.0, max_value=100.0,
+                                                       format="double", array_size=i)
+                        dcg.Slider(C, label=f"drag double {i}", source=double_source,
+                                   format="double", array_size=i, drag=True)
+                        dcg.Slider(C, label=f"slider double {i}", source=double_source,
+                                   format="double", array_size=i)
+
+                    with dcg.VerticalLayout(C):
+                        int_source = dcg.InputValue(C, label=f"input int {i}",
+                                                    min_value=0, max_value=100,
+                                                    format="int", array_size=i)
+                        dcg.Slider(C, label=f"drag int {i}", source=int_source,
+                                   format="int", array_size=i, drag=True)
+                        dcg.Slider(C, label=f"slider int {i}", source=int_source,
+                                   format="int", array_size=i)
+
+                    dcg.Spacer(C, height=10)
+
+            with dcg.TreeNode(C, label="Vertical Sliders"):
+                with dcg.HorizontalLayout(C):
+                    dcg.Slider(C, label=" ", value=1, vertical=True,
+                               max_value=5, height=160, format="int")
+                    dcg.Slider(C, label=" ", value=1.0, vertical=True,
+                               max_value=5.0, height=160, format="float")
+
+                    with dcg.HorizontalLayout(C):
+                        values = [0.0, 0.60, 0.35, 0.9, 0.70, 0.20, 0.0]
+
+                        for i in range(7):
+                            t = dcg.ThemeColorImGui(C,
+                                    FrameBg=hsv(i/7.0, 0.5, 0.5),
+                                    SliderGrab=hsv(i/7.0, 0.9, 0.9),
+                                    FrameBgActive=hsv(i/7.0, 0.7, 0.5),
+                                    FrameBgHovered=hsv(i/7.0, 0.6, 0.5))
+
+                            dcg.Slider(C, label=" ", value=values[i],
+                                       vertical=True, max_value=1.0, height=160,
+                                       format="float", theme=t)
+
+                        with dcg.VerticalLayout(C):
+                            for i in range(3):
+                                with dcg.HorizontalLayout(C):
+                                    values = [0.20, 0.80, 0.40, 0.25]
+                                    for j in range(4):
+                                        dcg.Slider(C, label=" ", value=values[j],
+                                                   vertical=True, max_value=1.0, height=50,
+                                                   format="float")
+
+                        with dcg.HorizontalLayout(C):
+                            dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
+                                       height=160, width=40, format="float")
+                            dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
+                                       height=160, width=40, format="float") 
+                            dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
+                                       height=160, width=40, format="float")
+                            dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
+                                       height=160, width=40, format="float")
+
+            with dcg.TreeNode(C, label="Tree nodes"):
+
+                dcg.TreeNode(C, label="Span text width", span_text_width=True)
+                dcg.TreeNode(C, label="Span full width", span_full_width=True)
+
+        with dcg.CollapsingHeader(C, label="Layout & Scrolling"):
+            with dcg.TreeNode(C, label="Widgets Width"):
+                
+                dcg.Text(C, value="Width=100")
+                dcg.Slider(C, label="float", width=100, format="float", drag=True)
+
+                dcg.Text(C, value="Width=-100")
+                dcg.Slider(C, label="float", width=-100, format="float", drag=True)
+
+                dcg.Text(C, value="Width=-1")
+                dcg.Slider(C, label="float", width=-1, format="float", drag=True)
+
+                dcg.Text(C, value="group with width=75")
+                with dcg.VerticalLayout(C, width=75):
+                    dcg.Slider(C, label="float", format="float", drag=True) 
+                    dcg.Slider(C, label="float", format="float", drag=True)
+                    dcg.Slider(C, label="float", format="float", drag=True)
+
+            with dcg.TreeNode(C, label="Basic Horizontal Layout"):
+
+                with dcg.HorizontalLayout(C):
+                    dcg.Text(C, value="Normal buttons")
+                    dcg.Button(C, label="Banana")
+                    dcg.Button(C, label="Apple") 
+                    dcg.Button(C, label="Corniflower")
+
+                with dcg.HorizontalLayout(C):
+                    dcg.Text(C, value="Small buttons")
+                    dcg.Button(C, label="Like this one", small=True)
+                    dcg.Text(C, value="can fit within a text block")
+
+                with dcg.HorizontalLayout(C, positions=(0, 150, 300)):
+                    dcg.Text(C, value="Aligned")
+                    dcg.Text(C, value="x=150")
+                    dcg.Text(C, value="x=300")
+
+                with dcg.HorizontalLayout(C, positions=(0, 150, 300)):
+                    dcg.Text(C, value="Aligned")
+                    dcg.Button(C, label="x=150", small=True)
+                    dcg.Button(C, label="x=300", small=True)
+
+                with dcg.HorizontalLayout(C):
+                    dcg.Checkbox(C, label="My")
+                    dcg.Checkbox(C, label="Tailor")
+                    dcg.Checkbox(C, label="is")
+                    dcg.Checkbox(C, label="rich")
+
+                dcg.Text(C, value="Lists:")
+                with dcg.HorizontalLayout(C):
+                    dcg.ListBox(C, items=("AAAA", "BBBB", "CCCC", "DDDD"), value="AAAA", width=100, label="")
+                    dcg.ListBox(C, items=("AAAA", "BBBB", "CCCC", "DDDD"), value="BBBB", width=100, label="")
+                    dcg.ListBox(C, items=("AAAA", "BBBB", "CCCC", "DDDD"), value="CCCC", width=100, label="")
+                    dcg.ListBox(C, items=("AAAA", "BBBB", "CCCC", "DDDD"), value="DDDD", width=100, label="")
+                
+                dcg.Text(C, value="Spacing(100):")
+                with dcg.HorizontalLayout(C):
+                    dcg.Button(C, label="A", width=50, height=50)
+                    dcg.Spacer(C, width=100)
+                    dcg.Button(C, label="B", width=50, height=50)
+
+                dcg.Text(C, value="Right alignment:")
+                with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT):
+                    dcg.Text(C, value="My")
+                    dcg.Button(C, label="Tailor", small=True)
+                    dcg.Text(C, value="is")
+                    dcg.Button(C, label="rich", small=True)
+
+                dcg.Text(C, value="Right alignment with fixed width:")
+                with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT, width=400):
+                    dcg.Text(C, value="My")
+                    dcg.Button(C, label="Tailor", small=True)
+                    dcg.Text(C, value="is")
+                    dcg.Button(C, label="rich", small=True)
+
+                dcg.Text(C, value="Center alignment:")
+                with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+                    dcg.Text(C, value="My")
+                    dcg.Button(C, label="Tailor", small=True)
+                    dcg.Text(C, value="is")
+                    dcg.Button(C, label="rich", small=True)
+
+                dcg.Text(C, value="Justified alignment:")
+                with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
+                    dcg.Text(C, value="My")
+                    dcg.Button(C, label="Tailor", small=True)
+                    dcg.Text(C, value="is")
+                    dcg.Button(C, label="rich", small=True)
+
+                dcg.Text(C, value="Wrapping:")
+                with dcg.HorizontalLayout(C) as hl_wrapping:
+                    for i in range(10):
+                        dcg.Text(C, value="My")
+                        dcg.Button(C, label="Tailor", small=True)
+                        dcg.Text(C, value="is")
+                        dcg.Button(C, label="rich", small=True)
+                
+                dcg.Checkbox(C, label="Wrapping", value=True, callback=lambda sender, target, data: hl_wrapping.configure(no_wrap=not(data)))
+
+            with dcg.TreeNode(C, label="Ordered pack style"):
+                dcg.Button(C, label="Button 1")
+                dcg.Button(C, label="Button 2")
+                dcg.Button(C, label="Button 3")
+
+            with dcg.TreeNode(C, label="Absolute Position Placement"):
+                dcg.Button(C, label="Set Button 2 Pos", 
+                          callback=lambda: B2.configure(pos_to_window=(50, 125)))
+                dcg.Button(C, label="Reset Button 2 Pos",
+                          callback=lambda: B2.configure(pos_to_window=None))
+                dcg.Button(C, label="Button 1", pos_to_window=(50,50), width=75, height=75)
+                B2 = dcg.Button(C, label="Button 2", width=75, height=75)
+                dcg.Button(C, label="Button 3")
+
+            with dcg.TreeNode(C, label="Child Windows"):
+                with dcg.ChildWindow(C, width=200, height=100, border=True):
+                    for i in range(10):
+                        dcg.Text(C, value=f"Scrolling Text {i}")
+                with dcg.ChildWindow(C, width=200, height=100, border=True, horizontal_scrollbar=True):
+                    for i in range(10):
+                        dcg.Text(C, value=f"Scrolling Text {i}")
 
 if __name__ == "__main__":
     C = dcg.Context()
