@@ -1,6 +1,8 @@
 import colorsys
 import dearcygui as dcg
-from math import cos
+from math import cos, sin
+import numpy as np
+import time
 
 # This file is a direct DearCyGui equivalent to the original DearPyGui demo.py
 
@@ -435,6 +437,9 @@ def show_demo(C : dcg.Context):
                     dcg.InputText(C, label="password (clear)", source=password, callback=_log)
 
             with dcg.TreeNode(C, label="Simple Plots"):
+                # Simple plots are simplified plotting widgets
+                # that are core to imgui, while dcg.Plot is from
+                # the advanced implot.
                 data = (0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2)
                 dcg.SimplePlot(C, label="Frame Times", value=data)
                 dcg.SimplePlot(C, label="Histogram", value=data, height=80, 
@@ -525,6 +530,51 @@ def show_demo(C : dcg.Context):
                                        height=160, width=40, format="float")
                             dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
                                        height=160, width=40, format="float")
+            with dcg.TreeNode(C, label="Time/Date widgets"):
+                def _log_time(sender, target, value):
+                    print(f"Time/Date changed: {value}")
+                
+                with dcg.TreeNode(C, label="Time Picker"):
+                    with dcg.HorizontalLayout(C):
+                        time_picker = dcg.utils.TimePicker(C, label="time", callback=_log_time)
+                        with dcg.VerticalLayout(C):
+                            ConfigureOptions(C, time_picker, 1, 
+                                          "use_24hr", "show_seconds")
+
+                with dcg.TreeNode(C, label="Date Picker"):
+                    from datetime import datetime
+                    # Main date picker with options
+                    with dcg.HorizontalLayout(C):
+                        date_picker = dcg.utils.DatePicker(C, label="date", 
+                                                             callback=_log_time,
+                                                             layout="vertical")
+                        '''
+                        with dcg.VerticalLayout(C):
+                            # Demonstration of various DatePicker options
+                            dcg.Text(C, value="DatePicker Options:")
+                            ConfigureOptions(C, date_picker, 1, 
+                                          "no_header", "no_calendar",
+                                          "no_year_nav", "no_scrollbar")
+                        '''
+
+                    # Create date range controls
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Date Range Controls:")
+                        
+                        def update_date_range(sender, target, value):
+                            try:
+                                new_date = datetime.strptime(value, "%Y-%m-%d")
+                                if sender.label == "min_date":
+                                    date_picker.min_date = new_date
+                                else:
+                                    date_picker.max_date = new_date
+                            except ValueError:
+                                print("Invalid date format. Use YYYY-MM-DD")
+
+                        dcg.InputText(C, label="min_date", value="1970-01-01",
+                                    callback=update_date_range)
+                        dcg.InputText(C, label="max_date", value="2999-12-31",
+                                    callback=update_date_range)
 
             with dcg.TreeNode(C, label="Tree nodes"):
 
@@ -650,6 +700,1230 @@ def show_demo(C : dcg.Context):
                 with dcg.ChildWindow(C, width=200, height=100, border=True, horizontal_scrollbar=True):
                     for i in range(10):
                         dcg.Text(C, value=f"Scrolling Text {i}")
+
+            with dcg.TreeNode(C, label="Containers"):
+                with dcg.TreeNode(C, label="Tree Nodes"):
+                    with dcg.TreeNode(C, label="Tree Node (selectable)", selectable=True):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2") 
+                        dcg.Button(C, label="Button 3")
+                    with dcg.TreeNode(C, label="Tree Node (bullet)", bullet=True):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+
+                with dcg.TreeNode(C, label="Groups"):
+                    dcg.Text(C, value="Groups are used to control child items placement, width, and provide a hit box for things like is the set of items are hovered, etc...")
+                    with dcg.HorizontalLayout(C):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3") 
+                    with dcg.VerticalLayout(C, width=150):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+                    with dcg.VerticalLayout(C):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+
+                with dcg.TreeNode(C, label="Child windows"):
+                    dcg.Text(C, value="Child windows are basically embedded windows and provide much more structure and control of the containing items than groups.")
+                    
+                    demo_layout_child = dcg.ChildWindow(C, width=200, height=200, border=True)
+                    with dcg.HorizontalLayout(C):
+                        dcg.Checkbox(C, label="auto_resize_x", callback=_config, user_data=demo_layout_child)
+                        dcg.Checkbox(C, label="auto_resize_y", callback=_config, user_data=demo_layout_child)
+                        dcg.Checkbox(C, label="menubar", callback=_config, user_data=demo_layout_child)
+                        dcg.Checkbox(C, label="no_scrollbar", callback=_config, user_data=demo_layout_child)
+                        dcg.Checkbox(C, label="horizontal_scrollbar", callback=_config, user_data=demo_layout_child)
+                        dcg.Checkbox(C, label="border", value=True, callback=_config, user_data=demo_layout_child)
+
+                    with demo_layout_child:
+                        with dcg.MenuBar(C):
+                            with dcg.Menu(C, label="Menu"):
+                                pass
+                        for i in range(20):
+                            dcg.Text(C, value="A pretty long sentence if you really think about it. It's also pointless. we need this to be even longer")
+
+                    with dcg.ChildWindow(C, auto_resize_x=True, height=130, menubar=True):
+                        with dcg.MenuBar(C):
+                            dcg.Menu(C, label="Menu Options")
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+
+                    with dcg.HorizontalLayout(C):
+                        with dcg.ChildWindow(C, width=100, height=150, horizontal_scrollbar=True):
+                            dcg.Button(C, label="Button 1")
+                            dcg.Button(C, label="Button 2")
+                            dcg.Button(C, label="Button 3")
+                            dcg.Button(C, label="Button 4", width=150)
+                            dcg.Button(C, label="Button 5")
+                            dcg.Button(C, label="Button 6")
+                        with dcg.ChildWindow(C, width=100, height=110):
+                            dcg.Button(C, label="Button 1")
+                            dcg.Button(C, label="Button 2")
+                            dcg.Button(C, label="Button 3")
+
+                with dcg.TreeNode(C, label="Collapsing Headers"):
+                    with dcg.CollapsingHeader(C, label="Collapsing Header"):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+                    with dcg.CollapsingHeader(C, label="Collapsing Header (close)", closable=True):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+                    with dcg.CollapsingHeader(C, label="Collapsing Header (bullet)", bullet=True):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+                    with dcg.CollapsingHeader(C, label="Collapsing Header (leaf)", leaf=True):
+                        dcg.Button(C, label="Button 1")
+                        dcg.Button(C, label="Button 2")
+                        dcg.Button(C, label="Button 3")
+
+                with dcg.TreeNode(C, label="Tabs"):
+                    with dcg.TreeNode(C, label="Basic"):
+                        with dcg.TabBar(C):
+                            with dcg.Tab(C, label="Avocado"):
+                                dcg.Text(C, value="This is the avocado tab!")
+                            with dcg.Tab(C, label="Broccoli"):
+                                dcg.Text(C, value="This is the broccoli tab!")
+                            with dcg.Tab(C, label="Cucumber"):
+                                dcg.Text(C, value="This is the cucumber tab!")
+
+                    with dcg.TreeNode(C, label="Advanced"):
+                        tb = dcg.TabBar(C)
+                        with tb:
+                            with dcg.Tab(C, label="tab 1"):
+                                dcg.Text(C, value="This is the tab 1!")
+                            t2 = dcg.Tab(C, label="tab 2") 
+                            with t2:
+                                dcg.Text(C, value="This is the tab 2!")
+                            with dcg.Tab(C, label="tab 3"):
+                                dcg.Text(C, value="This is the tab 3!")
+                            with dcg.Tab(C, label="tab 4"):
+                                dcg.Text(C, value="This is the tab 4!")
+
+                            tbb = dcg.TabButton(C, label="+")
+                            dcg.TabButton(C, label="?")
+
+                            # Controls before the tab bar
+                            dcg.Checkbox(C, label="tab bar reorderable", callback=_config, user_data=tb, before=tb)
+                            dcg.Checkbox(C, label="tab 2 no_reorder", callback=_config, user_data=t2, before=tb)
+                            dcg.Checkbox(C, label="tab 2 leading", callback=_config, user_data=t2, before=tb) 
+                            dcg.Checkbox(C, label="tab 2 trailing", callback=_config, user_data=t2, before=tb)
+                            dcg.Checkbox(C, label="tab button trailing", callback=_config, user_data=tbb, before=tb)
+                            dcg.Checkbox(C, label="tab button leading", callback=_config, user_data=tbb, before=tb)
+
+            with dcg.TreeNode(C, label="Simple Layouts"):
+                dcg.Text(C, value="Containers can be nested for advanced layout options")
+                with dcg.ChildWindow(C, width=500, height=320, menubar=True):
+                    with dcg.MenuBar(C):
+                        dcg.Menu(C, label="Menu Options")
+                    with dcg.ChildWindow(C, auto_resize_x=True, height=95):
+                        with dcg.HorizontalLayout(C):
+                            dcg.Button(C, label="Header 1", width=75, height=75)
+                            dcg.Button(C, label="Header 2", width=75, height=75)
+                            dcg.Button(C, label="Header 3", width=75, height=75)
+                    with dcg.ChildWindow(C, auto_resize_x=True, height=175):
+                        with dcg.HorizontalLayout(C, width=0):
+                            with dcg.ChildWindow(C, width=102, height=150):
+                                with dcg.TreeNode(C, label="Nav 1"):
+                                    dcg.Button(C, label="Button 1")
+                                with dcg.TreeNode(C, label="Nav 2"):
+                                    dcg.Button(C, label="Button 2")
+                                with dcg.TreeNode(C, label="Nav 3"):
+                                    dcg.Button(C, label="Button 3")
+                            with dcg.ChildWindow(C, width=300, height=150):
+                                dcg.Button(C, label="Button 1")
+                                dcg.Button(C, label="Button 2")
+                                dcg.Button(C, label="Button 3")
+                            with dcg.ChildWindow(C, width=50, height=150):
+                                dcg.Button(C, label="B1", width=25, height=25)
+                                dcg.Button(C, label="B2", width=25, height=25)
+                                dcg.Button(C, label="B3", width=25, height=25)
+                    with dcg.HorizontalLayout(C):
+                        dcg.Button(C, label="Footer 1", width=175)
+                        dcg.Text(C, value="Footer 2")
+                        dcg.Button(C, label="Footer 3", width=175)
+
+        with dcg.CollapsingHeader(C, label="Textures & Images"):
+            with dcg.TreeNode(C, label="Help"):
+                dcg.Separator(C)
+                dcg.Text(C, value="ABOUT TEXTURES:")
+                dcg.Text(C, value="Textures are buffers of RGBA data.", bullet=True, indent=20)
+                dcg.Text(C, value="Textures are used by 'image based' widgets:", bullet=True, indent=20) 
+                dcg.Text(C, value="Image", bullet=True, indent=50)
+                dcg.Text(C, value="ImageButton", bullet=True, indent=50)
+                dcg.Text(C, value="DrawImage", bullet=True, indent=50)
+                dcg.Text(C, value="Textures can be assigned a dynamic hint", bullet=True, indent=20)
+                dcg.Text(C, value="The dynamic hint helps GPU placement to optimize \n"
+                                  "for fast upload (but possibly slower GPU access)", bullet=True, indent=20)
+                dcg.Text(C, value="When their value are set, the content is uploaded right away to the GPU", bullet=True, indent=20)
+                dcg.Text(C, value="Resizing is allowed but requires a sync, prefer allocating a new texture", bullet=True, indent=20)
+                dcg.Text(C, value="Available format are R, RG, RGB, RGBA", bullet=True, indent=20)
+                dcg.Text(C, value="They can be stored as uint8 or float32 (in that case data must be between 0 and 1)", bullet=True, indent=20)
+
+                dcg.Separator(C)
+                dcg.Text(C, value="PROGRAMMER GUIDE:")
+                dcg.Text(C, value="'image based' widgets hold a reference to a texture widget.", bullet=True, indent=20)
+                dcg.Text(C, value="Deleting the texture widget will not affect widget's using it.", bullet=True, indent=50)
+                dcg.Text(C, value="Textures are only free'd from the GPU when the reference count reaches 0.", bullet=True, indent=50)
+                dcg.Separator(C)
+
+            with dcg.TreeNode(C, label="Textures"):
+
+                # Creating RGB textures
+                # Arrays are preferred as they can be easily copied
+                # without conversion to the textures. Slices of arrays
+                # can be used as well.
+                texture_data1 = np.empty([100, 100, 3], dtype=np.uint8)
+                texture_data2 = np.empty([50, 50, 3], dtype=np.uint8)
+                texture_data3 = np.empty([100, 100, 3], dtype=np.uint8)
+                texture_data1[:, :] = [255, 0, 255]
+                texture_data2[:, :] = [255, 255, 0]
+                texture_data3[:50, :50] = [255, 0, 0]
+                texture_data3[:50, 50:] = [0, 255, 0]
+                texture_data3[50:, :50] = [0, 0, 255]
+                texture_data3[50:, 50:] = [255, 255, 0]
+
+                __demo_static_texture_1 = dcg.Texture(C, texture_data1)
+                __demo_static_texture_2 = dcg.Texture(C, texture_data2)
+                __demo_static_texture_3 = dcg.Texture(C, texture_data3)
+                # Note: we could pass dynamic=True, but it is optional
+                __demo_dynamic_texture = dcg.Texture(C, texture_data1)
+                # Textures are uploaded right away, thus modifying texture_data
+                # will not affect the texture
+
+                with dcg.HorizontalLayout(C):
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Image Button")
+                        dcg.ImageButton(C, texture=__demo_static_texture_1)
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Image")
+                        dcg.Image(C, texture=__demo_static_texture_2)
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Image (texture size)")
+                        dcg.Image(C, texture=__demo_static_texture_3)
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Image (2x texture size)")
+                        dcg.Image(C, texture=__demo_static_texture_3, width=200, height=200)
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Dynamic Image")
+                        # Note: RenderHandler will call the callback only when
+                        # the texture is being rendered, that is when the
+                        # Texture treenode is opened.
+                        def update_dynamic_texture():
+                            factor = (sin(time.time()) + 1) / 2.
+                            texture_data = factor * np.float32(texture_data1) + (1 - factor) * np.float32(texture_data3)
+                            texture_data = np.uint8(texture_data)
+                            __demo_dynamic_texture.set_value(texture_data)
+                            C.viewport.wake() # Prevent not refreshing
+                        dcg.Image(C,
+                                  texture=__demo_dynamic_texture,
+                                  handlers = dcg.RenderHandler(C,
+                                                callback=update_dynamic_texture))
+
+                if C.viewport.font is not None:
+                    # Note: C.viewport.font is filled during initialize()
+                    # if you didn't set one.
+                    dcg.Text(C, value="Current font Texture")
+                    dcg.Image(C, texture=C.viewport.font.texture)
+
+                dcg.Text(C, value="Textures in a plot:")
+                with dcg.Plot(C, width=500, height=300, equal_aspects=True) as plot_1:
+                    plot_1.Y1.invert = True
+                    # DearPyGui's image series are replaced by the more flexible
+                    # DrawInPlot which enables to reuse DrawImage.
+                    with dcg.DrawInPlot(C, no_legend=False, label="Images"): # no_legend is True by default for DrawInPlot
+                        # DrawImage enables to set the corner positions using various ways
+                        dcg.DrawImage(C, texture=__demo_static_texture_1, pmin=(0, 100), pmax=(100, 200))
+                        # p1, p2, p3, p4: coordinates of the corners
+                        # uv1, uv2, uv3, uv4: coordinates of the corresponding texture corners
+                        # You will notice that the texture is not stretched uniformly
+                        # but by pieces, this is due to the fact internally the rendering
+                        # is performed using triangles.
+                        dcg.DrawImage(C, texture=__demo_static_texture_3,
+                                      p1=(200, 100), p2=(150, 150), p3=(200, 200), p4=(300, 150),
+                                      uv1=(0.5, 0), uv2=(0, 0.5), uv3=(0.5, 1.), uv4=(1., 0.5))
+                        # Note: rounding requires parallel to the axes
+                        dcg.DrawImage(C, texture=__demo_dynamic_texture, pmin=(350, 100), pmax=(450, 200), rounding=10)
+
+        with dcg.CollapsingHeader(C, label="Popups & Modal Windows"):
+            with dcg.TreeNode(C, label="Popups"):
+
+                popup_values = ["Bream", "Haddock", "Mackerel", "Pollock", "Tilefish"]
+
+                dcg.Text(C, value="This is a light wrapper over a window.", bullet=True)
+                dcg.Text(C, value="By default a popup will shrink fit the items it contains. This is useful for context windows, and simple modal window popups.", bullet=True)
+                dcg.Text(C, value="When a popup is active, it inhibits interacting with windows that are behind the popup. Clicking outside the popup closes it.", bullet=True)
+            
+                with dcg.HorizontalLayout(C):
+                    def popup_open_callback(sender):
+                        with dcg.Window(C, popup=True):
+                            dcg.Text(C, value="Aquariam") 
+                            dcg.Separator(C)
+                            for i in popup_values:
+                                dcg.Selectable(C,
+                                               label=i,
+                                               callback=lambda s: sender.user_data.configure(value=s.label))
+                    b = dcg.Button(C, label="Click me", callback=popup_open_callback)
+                    t = dcg.Text(C, value="<None>")
+                    b.user_data = t
+
+                dcg.Text(C, value="A Popup with minimum size and no_move", bullet=True)
+                with dcg.HorizontalLayout(C):
+                    def popup_open_callback2(sender):
+                        with dcg.Window(C, popup=True, no_move=True, min_size=(300,400)):
+                            dcg.Text(C, value="Aquariam") 
+                            dcg.Separator(C)
+                            for i in popup_values:
+                                dcg.Selectable(C,
+                                               label=i,
+                                               callback=lambda s: sender.user_data.configure(value=s.label))
+                    b = dcg.Button(C, label="Click me", callback=popup_open_callback2)
+                    t = dcg.Text(C, value="<None>")
+                    b.user_data = t
+
+            with dcg.TreeNode(C, label="Modals"):
+                dcg.Text(C, value="Modal windows are like popups but the user cannot close them by clicking outside.")
+                def modal_open_callback():
+                    with dcg.Window(C, modal=True) as modal_popup:
+                        dcg.Text(C, value="All those beautiful files will be deleted.\nThis operation cannot be undone!")
+                        dcg.Separator(C)
+                        dcg.Checkbox(C, label="Don't ask me next time")
+                        with dcg.HorizontalLayout(C):
+                            dcg.Button(C, label="OK", width=75, 
+                                callback=lambda: modal_popup.configure(show=False))
+                            dcg.Button(C, label="Cancel", width=75,
+                                callback=lambda: modal_popup.configure(show=False))
+                b = dcg.Button(C, label="Click me", callback=modal_open_callback)
+
+            with dcg.TreeNode(C, label="File/Directory Selector"):
+                dcg.Text(C, value="Demonstration of OS file dialogs")
+                dcg.Text(C, value="Note: Paths are returned in a list passed to the callback", bullet=True)
+
+                def _log_paths(paths):
+                    print(f"Selected paths: {paths}")
+
+                dcg.Button(C, label="Show File Open Dialog", 
+                             callback=lambda: dcg.show_open_file_dialog(_log_paths))
+                dcg.Button(C, label="Show File Open Dialog (multiple files selectable)", 
+                             callback=lambda: dcg.show_open_file_dialog(_log_paths, allow_multiple_files=True))
+                dcg.Button(C, label="Show File Save Dialog",
+                             callback=lambda: dcg.show_save_file_dialog(_log_paths))
+                dcg.Button(C, label="Show Folder Dialog",
+                             callback=lambda: dcg.show_open_folder_dialog(_log_paths))
+                dcg.Button(C, label="Show Folder Dialog (multiple directories selectable)",
+                             callback=lambda: dcg.show_open_folder_dialog(_log_paths, allow_multiple_files=True))
+
+        with dcg.CollapsingHeader(C, label="Tooltips"):
+            dcg.Text(C, value="Tooltips are floating windows that appear on hovering. Tooltips can be \n"
+                        "attached to any item that is hovered. By default, a tooltip is attached to \n"
+                        "the previously created item, but the target field enables to target \n"
+                        "any item.")
+
+            dcg.Separator(C)
+
+            # Basic tooltips
+            dcg.Text(C, value="Basic tooltip")
+            with dcg.Tooltip(C):
+                dcg.Text(C, value="I'm displayed when hovering the 'Basic tooltip' text")
+
+            dcg.Separator(C)
+
+            # You can add delay before showing
+            dcg.Text(C, value="Tooltip with delay")
+            with dcg.Tooltip(C, delay=0.5):
+                dcg.Text(C, value="Takes 0.5s before showing")
+
+            dcg.Separator(C)
+
+            # Auto hide tooltip when moving the mouse
+            dcg.Text(C, value="Hide on motion")
+            with dcg.Tooltip(C, hide_on_activity=True):
+                dcg.Text(C, value="I disappear as soon as you move the mouse")
+
+            dcg.Separator(C)
+
+            # Using condition from handler
+            text_with_custom_showing = dcg.Text(C, value="Custom condition")
+            class EvenSecondsHandler(dcg.CustomHandler):
+                """ A handler that is true every even second """
+                def check_can_bind(self, item):
+                    return True
+                def check_status(self, item):
+                    # Prevent the viewport from sleeping
+                    # when we are checking the condition
+                    # for the purpose of this demo
+                    self.context.viewport.wake()
+                    return int(time.time()) % 2 < 1
+            complex_handler = dcg.HandlerList(C, op=dcg.HandlerListOP.ALL)
+            # HandlerListOp.ALL: the condition holds if both 
+            # HoverHandler and EvenSecondsHandler are true
+            with complex_handler:
+                dcg.HoverHandler(C)
+                EvenSecondsHandler(C)
+            # Note: when using condition_from_handler, the target field
+            # must be set.
+            with dcg.Tooltip(C,
+                             condition_from_handler=complex_handler,
+                             target=text_with_custom_showing):
+                dcg.Text(C, value="I appear and disappear every second")
+
+            dcg.Separator(C)
+
+            # Target any item
+            dcg.Text(C, value="Target specific item")
+            # Note in general it is prefered to set the Tooltip after
+            # its target in the rendering tree, because the handler condition
+            # uses current item states which are only updated when the item
+            # is rendered.
+            with dcg.Tooltip(C):
+                dcg.Text(C, value="This tooltip is for the text below")
+            text_target2 = dcg.Text(C, value="I'm the target")
+            text_target2.previous_sibling.target = text_target2
+
+            dcg.Separator(C)
+
+            # Dynamic tooltips
+            dcg.Text(C, value="\nDynamic tooltips:")
+            text_dynamic = dcg.Text(C, value="Hover me for a dynamic tooltip")
+            def create_tooltip(sender, target):
+                # Temporary tooltip handles detaching and deleting the tooltip
+                # when it is not shown anymore.
+                with dcg.utils.TemporaryTooltip(C, target=target, parent=target.parent):
+                    dcg.Text(C, value=f"Tooltip creation time: {datetime.now()}")
+            text_dynamic.handlers += [dcg.GotHoverHandler(C, callback=create_tooltip)]
+
+        with dcg.CollapsingHeader(C, label="Plots"):
+
+            sindatax = []
+            sindatay = []
+            cosdatay = []
+            for i in range(100):
+                sindatax.append(i/100)
+                sindatay.append(0.5 + 0.5*sin(50*i/100)) 
+                cosdatay.append(0.5 + 0.75*cos(50*i/100))
+
+            with dcg.TabBar(C):
+
+                with dcg.Tab(C, label="Series"):
+
+                    with dcg.TreeNode(C, label="Line Series"):                
+                        # create plot
+                        with dcg.Plot(C, label="Line Series", height=400, width=-1):
+                            # By default plots are created with a legend.
+                            # Three x axes and three y axes are available,
+                            # and X1, Y1 are enabled by default and are the
+                            # default axes for plot items.
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+
+                    with dcg.TreeNode(C, label="Filled Line Series"):
+                        fill_checkbox = dcg.Checkbox(C, label="fill", value=False)
+                        segment_checkbox = dcg.Checkbox(C, label="segment", value=False)
+                        with dcg.Plot(C, label="Filled Line Plot", height=400, width=-1):
+                            filled_line_series = dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                        
+                        fill_checkbox.callbacks = lambda s, t, d: filled_line_series.configure(shaded=d)
+                        segment_checkbox.callbacks = lambda s, t, d: filled_line_series.configure(segments=d)
+                                
+                    with dcg.TreeNode(C, label="Text"):                
+                        # create plot
+                        with dcg.Plot(C, label="Text", height=400, width=-1, equal_aspects=True):
+                            with dcg.DrawInPlot(C, no_legend=False, label="Text"):
+                                dcg.DrawText(C, text="This is just some text at the default size",
+                                             pos=(0.5, 0.5),
+                                             color=(255, 255, 0, 255))
+                                dcg.DrawText(C, text="This text is at a custom fixed size",
+                                             size=-20,
+                                             pos=(0.5, 30.5),
+                                             color=(255, 255, 0, 255))
+                                dcg.DrawText(C, text="This text resizes with the plot",
+                                             size=10,
+                                             pos=(0.5, 60.5),
+                                             color=(255, 255, 0, 255))
+                            # The interest of text annotation over DrawText is that
+                            # it can be clamped to the plot area, and can be put
+                            # next to a target point.
+                            dcg.PlotAnnotation(C, text="This is a text annotation",
+                                               x=0.5, y=-20., clamp=True,
+                                               bg_color=(255, 255, 0, 255))
+                            dcg.PlotAnnotation(C, text="This is another text annotation",
+                                               x=0.5, y=-40., clamp=True,
+                                               theme=dcg.ThemeColorImPlot(C, InlayText=(255, 255, 0, 255)))
+                                
+                    with dcg.TreeNode(C, label="Shade Series"):
+                        std_alpha = 0.25
+
+                        alpha_slider = dcg.Slider(C, format="float", min_value=0, max_value=1, 
+                                                  speed=0.01, value=std_alpha)
+                        
+                        alpha_theme = dcg.ThemeStyleImPlot(C, FillAlpha=std_alpha)
+
+                        with dcg.Plot(C, label="Shaded Plot", height=400, width=-1, theme=alpha_theme) as shaded_plot_1:
+                            xs = np.linspace(0, 1, 1001)
+                            np.random.seed(0)
+                            ys = 0.25 + 0.25 * np.sin(25 * xs) * np.sin(5 * xs) + np.random.uniform(-0.01, 0.01, 1001)
+                            ys1 = ys + np.random.uniform(0.1, 0.12, 1001)
+                            ys2 = ys - np.random.uniform(0.1, 0.12, 1001)
+                            ys3 = 0.75 + 0.2 * np.sin(25 * xs)
+                            ys4 = 0.75 + 0.1 * np.cos(25 * xs)
+                            dcg.PlotShadedLine(C, X=xs, Y1=ys1, Y2=ys2, label="Uncertain data")
+                            dcg.PlotLine(C, X=xs, Y=ys, label="Uncertain data")
+                            dcg.PlotShadedLine(C, X=xs, Y1=ys3, Y2=ys4, label="Overlapping")
+                            dcg.PlotLine(C, X=xs, Y=ys3, label="Overlapping")
+                            dcg.PlotLine(C, X=xs, Y=ys4, label="Overlapping")
+                        def _cb_alpha(sender, target, value):
+                            alpha_theme = dcg.ThemeStyleImPlot(C, FillAlpha=value)
+                            shaded_plot_1.theme = alpha_theme
+
+                        alpha_slider.callbacks = _cb_alpha
+
+                        stock_datax = np.arange(100)
+                        stock_data_y2 = np.zeros(100)
+                        stock_data1 = 400 + 50 * np.abs(np.random.random(100))
+                        stock_data2 = 275 + 75 * np.abs(np.random.random(100))
+                        stock_data3 = 150 + 75 * np.abs(np.random.random(100))
+                        stock_data4 = 500 + 75 * np.abs(np.random.random(100))
+                        stock_data5 = 600 + 75 * np.abs(np.random.random(100))
+
+                        stock_theme1 = dcg.ThemeColorImPlot(C,
+                                                            Line=(0, 0, 255),
+                                                            Fill=(0, 0, 255, 64))
+                        stock_theme2 = dcg.ThemeColorImPlot(C,
+                                                            Line=(255, 0, 0),
+                                                            Fill=(255, 0, 0, 64))
+                        stock_theme3 = dcg.ThemeColorImPlot(C,
+                                                            Line=(0, 255, 0),
+                                                            Fill=(0, 255, 0, 64))
+                        stock_theme4 = dcg.ThemeColorImPlot(C,
+                                                            Fill=(255, 255, 100, 64))
+
+                        with dcg.Plot(C, label="Stock Prices", height=400, width=-1) as stock_plot:
+                            stock_plot.X1.label = "Days"
+                            stock_plot.Y1.label = "Price"
+                            dcg.PlotLine(C, X=stock_datax, Y=stock_data1, label="Stock 1", theme=stock_theme1)
+                            dcg.PlotLine(C, X=stock_datax, Y=stock_data2, label="Stock 2", theme=stock_theme2)
+                            dcg.PlotLine(C, X=stock_datax, Y=stock_data3, label="Stock 3", theme=stock_theme3)
+                            dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data1, Y2=stock_data_y2, label="Stock 1", theme=stock_theme1)
+                            dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data2, Y2=stock_data_y2, label="Stock 2", theme=stock_theme2)
+                            dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data3, Y2=stock_data_y2, label="Stock 3", theme=stock_theme3)
+                            dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data5, Y2=stock_data4, label="Shade between lines", theme=stock_theme4)
+
+
+                    with dcg.TreeNode(C, label="Scatter Series"):
+                        with dcg.Plot(C, label="Scatter Series", height=400, width=-1) as plot_scatter:
+                            plot_scatter.X1.label = "X"
+                            plot_scatter.Y1.label = "Y"
+                            dcg.PlotScatter(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+
+                    with dcg.TreeNode(C, label="Stair Series"):
+                        pre_step_cb = dcg.Checkbox(C, label="pre-step", value=False)
+                        filled_stairs_cb = dcg.Checkbox(C, label="filled", value=False)
+                        with dcg.Plot(C, label="Stair Plot", height=400, width=-1) as plot_stair:
+                            plot_stair.X1.label = "X"
+                            plot_stair.Y1.label = "Y"
+                            stair_series = dcg.PlotStairs(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                        pre_step_cb.callbacks = lambda s, t, d: stair_series.configure(pre_step=d)
+                        filled_stairs_cb.callbacks = lambda s, t, d: stair_series.configure(shaded=d)
+
+                    with dcg.TreeNode(C, label="Bar Series"):
+                        horizontal_bar_cb = dcg.Checkbox(C, label="horizontal", value=False)
+                        with dcg.Plot(C, label="Bar Series", height=400, width=-1) as plot_bar:
+                            plot_bar.X1.label = "Student"
+                            plot_bar.X1.no_gridlines = True
+                            plot_bar.X1.no_initial_fit = True
+                            plot_bar.X1.min = 9
+                            plot_bar.X1.max = 33
+                            plot_bar.X1.labels = ("S1", "S2", "S3")
+                            plot_bar.X1.labels_coord = (11, 21, 31)
+                            plot_bar.X2.label = "hor_value"
+                            plot_bar.X2.no_gridlines = True
+                            plot_bar.X2.no_initial_fit = True
+                            plot_bar.X2.min = 0
+                            plot_bar.X2.max = 110
+                            plot_bar.X2.enabled = True # Only X1/Y1 are enabled by default
+                            plot_bar.Y1.label = "Score"
+                            plot_bar.Y1.no_initial_fit = True
+                            plot_bar.Y1.min = 0
+                            plot_bar.Y1.max = 110
+
+                            bar_series = dcg.PlotBars(C, X=[10, 20, 30], Y=[100, 75, 90], label="Final Exam", weight=1)
+                            dcg.PlotBars(C, X=[11, 21, 31], Y=[83, 75, 72], label="Midterm Exam", weight=1)
+                            dcg.PlotBars(C, X=[12, 22, 32], Y=[42, 68, 23], label="Course Grade", weight=1)
+                        horizontal_bar_cb.callbacks = lambda s, t, d: bar_series.configure(horizontal=d)
+                                
+
+                    with dcg.TreeNode(C, label="Bar Group Series"):
+                        horizontal_bar_group_cb = dcg.Checkbox(C, label="horizontal", value=False)
+                        stacked_bar_group_cb = dcg.Checkbox(C, label="stacked", value=False)
+                        slider_bar_group_width = dcg.Slider(C, format="float", min_value=0.1, max_value=1.0, value=0.67)
+                        with dcg.Plot(C, label="Bar Group Series", height=400, width=-1) as plot_bar_group:
+                            plot_bar_group.X1.label = "Student"
+                            plot_bar_group.X1.no_gridlines = True
+                            plot_bar_group.X1.no_initial_fit = True
+                            plot_bar_group.X1.min = -0.5
+                            plot_bar_group.X1.max = 9.5
+            
+                            values_group_series = [83, 67, 23, 89, 83, 78, 91, 82, 85, 90,
+                                80, 62, 56, 99, 55, 78, 88, 78, 90, 100,
+                                80, 69, 52, 92, 72, 78, 75, 76, 89, 95]
+                            values_group_series = np.array(values_group_series).reshape(3, 10)
+        
+                            plot_bar_group.X1.labels = ("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10")
+                            plot_bar_group.X1.labels_coord = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+                            plot_bar_group.Y1.label = "Score"
+                            plot_bar_group.Y1.no_initial_fit = True
+                            plot_bar_group.Y1.min = 0
+                            plot_bar_group.Y1.max = 110
+
+                            bar_group_series = dcg.PlotBarGroups(C,
+                                                                 values=values_group_series,
+                                                                 labels=["Midterm Exam", "Final Exam", "Course Grade"],
+                                                                 weight=1)
+                        
+                        
+                        def _set_horizontal(sender, target, data):
+                            horizontal = bar_group_series.horizontal
+                            if data == horizontal:
+                                return
+                            bar_group_series.horizontal = data
+                            # swap configuration of Y1 and X1
+                            config = plot_bar_group.X1
+                            plot_bar_group.X1 = plot_bar_group.Y1
+                            plot_bar_group.Y1 = config
+                        
+                        def _callback_stacked(sender, target, data):
+                            bar_group_series.stacked = data
+
+                        def _callback_width(sender, target, data):
+                            bar_group_series.group_size = data
+
+                        horizontal_bar_group_cb.callbacks = _set_horizontal
+                        stacked_bar_group_cb.callbacks = _callback_stacked
+                        slider_bar_group_width.callbacks = _callback_width
+
+                    with dcg.TreeNode(C, label="Bar Stacks"):
+                        politicians = (("Trump", 0), ("Bachman", 1), ("Cruz", 2), ("Gingrich", 3), ("Palin", 4), ("Santorum", 5),
+                        ("Walker", 6), ("Perry", 7), ("Ryan", 8), ("McCain", 9), ("Rubio", 10), ("Romney", 11), ("Rand Paul", 12), ("Christie", 13),
+                        ("Biden", 14), ("Kasich", 15), ("Sanders", 16), ("J Bush", 17), ("H Clinton", 18), ("Obama", 19))
+                        data_reg = [18,26,7,14,10,8,6,11,4,4,3,8,6,8,6,5,0,3,1,2,  # Pants on Fire
+                            43,36,30,21,30,27,25,17,11,22,15,16,16,17,12,12,14,6,13,12,  # False
+                            16,13,28,22,15,21,15,18,30,17,24,18,13,10,14,15,17,22,14,12, # Mostly False
+                            17,10,13,25,12,22,19,26,23,17,22,27,20,26,29,17,18,22,21,27, # Half True
+                            5,7,16,10,10,12,23,13,17,20,22,16,23,19,20,26,36,29,27,26,   # Mostly True
+                            1,8,6,8,23,10,12,15,15,20,14,15,22,20,19,25,15,18,24,21]    # True
+                        labels_reg = ["Pants on Fire","False","Mostly False","Half True","Mostly True","True"]
+                        data_reg = np.array(data_reg).reshape((len(labels_reg), -1))
+
+                        data_div = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,                              # Pants on Fire (dummy, to order legend logically)
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,                                         # False         (dummy, to order legend logically)
+                            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,                                         # Mostly False  (dummy, to order legend logically)
+                            -16,-13,-28,-22,-15,-21,-15,-18,-30,-17,-24,-18,-13,-10,-14,-15,-17,-22,-14,-12, # Mostly False
+                            -43,-36,-30,-21,-30,-27,-25,-17,-11,-22,-15,-16,-16,-17,-12,-12,-14,-6,-13,-12,  # False
+                            -18,-26,-7,-14,-10,-8,-6,-11,-4,-4,-3,-8,-6,-8,-6,-5,0,-3,-1,-2,                 # Pants on Fire
+                            17,10,13,25,12,22,19,26,23,17,22,27,20,26,29,17,18,22,21,27,                     # Half True
+                            5,7,16,10,10,12,23,13,17,20,22,16,23,19,20,26,36,29,27,26,                       # Mostly True
+                            1,8,6,8,23,10,12,15,15,20,14,15,22,20,19,25,15,18,24,21]                      # True
+                        labels_div = ["Pants on Fire","False","Mostly False","Mostly False",
+                        "False","Pants on Fire","Half True","Mostly True","True"]
+                        data_div = np.array(data_div).reshape((len(labels_div), -1))
+                        divergent_stack_checkbox = dcg.Checkbox(C, label="Divergent", value=True)
+                        with dcg.Plot(C, label="PolitiFact: Who Lies More?", height=400, width=-1) as plot_bar_stacks:
+                            plot_bar_stacks.X1.no_gridlines = True
+                            plot_bar_stacks.Y1.no_gridlines = True
+                            plot_bar_stacks.Y1.labels = [p[0] for p in politicians]
+                            plot_bar_stacks.Y1.labels_coord = [p[1] for p in politicians]
+                            plot_bar_stacks.Y1.min = -0.5
+                            plot_bar_stacks.Y1.max = 19.5
+                            plot_bar_stacks.Y1.no_initial_fit = True
+                            bars_groups = dcg.PlotBarGroups(C, values=data_div, labels=labels_div, weight=1, group_size=0.75, shift=0, stacked=True, horizontal=True)
+                        
+                        def divergent_stack_cb(sender, target, data):
+                            if data:
+                                bars_groups.configure(values=data_div, labels=labels_div)
+                            else:
+                                bars_groups.configure(values=data_reg, labels=labels_reg)
+                        divergent_stack_checkbox.callbacks = divergent_stack_cb
+
+                    with dcg.TreeNode(C, label="Error Series"):
+                        error1_x = [1, 2, 3, 4, 5]
+                        error1_y = [1, 2, 5, 3, 4]
+                        error1_neg = [0.2, 0.4, 0.2, 0.6, 0.4]
+                        error1_pos = [0.4, 0.2, 0.4, 0.8, 0.6]
+
+                        error2_x = [1, 2, 3, 4, 5]
+                        error2_y = [8, 8, 9, 7, 8]
+                        error2_neg = [0.2, 0.4, 0.2, 0.6, 0.4]
+                        error2_pos = [0.4, 0.2, 0.4, 0.8, 0.6]
+
+                        with dcg.Plot(C, label="Error Series", height=400, width=-1) as plot_error_series:
+                            plot_error_series.X1.label = "x"
+                            plot_error_series.Y1.label = "y"
+                            dcg.PlotBars(C, X=error1_x, Y=error1_y, label="Bar", weight=0.25)
+                            dcg.PlotErrorBars(C, X=error1_x, Y=error1_y, negatives=error1_neg, positives=error1_pos, label="Bar")
+                            dcg.PlotLine(C, X=error2_x, Y=error2_y, label="Line")
+                            dcg.PlotErrorBars(C, X=error2_x, Y=error2_y, negatives=error2_neg, positives=error2_pos, label="Line")
+                        
+                    with dcg.TreeNode(C, label="Stem Series"):
+                        with dcg.ThemeList(C) as stem_theme1:
+                            dcg.ThemeColorImPlot(C, Line=(0, 255, 0))
+                            dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.DIAMOND)
+                        with dcg.Plot(C, label="Stem Series", height=400, width=-1) as plot_stem_series:
+                            plot_stem_series.X1.label = "x"
+                            plot_stem_series.Y1.label = "y"
+                            dcg.PlotStems(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                            dcg.PlotStems(C, X=sindatax, Y=cosdatay, label="0.5 + 0.75 * cos(x)", theme=stem_theme1)
+
+                    with dcg.TreeNode(C, label="Infinite Lines"):
+                        infinite_x_data = (3, 5, 6, 7)
+                        infinite_y_data = (3, 5, 6, 7)
+
+                        with dcg.Plot(C, label="Infinite Lines", height=400, width=-1) as plot_inf_lines:
+                            plot_inf_lines.X1.label = "x"
+                            plot_inf_lines.Y1.label = "y"
+                            dcg.PlotInfLines(C, X=infinite_x_data, label="vertical")
+                            dcg.PlotInfLines(C, Y=infinite_y_data, label="horizontal", horizontal=True)
+
+                    with dcg.TreeNode(C, label="Pie Charts"):
+                        with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+                            with dcg.Plot(C, label="Pie Series", height=250, width=250, no_mouse_pos=True) as plot_pie_series:
+                                plot_pie_series.X1.no_gridlines = True
+                                plot_pie_series.X1.no_tick_marks = True
+                                plot_pie_series.X1.no_tick_labels = True
+                                plot_pie_series.X1.no_initial_fit = True
+                                plot_pie_series.X1.min = 0
+                                plot_pie_series.X1.max = 1
+                                plot_pie_series.Y1.no_gridlines = True
+                                plot_pie_series.Y1.no_tick_marks = True
+                                plot_pie_series.Y1.no_tick_labels = True
+                                plot_pie_series.Y1.no_initial_fit = True
+                                plot_pie_series.Y1.min = 0
+                                plot_pie_series.Y1.max = 1
+                                dcg.PlotPieChart(C, x=0.5, y=0.5, radius=0.5, values=[0.25, 0.30, 0.30], labels=["fish", "cow", "chicken"])
+
+                            with dcg.Plot(C, label="Pie Series 2", height=250, width=250, no_mouse_pos=True) as plot_pie_series2:
+                                plot_pie_series2.X1.no_gridlines = True
+                                plot_pie_series2.X1.no_tick_marks = True
+                                plot_pie_series2.X1.no_tick_labels = True
+                                plot_pie_series2.X1.no_initial_fit = True
+                                plot_pie_series2.X1.min = 0
+                                plot_pie_series2.X1.max = 1
+                                plot_pie_series2.Y1.no_gridlines = True
+                                plot_pie_series2.Y1.no_tick_marks = True
+                                plot_pie_series2.Y1.no_tick_labels = True
+                                plot_pie_series2.Y1.no_initial_fit = True
+                                plot_pie_series2.Y1.min = 0
+                                plot_pie_series2.Y1.max = 1
+                                dcg.PlotPieChart(C, x=0.5, y=0.5, radius=0.5, values=[1, 1, 2, 3, 5], labels=["A", "B", "C", "D", "E"], normalize=True, format="%.0f")
+                    '''
+                    with dcg.TreeNode(C, label="Heatmaps"):
+                        values = (0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0,
+                                  2.4, 0.0, 4.0, 1.0, 2.7, 0.0, 0.0,
+                                  1.1, 2.4, 0.8, 4.3, 1.9, 4.4, 0.0,
+                                  0.6, 0.0, 0.3, 0.0, 3.1, 0.0, 0.0,
+                                  0.7, 1.7, 0.6, 2.6, 2.2, 6.2, 0.0,
+                                  1.3, 1.2, 0.0, 0.0, 0.0, 3.2, 5.1,
+                                  0.1, 2.0, 0.0, 1.4, 0.0, 1.9, 6.3)
+                        major_col_heat_cb = dcg.Checkbox(C, label="major col", value=False)
+
+
+                        dpg.add_checkbox(label="major col", tag="major_col_heat_cb", default_value=False, 
+                            callback=lambda _, a: dpg.configure_item("heat_series", col_major=a))
+
+
+                        
+                        with dpg.group(horizontal=True):
+                            dpg.add_colormap_scale(min_scale=0, max_scale=10, height=400)
+                            with dpg.plot(label="Heat Series", no_mouse_pos=True, height=400, width=-1):
+                                dpg.add_plot_axis(dpg.mvXAxis, label="x", lock_min=True, lock_max=True, no_gridlines=True, no_tick_marks=True)
+                                with dpg.plot_axis(dpg.mvYAxis, label="y", no_gridlines=True, no_tick_marks=True, lock_min=True, lock_max=True):
+                                    dpg.add_heat_series(values, 7, 7, tag="heat_series",scale_min=0, scale_max=6.3)
+
+                    with dcg.TreeNode(C, label="Histogram Series"):
+                        x_data = np.random.rand(10000) * 10 + 1
+                        density_histograms_cb = dcg.Checkbox(C, label="density", value=False)
+                        cumulative_histograms_cb = dcg.Checkbox(C, label="cumulative", value=False)
+                        with dcg.Plot(C, label="Histogram Plot", height=400, width=-1) as plot_hist_series:
+                            plot_hist_series.X1.label = "x"
+                            plot_hist_series.Y1.label = "y"
+                            hist_series = dcg.PlotHistogram(C, x_data, label="histogram")
+
+                        def update_density(user_data, app_data, other_data):
+                            dpg.configure_item("histogram_series", density=app_data)
+                        
+                        dpg.add_checkbox(label="density", tag="density_histograms_cb", default_value=False, 
+                            callback=update_density)
+                        dpg.add_checkbox(label="cumulative", tag="cumulative_histograms_cb", default_value=False, 
+                            callback=lambda: dpg.configure_item("histogram_series", cumulative=dpg.get_value("cumulative_histograms_cb")))
+
+
+                        with dpg.plot(label="Histogram Plot", height=400, width=-1):
+                            dpg.add_plot_legend()
+                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x")
+                            dpg.set_axis_limits(xaxis, 1, 10)
+                            dpg.set_axis_ticks(xaxis, (("S1", 1), ("S2", 2), ("S3", 3), ("S4", 4), ("S5", 5), ("S6", 6), ("S7", 7), ("S8", 8), ("S9", 9), ("S10", 10)))
+                            with dpg.plot_axis(dpg.mvYAxis, label="y axis", tag="yaxis_histogram", auto_fit=True) as yaxis:
+                                dpg.add_histogram_series(x_data, tag="histogram_series", label="histogram")
+                            dpg.fit_axis_data(xaxis)
+
+                    with dpg.tree_node(label="Histogram 2D Series"):
+                        def update_count(_, app_data):
+                            global count_2d_histogram
+                            count_2d_histogram = app_data
+                            x_dist = [random.gauss(1, 2) for _ in range(count_2d_histogram)]
+                            y_dist = [random.gauss(1, 1) for _ in range(count_2d_histogram)]
+                            max_count = max(*x_dist, *y_dist)
+
+                            dpg.configure_item("histogram_2d_series", x=x_dist, y=y_dist)
+                            dpg.configure_item("2d_hist_colormap_scale", max_scale=max_count)
+
+                        def update_bins(_, app_data):
+                            global xybin_2d_histogram
+                            xybin_2d_histogram = app_data
+                            dpg.configure_item("histogram_2d_series", xbins=app_data[0], ybins=app_data[1])
+
+                        def _update_density(_, app_data):
+                            dpg.configure_item("histogram_2d_series", density=app_data)
+                            # TODO: Find a way to access max_count 2d histogram
+                            dpg.configure_item("2d_hist_colormap_scale", max_scale=1.0 if app_data else max_count, label="Density" if app_data else "Count")
+
+                        dpg.add_slider_int(label="Count", min_value=100, max_value=100000, callback=update_count,
+                                           default_value=count_2d_histogram, tag="count_histograms_2d", width=300)
+                        with dpg.group(horizontal=True):
+                            dpg.add_slider_intx(label="Bins", min_value=1, max_value=500, tag="bins", size=2,
+                                                callback=update_bins, width=300, default_value=xybin_2d_histogram)
+                            dpg.add_checkbox(label="density", tag="density_histograms_2d_cb", default_value=False,
+                                             callback=_update_density)
+
+                        max_count = 0.0
+                        with dpg.group(horizontal=True, tag="histogram_2d_plot_group"):
+                            with dpg.plot(label="Histogram 2D Plot", tag="2d_histogram_plot", height=400, width=650):
+                                x_dist = [random.gauss(1, 2) for _ in range(count_2d_histogram)]
+                                y_dist = [random.gauss(1, 1) for _ in range(count_2d_histogram)]
+                                max_count = float(max(*x_dist, *y_dist))
+
+                                x_axis = dpg.add_plot_axis(dpg.mvXAxis, label="x", auto_fit=True, foreground_grid=True)
+                                dpg.set_axis_limits(dpg.last_item(), -6, 6)
+                                with dpg.plot_axis(dpg.mvYAxis, label="y", auto_fit=True, foreground_grid=True):
+                                    dpg.set_axis_limits(dpg.last_item(), -6, 6)
+                                    dpg.add_2d_histogram_series(x_dist, y_dist, tag="histogram_2d_series",
+                                                                label="histogram", xbins=xybin_2d_histogram[0], ybins=xybin_2d_histogram[1],
+                                                                xmax_range=6, ymax_range=6, ymin_range=-6,
+                                                                xmin_range=-6)
+
+                            dpg.add_colormap_scale(tag="2d_hist_colormap_scale", label="Count", colormap=dpg.mvPlotColormap_Hot,
+                                                   min_scale=0.0, max_scale=max_count, height=400)
+                            dpg.bind_colormap("2d_histogram_plot", dpg.mvPlotColormap_Hot)
+
+                    with dpg.tree_node(label="Digital Plots"):
+                        dpg.add_text(default_value="Digital plots do not respond to Y drag and zoom, so that",
+                                     bullet=True)
+                        dpg.add_text(default_value="you can drag analog plots over the rising/falling digital edge.",
+                                     indent=20)
+                        paused = False
+                        data_digital = [[], []]
+                        data_analog = [[], []]
+                        show_digital = [True, False]
+                        show_analog = [True, False]
+
+                        def change_val(arr, ind, val):
+                            arr[ind] = val
+
+                        with dpg.group(horizontal=True):
+                            dpg.add_checkbox(label="digital_0", callback=lambda s, a: change_val(show_digital, 0, a),
+                                             default_value=True)
+                            dpg.add_checkbox(label="digital_1", callback=lambda s, a: change_val(show_digital, 1, a),
+                                             default_value=False)
+                            dpg.add_checkbox(label="analog_0", callback=lambda s, a: change_val(show_analog, 0, a),
+                                             default_value=True)
+                            dpg.add_checkbox(label="analog_1", callback=lambda s, a: change_val(show_analog, 1, a),
+                                             default_value=False)
+
+                        with dpg.plot(tag="_demo_digital_plot", width=500):
+                            # TODO: better handling of show/hide (more consistency between checkboxes and legend)
+                            dpg.add_plot_axis(dpg.mvXAxis, label="x", tag="x_axis_digital")
+                            dpg.set_axis_limits(dpg.last_item(), -10, 0)
+                            with dpg.plot_axis(dpg.mvYAxis, label="y"):
+                                dpg.set_axis_limits(dpg.last_item(), -2, 1.5)
+                                dpg.add_digital_series([], [], label="digital_0", tag="digital_0")
+                                dpg.add_digital_series([], [], label="digital_1", tag="digital_1")
+                                dpg.add_line_series([], [], label="analog_0", tag="analog_0")
+                                dpg.add_line_series([], [], label="analog_1", tag="analog_1")
+
+                        def _update_plot():
+                            global t_digital_plot
+                            if not paused:
+                                t_digital_plot += dpg.get_delta_time()
+                                dpg.set_axis_limits('x_axis_digital', t_digital_plot - 10, t_digital_plot)
+                                if show_digital[0]:
+                                    data_digital[0].append([t_digital_plot, 1 if sin(t_digital_plot) > 0.45 else 0])
+                                    dpg.set_value("digital_0", [*zip(*data_digital[0])])
+                                if show_digital[1]:
+                                    data_digital[1].append([t_digital_plot, 1 if sin(t_digital_plot) < 0.45 else 0])
+                                    dpg.set_value("digital_1", [*zip(*data_digital[1])])
+                                if show_analog[0]:
+                                    data_analog[0].append([t_digital_plot, sin(t_digital_plot)])
+                                    dpg.set_value("analog_0", [*zip(*data_analog[0])])
+                                if show_analog[1]:
+                                    data_analog[1].append([t_digital_plot, cos(t_digital_plot)])
+                                    dpg.set_value("analog_1", [*zip(*data_analog[1])])
+
+                        with dpg.item_handler_registry(tag="__demo_digital_plot_ref"):
+                            dpg.add_item_visible_handler(callback=_update_plot)
+                        dpg.bind_item_handler_registry("_demo_digital_plot", dpg.last_container())
+
+
+                    with dpg.tree_node(label="Image Series"):
+
+                        with dpg.plot(label="Image Plot", height=400, width=-1):
+                            dpg.add_plot_legend()
+                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x")
+                            with dpg.plot_axis(dpg.mvYAxis, label="y axis"):
+                                dpg.add_image_series(2, [300, 300], [400, 400], label="font atlas")
+                                dpg.add_image_series("__demo_static_texture_2", [150, 150], [200, 200], label="static 2")
+                                dpg.add_image_series("__demo_dynamic_texture_1", [-200, 100], [-100, 200], label="dynamic 1")
+                                dpg.fit_axis_data(dpg.top_container_stack())
+                            dpg.fit_axis_data(xaxis)
+
+                    with dpg.tree_node(label="Candle Stick Series"):
+
+                        dates = [1546300800,1546387200,1546473600,1546560000,1546819200,1546905600,1546992000,1547078400,1547164800,1547424000,1547510400,1547596800,1547683200,1547769600,1547942400,1548028800,1548115200,1548201600,1548288000,1548374400,1548633600,1548720000,1548806400,1548892800,1548979200,1549238400,1549324800,1549411200,1549497600,1549584000,1549843200,1549929600,1550016000,1550102400,1550188800,1550361600,1550448000,1550534400,1550620800,1550707200,1550793600,1551052800,1551139200,1551225600,1551312000,1551398400,1551657600,1551744000,1551830400,1551916800,1552003200,1552262400,1552348800,1552435200,1552521600,1552608000,1552867200,1552953600,1553040000,1553126400,1553212800,1553472000,1553558400,1553644800,1553731200,1553817600,1554076800,1554163200,1554249600,1554336000,1554422400,1554681600,1554768000,1554854400,1554940800,1555027200,1555286400,1555372800,1555459200,1555545600,1555632000,1555891200,1555977600,1556064000,1556150400,1556236800,1556496000,1556582400,1556668800,1556755200,1556841600,1557100800,1557187200,1557273600,1557360000,1557446400,1557705600,1557792000,1557878400,1557964800,1558051200,1558310400,1558396800,1558483200,1558569600,1558656000,1558828800,1558915200,1559001600,1559088000,1559174400,1559260800,1559520000,1559606400,1559692800,1559779200,1559865600,1560124800,1560211200,1560297600,1560384000,1560470400,1560729600,1560816000,1560902400,1560988800,1561075200,1561334400,1561420800,1561507200,1561593600,1561680000,1561939200,1562025600,1562112000,1562198400,1562284800,1562544000,1562630400,1562716800,1562803200,1562889600,1563148800,1563235200,1563321600,1563408000,1563494400,1563753600,1563840000,1563926400,1564012800,1564099200,1564358400,1564444800,1564531200,1564617600,1564704000,1564963200,1565049600,1565136000,1565222400,1565308800,1565568000,1565654400,1565740800,1565827200,1565913600,1566172800,1566259200,1566345600,1566432000,1566518400,1566777600,1566864000,1566950400,1567036800,1567123200,1567296000,1567382400,1567468800,1567555200,1567641600,1567728000,1567987200,1568073600,1568160000,1568246400,1568332800,1568592000,1568678400,1568764800,1568851200,1568937600,1569196800,1569283200,1569369600,1569456000,1569542400,1569801600,1569888000,1569974400,1570060800,1570147200,1570406400,1570492800,1570579200,1570665600,1570752000,1571011200,1571097600,1571184000,1571270400,1571356800,1571616000,1571702400,1571788800,1571875200,1571961600]
+                        opens = [1284.7,1319.9,1318.7,1328,1317.6,1321.6,1314.3,1325,1319.3,1323.1,1324.7,1321.3,1323.5,1322,1281.3,1281.95,1311.1,1315,1314,1313.1,1331.9,1334.2,1341.3,1350.6,1349.8,1346.4,1343.4,1344.9,1335.6,1337.9,1342.5,1337,1338.6,1337,1340.4,1324.65,1324.35,1349.5,1371.3,1367.9,1351.3,1357.8,1356.1,1356,1347.6,1339.1,1320.6,1311.8,1314,1312.4,1312.3,1323.5,1319.1,1327.2,1332.1,1320.3,1323.1,1328,1330.9,1338,1333,1335.3,1345.2,1341.1,1332.5,1314,1314.4,1310.7,1314,1313.1,1315,1313.7,1320,1326.5,1329.2,1314.2,1312.3,1309.5,1297.4,1293.7,1277.9,1295.8,1295.2,1290.3,1294.2,1298,1306.4,1299.8,1302.3,1297,1289.6,1302,1300.7,1303.5,1300.5,1303.2,1306,1318.7,1315,1314.5,1304.1,1294.7,1293.7,1291.2,1290.2,1300.4,1284.2,1284.25,1301.8,1295.9,1296.2,1304.4,1323.1,1340.9,1341,1348,1351.4,1351.4,1343.5,1342.3,1349,1357.6,1357.1,1354.7,1361.4,1375.2,1403.5,1414.7,1433.2,1438,1423.6,1424.4,1418,1399.5,1435.5,1421.25,1434.1,1412.4,1409.8,1412.2,1433.4,1418.4,1429,1428.8,1420.6,1441,1460.4,1441.7,1438.4,1431,1439.3,1427.4,1431.9,1439.5,1443.7,1425.6,1457.5,1451.2,1481.1,1486.7,1512.1,1515.9,1509.2,1522.3,1513,1526.6,1533.9,1523,1506.3,1518.4,1512.4,1508.8,1545.4,1537.3,1551.8,1549.4,1536.9,1535.25,1537.95,1535.2,1556,1561.4,1525.6,1516.4,1507,1493.9,1504.9,1506.5,1513.1,1506.5,1509.7,1502,1506.8,1521.5,1529.8,1539.8,1510.9,1511.8,1501.7,1478,1485.4,1505.6,1511.6,1518.6,1498.7,1510.9,1510.8,1498.3,1492,1497.7,1484.8,1494.2,1495.6,1495.6,1487.5,1491.1,1495.1,1506.4]
+                        highs = [1284.75,1320.6,1327,1330.8,1326.8,1321.6,1326,1328,1325.8,1327.1,1326,1326,1323.5,1322.1,1282.7,1282.95,1315.8,1316.3,1314,1333.2,1334.7,1341.7,1353.2,1354.6,1352.2,1346.4,1345.7,1344.9,1340.7,1344.2,1342.7,1342.1,1345.2,1342,1350,1324.95,1330.75,1369.6,1374.3,1368.4,1359.8,1359,1357,1356,1353.4,1340.6,1322.3,1314.1,1316.1,1312.9,1325.7,1323.5,1326.3,1336,1332.1,1330.1,1330.4,1334.7,1341.1,1344.2,1338.8,1348.4,1345.6,1342.8,1334.7,1322.3,1319.3,1314.7,1316.6,1316.4,1315,1325.4,1328.3,1332.2,1329.2,1316.9,1312.3,1309.5,1299.6,1296.9,1277.9,1299.5,1296.2,1298.4,1302.5,1308.7,1306.4,1305.9,1307,1297.2,1301.7,1305,1305.3,1310.2,1307,1308,1319.8,1321.7,1318.7,1316.2,1305.9,1295.8,1293.8,1293.7,1304.2,1302,1285.15,1286.85,1304,1302,1305.2,1323,1344.1,1345.2,1360.1,1355.3,1363.8,1353,1344.7,1353.6,1358,1373.6,1358.2,1369.6,1377.6,1408.9,1425.5,1435.9,1453.7,1438,1426,1439.1,1418,1435,1452.6,1426.65,1437.5,1421.5,1414.1,1433.3,1441.3,1431.4,1433.9,1432.4,1440.8,1462.3,1467,1443.5,1444,1442.9,1447,1437.6,1440.8,1445.7,1447.8,1458.2,1461.9,1481.8,1486.8,1522.7,1521.3,1521.1,1531.5,1546.1,1534.9,1537.7,1538.6,1523.6,1518.8,1518.4,1514.6,1540.3,1565,1554.5,1556.6,1559.8,1541.9,1542.9,1540.05,1558.9,1566.2,1561.9,1536.2,1523.8,1509.1,1506.2,1532.2,1516.6,1519.7,1515,1519.5,1512.1,1524.5,1534.4,1543.3,1543.3,1542.8,1519.5,1507.2,1493.5,1511.4,1525.8,1522.2,1518.8,1515.3,1518,1522.3,1508,1501.5,1503,1495.5,1501.1,1497.9,1498.7,1492.1,1499.4,1506.9,1520.9]
+                        lows = [1282.85,1315,1318.7,1309.6,1317.6,1312.9,1312.4,1319.1,1319,1321,1318.1,1321.3,1319.9,1312,1280.5,1276.15,1308,1309.9,1308.5,1312.3,1329.3,1333.1,1340.2,1347,1345.9,1338,1340.8,1335,1332,1337.9,1333,1336.8,1333.2,1329.9,1340.4,1323.85,1324.05,1349,1366.3,1351.2,1349.1,1352.4,1350.7,1344.3,1338.9,1316.3,1308.4,1306.9,1309.6,1306.7,1312.3,1315.4,1319,1327.2,1317.2,1320,1323,1328,1323,1327.8,1331.7,1335.3,1336.6,1331.8,1311.4,1310,1309.5,1308,1310.6,1302.8,1306.6,1313.7,1320,1322.8,1311,1312.1,1303.6,1293.9,1293.5,1291,1277.9,1294.1,1286,1289.1,1293.5,1296.9,1298,1299.6,1292.9,1285.1,1288.5,1296.3,1297.2,1298.4,1298.6,1302,1300.3,1312,1310.8,1301.9,1292,1291.1,1286.3,1289.2,1289.9,1297.4,1283.65,1283.25,1292.9,1295.9,1290.8,1304.2,1322.7,1336.1,1341,1343.5,1345.8,1340.3,1335.1,1341.5,1347.6,1352.8,1348.2,1353.7,1356.5,1373.3,1398,1414.7,1427,1416.4,1412.7,1420.1,1396.4,1398.8,1426.6,1412.85,1400.7,1406,1399.8,1404.4,1415.5,1417.2,1421.9,1415,1413.7,1428.1,1434,1435.7,1427.5,1429.4,1423.9,1425.6,1427.5,1434.8,1422.3,1412.1,1442.5,1448.8,1468.2,1484.3,1501.6,1506.2,1498.6,1488.9,1504.5,1518.3,1513.9,1503.3,1503,1506.5,1502.1,1503,1534.8,1535.3,1541.4,1528.6,1525.6,1535.25,1528.15,1528,1542.6,1514.3,1510.7,1505.5,1492.1,1492.9,1496.8,1493.1,1503.4,1500.9,1490.7,1496.3,1505.3,1505.3,1517.9,1507.4,1507.1,1493.3,1470.5,1465,1480.5,1501.7,1501.4,1493.3,1492.1,1505.1,1495.7,1478,1487.1,1480.8,1480.6,1487,1488.3,1484.8,1484,1490.7,1490.4,1503.1]
+                        closes = [1283.35,1315.3,1326.1,1317.4,1321.5,1317.4,1323.5,1319.2,1321.3,1323.3,1319.7,1325.1,1323.6,1313.8,1282.05,1279.05,1314.2,1315.2,1310.8,1329.1,1334.5,1340.2,1340.5,1350,1347.1,1344.3,1344.6,1339.7,1339.4,1343.7,1337,1338.9,1340.1,1338.7,1346.8,1324.25,1329.55,1369.6,1372.5,1352.4,1357.6,1354.2,1353.4,1346,1341,1323.8,1311.9,1309.1,1312.2,1310.7,1324.3,1315.7,1322.4,1333.8,1319.4,1327.1,1325.8,1330.9,1325.8,1331.6,1336.5,1346.7,1339.2,1334.7,1313.3,1316.5,1312.4,1313.4,1313.3,1312.2,1313.7,1319.9,1326.3,1331.9,1311.3,1313.4,1309.4,1295.2,1294.7,1294.1,1277.9,1295.8,1291.2,1297.4,1297.7,1306.8,1299.4,1303.6,1302.2,1289.9,1299.2,1301.8,1303.6,1299.5,1303.2,1305.3,1319.5,1313.6,1315.1,1303.5,1293,1294.6,1290.4,1291.4,1302.7,1301,1284.15,1284.95,1294.3,1297.9,1304.1,1322.6,1339.3,1340.1,1344.9,1354,1357.4,1340.7,1342.7,1348.2,1355.1,1355.9,1354.2,1362.1,1360.1,1408.3,1411.2,1429.5,1430.1,1426.8,1423.4,1425.1,1400.8,1419.8,1432.9,1423.55,1412.1,1412.2,1412.8,1424.9,1419.3,1424.8,1426.1,1423.6,1435.9,1440.8,1439.4,1439.7,1434.5,1436.5,1427.5,1432.2,1433.3,1441.8,1437.8,1432.4,1457.5,1476.5,1484.2,1519.6,1509.5,1508.5,1517.2,1514.1,1527.8,1531.2,1523.6,1511.6,1515.7,1515.7,1508.5,1537.6,1537.2,1551.8,1549.1,1536.9,1529.4,1538.05,1535.15,1555.9,1560.4,1525.5,1515.5,1511.1,1499.2,1503.2,1507.4,1499.5,1511.5,1513.4,1515.8,1506.2,1515.1,1531.5,1540.2,1512.3,1515.2,1506.4,1472.9,1489,1507.9,1513.8,1512.9,1504.4,1503.9,1512.8,1500.9,1488.7,1497.6,1483.5,1494,1498.3,1494.1,1488.1,1487.5,1495.7,1504.7,1505.3]
+
+                        with dpg.plot(label="Candle Series", height=400, width=-1):
+                            dpg.add_plot_legend()
+                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Day", scale=dpg.mvPlotScale_Time)
+                            with dpg.plot_axis(dpg.mvYAxis, label="USD"):
+                                dpg.add_candle_series(dates, opens, closes, lows, highs, label="GOOGL", time_unit=dpg.mvTimeUnit_Day)
+                                dpg.fit_axis_data(dpg.top_container_stack())
+                            dpg.fit_axis_data(xaxis)
+                    '''
+
+                with dcg.Tab(C, label="Subplots"):
+                    with dcg.TreeNode(C, label="Basic"):
+                        with dcg.Subplots(C, cols=3, rows=3, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                            for i in range(9):
+                                with dcg.Plot(C, no_title=True) as plot:
+                                    plot.X1.no_tick_labels = True
+                                    plot.Y1.no_tick_labels = True
+                                    dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                        ConfigureOptions(C, subplot, 1, "no_resize", "no_title", before=subplot)
+
+                    with dcg.TreeNode(C, label="Item Sharing"):
+                        with dcg.Subplots(C, cols=3, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                            for i in range(6):
+                                with dcg.Plot(C, no_title=True) as plot:
+                                    plot.X1.no_tick_labels = True
+                                    plot.Y1.no_tick_labels = True
+                                    dcg.PlotLine(C, X=sindatax, Y=sindatay, label="data" + str(i))
+                        ConfigureOptions(C, subplot, 1, "col_major", before=subplot)
+
+                    with dcg.TreeNode(C, label="Linked Axes"):
+                        with dcg.Subplots(C, cols=2, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                            for i in range(4):
+                                with dcg.Plot(C, no_title=True) as plot:
+                                    plot.X1.no_tick_labels = True
+                                    plot.Y1.no_tick_labels = True
+                                    dcg.PlotLine(C, X=sindatax, Y=sindatay, label="data" + str(i))
+                        ConfigureOptions(C, subplot, 2, "no_align", "share_legends", "share_rows", "share_cols", "share_x_all", "share_y_all", before=subplot)
+
+                with dcg.Tab(C, label="Axes"):
+                    with dcg.TreeNode(C, label="Time Axes"):
+                        timedatax = np.arange(0, 739497600, 60*60*24*7)
+                        timedatay = timedatax / (60*60*24)
+                
+                        dcg.Text(C, value="When time is enabled, x-axis values are interpreted as UNIX timestamps in seconds (e.g. 1599243545).", bullet=True)
+                        dcg.Text(C, value="UNIX timestamps are seconds since 00:00:00 UTC on 1 January 1970", bullet=True)
+                        with dcg.Plot(C, label="Time Plot", height=400, width=-1) as plot:
+                            plot.X1.label = "Date"
+                            plot.X1.scale = dcg.AxisScale.TIME
+                            plot.Y1.label = "Days since 1970"
+                            dcg.PlotLine(C, X=timedatax, Y=timedatay, label="Days")
+
+                    with dcg.TreeNode(C, label="Multi Axes Plot"):                        
+                        show_y1 = dcg.Checkbox(C, label="Show Y1", value=True)
+                        show_y2 = dcg.Checkbox(C, label="Show Y2", value=True)
+                        show_y3 = dcg.Checkbox(C, label="Show Y3", value=True)
+                        show_x1 = dcg.Checkbox(C, label="Show X1", value=True)
+                        show_x2 = dcg.Checkbox(C, label="Show X2", value=True)
+                        show_x3 = dcg.Checkbox(C, label="Show X3", value=True)
+
+                        with dcg.Plot(C, label="Multi Axes Plot", height=400, width=-1) as multi_axes_plot:
+                            multi_axes_plot.X1.label = "x1"
+                            multi_axes_plot.Y1.label = "y1"
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="y1")
+                            multi_axes_plot.X2.label = "x2"
+                            multi_axes_plot.X2.opposite = True
+                            multi_axes_plot.X2.enabled = True # by default only X1/Y1 are enabled
+                            multi_axes_plot.Y2.label = "y2"
+                            multi_axes_plot.Y2.opposite = True
+                            multi_axes_plot.Y2.enabled = True
+                            dcg.PlotLine(C, X=sindatax, Y=cosdatay, label="y2")
+                            multi_axes_plot.X3.label = "x3"
+                            multi_axes_plot.X3.enabled = True
+                            multi_axes_plot.Y3.label = "y3"
+                            multi_axes_plot.Y3.enabled = True
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                        show_y1.callbacks = lambda s, t, d: multi_axes_plot.Y1.configure(enabled=d)
+                        show_y2.callbacks = lambda s, t, d: multi_axes_plot.Y2.configure(enabled=d)
+                        show_y3.callbacks = lambda s, t, d: multi_axes_plot.Y3.configure(enabled=d)
+                        show_x1.callbacks = lambda s, t, d: multi_axes_plot.X1.configure(enabled=d)
+                        show_x2.callbacks = lambda s, t, d: multi_axes_plot.X2.configure(enabled=d)
+                        show_x3.callbacks = lambda s, t, d: multi_axes_plot.X3.configure(enabled=d)
+
+                    with dcg.TreeNode(C, label="Ordering Axes Plot"):
+                        opposite_x = dcg.Checkbox(C, label="Opposite X", value=False)
+                        invert_x = dcg.Checkbox(C, label="Invert X", value=False)
+                        opposite_y = dcg.Checkbox(C, label="Opposite Y", value=False)
+                        invert_y = dcg.Checkbox(C, label="Invert Y", value=False)
+
+                        with dcg.Plot(C, label="Ordering Axes Plot", height=400, width=-1) as ordering_axes_plot:
+                            ordering_axes_plot.X1.label = "x"
+                            ordering_axes_plot.Y1.label = "y"
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay)
+
+                        opposite_x.callbacks = lambda s, t, d: ordering_axes_plot.X1.configure(opposite=d)
+                        invert_x.callbacks = lambda s, t, d: ordering_axes_plot.X1.configure(invert=d)
+                        opposite_y.callbacks = lambda s, t, d: ordering_axes_plot.Y1.configure(opposite=d)
+                        invert_y.callbacks = lambda s, t, d: ordering_axes_plot.Y1.configure(invert=d)
+
+                    with dcg.TreeNode(C, label="Log Axis Scale"):
+                        xs = np.linspace(0.1, 100, 1000)
+                        ys1 = np.sin(xs) + 1
+                        ys2 = np.log10(1+xs)
+                        ys3 = np.power(10.0, xs)
+
+                        with dcg.Plot(C, label="Log Axes Plot", height=400, width=-1) as log_axis_plot:
+                            log_axis_plot.X1.label = "x1"
+                            log_axis_plot.X1.min = 0.1
+                            log_axis_plot.X1.max = 100
+                            log_axis_plot.Y1.label = "y1"
+                            log_axis_plot.Y1.scale = dcg.AxisScale.LOG10
+                            log_axis_plot.Y1.min = 0
+                            log_axis_plot.Y1.max = 10
+                            dcg.PlotLine(C, X=xs, Y=xs, label="x")
+                            dcg.PlotLine(C, X=xs, Y=ys1, label="sin(x)+1")
+                            dcg.PlotLine(C, X=xs, Y=ys2, label="log(1+x)")
+                            dcg.PlotLine(C, X=xs, Y=ys3, label="10^x")
+                    
+                    with dcg.TreeNode(C, label="Time Axis"):
+                        t_min = 1609459200 # 01/01/2021 @ 12:00:00am (UTC)
+                        t_max = 1640995200 # 01/01/2022 @ 12:00:00am (UTC)
+                        xs = np.arange(t_min, t_max, 86400)
+                        ys1 = np.sin(xs)
+                        ys2 = np.cos(xs)
+
+                        with dcg.Plot(C, label="Time Plot", height=400, width=-1) as time_axis_plot:
+                            time_axis_plot.X1.label = "Time"
+                            time_axis_plot.X1.scale = dcg.AxisScale.TIME
+                            time_axis_plot.X1.min = t_min
+                            time_axis_plot.X1.max = t_max
+                            dcg.PlotLine(C, X=xs, Y=ys1, label="sin(x)")
+                            dcg.PlotLine(C, X=xs, Y=ys2, label="cos(x)")
+
+                    with dcg.TreeNode(C, label="Symmetric Log Axis Scale"):
+                        indices = np.arange(1000)
+                        xs = indices * 0.1 - 50
+                        ys1 = np.sin(xs)
+                        ys2 = indices * 0.002 - 1
+
+                        with dcg.Plot(C, label="Symmetric Log Axes Plot", height=400, width=-1) as symmetric_log_axes_plot:
+                            symmetric_log_axes_plot.X1.label = "x1"
+                            symmetric_log_axes_plot.X1.scale = dcg.AxisScale.SYMLOG
+                            symmetric_log_axes_plot.Y1.label = "y1"
+                            dcg.PlotLine(C, X=xs, Y=ys1, label="y1")
+                            dcg.PlotLine(C, X=xs, Y=ys2, label="y2")
+
+                with dcg.Tab(C, label="Tools"):
+                    """
+                    with dpg.tree_node(label="Querying"):
+
+                        dpg.add_text("Right click to box select and then click using the cancel button (standard to Left click)")
+                        dpg.add_text("Double left click to delete the last drag rect drawn.")
+                        dpg.add_slider_int(min_value=0, max_value=100, default_value=1, label="Min query rects", callback=lambda _, val: dpg.configure_item("query_plot_1", min_query_rects=val))
+                        dpg.add_slider_int(min_value=0, max_value=100, default_value=1, label="Max query rects", callback=lambda _, val: dpg.configure_item("query_plot_1", max_query_rects=val))
+
+                        def query(sender, app_data, user_data):
+                            if not len(app_data):
+                                return
+                            dpg.set_axis_limits(user_data[0], app_data[0][0], app_data[0][2])
+                            dpg.set_axis_limits(user_data[1], app_data[0][3], app_data[0][1])
+
+                        # plot 1
+                        with dpg.plot(no_title=True, height=400, tag="query_plot_1", callback=query, query=True, no_menus=True, width=-1) as plot_id:
+                            dpg.add_plot_axis(dpg.mvXAxis, label="x")
+                            with dpg.plot_axis(dpg.mvYAxis, label="y"):
+                                dpg.add_line_series(sindatax, sindatay)
+                                
+                        dpg.add_text("This plot takes care only of the first query rect")
+                        # plot 2
+                        with dpg.plot(no_title=True, height=400, no_menus=True, width=-1, tag="plot2"):          
+                            xaxis_id2 = dpg.add_plot_axis(dpg.mvXAxis, label="x")
+                            yaxis_id2 = dpg.add_plot_axis(dpg.mvYAxis, label="y")
+                            dpg.add_line_series(sindatax, sindatay, parent=yaxis_id2)
+
+                            # set plot 1 user data to axis so the query callback has access
+                            dpg.configure_item(plot_id, user_data=(xaxis_id2,yaxis_id2))
+                    """
+
+                    with dcg.TreeNode(C, label="Interactables and dragging items"):
+                        with dcg.Plot(C, label="Drag Points", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            with dcg.DrawInPlot(C):
+                                interactable_area = dcg.DrawInvisibleButton(C, p1=(0, 0), p2=(0.5, 0.5), button=0)
+                                interactable_rect = dcg.DrawRect(C, pmin=(0, 0), pmax=(0.5, 0.5), color=(255, 0, 0), thickness=-1)
+                                d1 = dcg.utils.DragPoint(C, label="dpoint1", color=[255, 0, 255, 255], x=0.25, y=0.25)
+                                d2 = dcg.utils.DragPoint(C, label="dpoint2", color=[255, 0, 255, 255], clamp_inside=True, x=0.75, y=0.75)
+                        drag_text = dcg.Text(C, value="")
+                        d1.on_dragging = lambda s, t, d: drag_text.configure(value=f"dpoint1 is being dragged at {d}")
+                        d1.on_dragged = lambda s, t, d: drag_text.configure(value=f"dpoint1 was dragged at {d}")
+                        d1.handlers += [dcg.LostHoverHandler(C, callback=lambda: drag_text.configure(value="dpoint1 lost hover"))]
+                        d2.on_dragging = lambda s, t, d: drag_text.configure(value=f"dpoint2 is being dragged at {d}")
+                        d2.on_dragged = lambda s, t, d: drag_text.configure(value=f"dpoint2 was dragged at {d}")
+                        d2.handlers += [dcg.LostHoverHandler(C, callback=lambda: drag_text.configure(value="dpoint2 lost hover"))]
+                        interactable_area.handlers += [
+                            dcg.GotHoverHandler(C, callback=lambda:interactable_rect.configure(color=(0, 255, 0))),
+                            dcg.LostHoverHandler(C, callback=lambda:interactable_rect.configure(color=(255, 0, 0))),
+                        ]
+
+                    with dcg.TreeNode(C, label="Annotations"):
+                        with dcg.Plot(C, label="Annotations", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                            dcg.PlotAnnotation(C, text="BL", x=0.25, y=0.25, offset=(-15, 15), bg_color=[255, 255, 0, 255])
+                            dcg.PlotAnnotation(C, text="BR", x=0.75, y=0.25, offset=(15, 15), bg_color=[255, 255, 0, 255])
+                            dcg.PlotAnnotation(C, text="TR clampled", x=0.75, y=0.75, offset=(-15, -15), bg_color=[255, 255, 0, 255], clamp=True)
+                            dcg.PlotAnnotation(C, text="TL", x=0.25, y=0.75, offset=(-15, -15), bg_color=[255, 255, 0, 255])
+                            dcg.PlotAnnotation(C, text="Center", x=0.5, y=0.5, bg_color=[255, 255, 0, 255])
+
+                    with dcg.TreeNode(C, label="Tags"):
+                        with dcg.Plot(C, label="Tags", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                            with plot.X1:
+                                # Axes tags are the only accepted children of axes
+                                dcg.AxisTag(C, coord=0.25, bg_color=(255, 255, 0, 255), text="0.25")
+                            with plot.Y1:
+                                # Contrary to Dear PyGui, text must always be provided
+                                # (DPG will automatically set it to the coord if not provided)
+                                dcg.AxisTag(C, coord=0.75, bg_color=(255, 255, 0, 255), text="0.75")
+                            plot.X2.enabled = True
+                            plot.Y2.enabled = True
+                            with plot.X2:
+                                dcg.AxisTag(C, coord=0.5, bg_color=(0, 255, 255, 255), text="MyTag")
+                            with plot.Y2:
+                                dcg.AxisTag(C, coord=0.5, bg_color=(0, 255, 255, 255), text="Tag: 42")
+
+                    with dcg.TreeNode(C, label="Legend Options"):
+
+                        with dcg.HorizontalLayout(C):
+                            north_legend = dcg.Checkbox(C, label="North", tag="north_legend", value=False)
+                            east_legend = dcg.Checkbox(C, label="East", tag="east_legend", value=False)
+                            west_legend = dcg.Checkbox(C, label="West", tag="west_legend", value=False)
+                            south_legend = dcg.Checkbox(C, label="South", tag="south_legend", value=False)
+                        horizontal_legend = dcg.Checkbox(C, label="Horizontal", tag="horizontal_legend", value=False)
+                        outside_legend = dcg.Checkbox(C, label="Outside", tag="outside_legend", value=False)
+                        sort_legend = dcg.Checkbox(C, label="Sort", tag="sort_legend", value=False)
+
+                        with dcg.Plot(C, height=400, width=-1) as plot_with_legend:
+                            plot_with_legend.legend_config.configure(location=0, outside=False, sorted=False, horizontal=False)
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="2")
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="1")
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="3")
+                        
+                        def add_remove_location(element, add):
+                            cur_location = plot_with_legend.legend_config.location
+                            try:
+                                if add:
+                                    plot_with_legend.legend_config.location = cur_location | element
+                                else:
+                                    plot_with_legend.legend_config.location = cur_location & (~element)
+                            except ValueError:
+                                # West | East will raise this and will be ignored
+                                pass
+
+                        north_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.NORTH, d)
+                        east_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.EAST, d)
+                        west_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.WEST, d)
+                        south_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.SOUTH, d)
+                        horizontal_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(horizontal=d)
+                        outside_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(outside=d)
+                        sort_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(sorted=d)
+
+                    with dcg.TreeNode(C, label="Legend Popups"):
+                        x = np.linspace(0, 100, 101)
+                        frequency = 0.1
+                        amplitude = 0.5
+                        vals = amplitude * np.sin(frequency * x)
+
+                        with dcg.Plot(C, label="Line Series", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            with dcg.PlotBars(C, X=x, Y=vals, label="Right Click Me!") as plot_bars_with_legend:
+                                # Children of series correspond to the context menu.
+                                # They must be uiItems.
+                                # In addition, DrawInPlot accepts drawing items, but these
+                                # are not part of the context menu.
+                                frequency_slider = dcg.Slider(C, format="float", label="Frequency",
+                                                              value=frequency, min_value=0.01, max_value=5.0)
+                                amplitude_slider = dcg.Slider(C, format="float", label="Amplitude",
+                                                              value=amplitude, min_value=0.01, max_value=5.0)
+                                dcg.Separator(C)
+                        frequency_slider.callbacks = \
+                            lambda: plot_bars_with_legend.configure(Y=amplitude_slider.value * np.sin(frequency_slider.value * x))
+                        amplitude_slider.callbacks = frequency_slider.callbacks
+
+                with dcg.Tab(C, label="Drawing"):
+                    with dcg.TreeNode(C, label="Controling line thickness"):
+                        dcg.Text(C, value="Line thickness can be specified in pixels or plot space.")
+                        with dcg.Plot(C, label="pixel space", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            with dcg.DrawInPlot(C):
+                                # Negatives for size, radius and thickness mean "screen space", that is not in plot coordinates
+                                dcg.DrawLine(C, p1=(0.25, 0.25), p2=(0.75, 0.75), color=[255, 0, 0, 255], thickness=-2)
+                                dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.1, color=[0, 255, 0, 255], thickness=-2)
+                                dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 0, 255, 255], thickness=-2)
+                                dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[255, 255, 0, 255], thickness=-2)
+                                dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
+                        with dcg.Plot(C, label="plot space", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            with dcg.DrawInPlot(C):
+                                dcg.DrawLine(C, p1=(0.25, 0.25), p2=(0.75, 0.75), color=[255, 0, 0, 255], thickness=0.001)
+                                dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.1, color=[0, 255, 0, 255], thickness=0.001)
+                                dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 0, 255, 255], thickness=0.001)
+                                dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[255, 255, 0, 255], thickness=0.001)
+                                dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=0.01)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=0.001, points=5)
+
+                with dcg.Tab(C, label="Help"):
+                    dcg.Text(C, value="Plotting User Guide")
+                    dcg.Text(C, value="Left click and drag within the plot area to pan X and Y axes.", bullet=True)
+                    dcg.Text(C, value="Left click and drag on an axis to pan an individual axis.", bullet=True, indent=20)
+                    dcg.Text(C, value="Scoll in the plot area to zoom both X and Y axes.", bullet=True)
+                    dcg.Text(C, value="Scroll on an axis to zoom an individual axis.", bullet=True, indent=20)
+                    dcg.Text(C, value="Double left click to fit all visible data.", bullet=True)
+                    dcg.Text(C, value="Double left click on an axis to fit the individual axis", bullet=True, indent=20)
+                    dcg.Text(C, value="Double right click to open the plot context menu.", bullet=True)
+                    dcg.Text(C, value="Click legend label icons to show/hide plot items.", bullet=True)
 
 if __name__ == "__main__":
     C = dcg.Context()

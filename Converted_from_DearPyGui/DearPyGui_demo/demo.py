@@ -989,12 +989,12 @@ def show_demo():
                     with dpg.menu_bar():
                         dpg.add_menu(label="Menu Options")
                     with dpg.child_window(auto_resize_x=True, height=95):
-                        if True: #with dpg.group(horizontal=True):
+                        with dpg.group(horizontal=True):
                             dpg.add_button(label="Header 1", width=75, height=75)
                             dpg.add_button(label="Header 2", width=75, height=75)
                             dpg.add_button(label="Header 3", width=75, height=75)
                     with dpg.child_window(auto_resize_x=True, height=175):
-                        if True: #with dpg.group(horizontal=True, width=0):
+                        with dpg.group(horizontal=True, width=0):
                             with dpg.child_window(width=102, height=150):
                                 with dpg.tree_node(label="Nav 1"):
                                     dpg.add_button(label="Button 1")
@@ -1010,7 +1010,7 @@ def show_demo():
                                 dpg.add_button(label="B1", width=25, height=25)
                                 dpg.add_button(label="B2", width=25, height=25)
                                 dpg.add_button(label="B3", width=25, height=25)
-                    if True: #with dpg.group(horizontal=True):
+                    with dpg.group(horizontal=True):
                         dpg.add_button(label="Footer 1", width=175)
                         dpg.add_text("Footer 2")
                         dpg.add_button(label="Footer 3", width=175)
@@ -1239,7 +1239,7 @@ def show_demo():
                     dpg.add_text("All those beautiful files will be deleted.\nThis operation cannot be undone!")
                     dpg.add_separator()
                     dpg.add_checkbox(label="Don't ask me next time")
-                    with dpg.group(horizontal=True, alignment_mode=dpg.dcg.Alignment.JUSTIFIED): # Wanted to show DCG's justified
+                    with dpg.group(horizontal=True):
                         dpg.add_button(label="OK", width=75, callback=lambda: dpg.configure_item("__demo_popup3", show=False))
                         dpg.add_button(label="Cancel", width=75, callback=lambda: dpg.configure_item("__demo_popup3", show=False))
             """
