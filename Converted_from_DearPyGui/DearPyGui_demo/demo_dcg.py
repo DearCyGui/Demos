@@ -447,9 +447,7 @@ def show_demo(C : dcg.Context):
                 dcg.SimplePlot(C, label="Histogram", value=data, height=80, 
                              histogram=True, min_scale=0.0)
 
-                data1 = []
-                for i in range(70):
-                    data1.append(cos(3.14*6*i/180))
+                data1 = np.cos(np.pi/30 * np.arange(70))
 
                 dcg.SimplePlot(C, label="Lines", value=data1, height=80)
                 dcg.SimplePlot(C, label="Histogram", value=data1, height=80, histogram=True)
@@ -1049,8 +1047,11 @@ def show_demo(C : dcg.Context):
             dcg.Separator(C)
 
             # Auto hide tooltip when moving the mouse
-            dcg.Text(C, value="Hide on motion")
+            dcg.Text(C, value="Hide on motion", no_newline=True)
             with dcg.Tooltip(C, hide_on_activity=True):
+                dcg.Text(C, value="I disappear as soon as you move the mouse")
+            dcg.Text(C, value="| And with a delay")
+            with dcg.Tooltip(C, hide_on_activity=True, delay=0.25):
                 dcg.Text(C, value="I disappear as soon as you move the mouse")
 
             dcg.Separator(C)
@@ -1107,13 +1108,9 @@ def show_demo(C : dcg.Context):
 
         with dcg.CollapsingHeader(C, label="Plots"):
 
-            sindatax = []
-            sindatay = []
-            cosdatay = []
-            for i in range(100):
-                sindatax.append(i/100)
-                sindatay.append(0.5 + 0.5*sin(50*i/100)) 
-                cosdatay.append(0.5 + 0.75*cos(50*i/100))
+            sindatax = np.linspace(0, 1, 101)
+            sindatay = 0.5 + 0.5 * np.sin(50 * sindatax)
+            cosdatay = 0.5 + 0.75 * np.cos(50 * sindatax)
 
             with dcg.TabBar(C):
 
@@ -1220,12 +1217,38 @@ def show_demo(C : dcg.Context):
                             dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data3, Y2=stock_data_y2, label="Stock 3", theme=stock_theme3)
                             dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data5, Y2=stock_data4, label="Shade between lines", theme=stock_theme4)
 
-
                     with dcg.TreeNode(C, label="Scatter Series"):
+                        scatter_theme = dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.CIRCLE)
+                        def change_marker(sender, target, marker_name):
+                            scatter_theme.Marker = getattr(dcg.PlotMarker, marker_name.upper())
+
+                        def change_size(sender, target, size):
+                            scatter_theme.MarkerSize = size
+
+                        with dcg.ChildWindow(C, width=-1, auto_resize_y=True, horizontal_scrollbar=True, no_scrollbar=True):
+                            dcg.RadioButton(C, 
+                                items=["Circle", "Square", "Diamond", "Up", "Down",
+                                       "Left", "Right", "Cross", "Plus", "Asterisk"],
+                                horizontal=True,
+                                callback=change_marker
+                            )
+
+                        dcg.Slider(C, 
+                            label="Marker Size", 
+                            format="float",
+                            min_value=2.0,
+                            max_value=10.0,
+                            value=scatter_theme.get_default("MarkerSize"),
+                            callback=change_size
+                        )
+
                         with dcg.Plot(C, label="Scatter Series", height=400, width=-1) as plot_scatter:
                             plot_scatter.X1.label = "X"
-                            plot_scatter.Y1.label = "Y"
-                            dcg.PlotScatter(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+                            plot_scatter.Y1.label = "Y" 
+                            dcg.PlotScatter(C, X=sindatax,
+                                            Y=sindatay,
+                                            label="0.5 + 0.5 * sin(x)",
+                                            theme=scatter_theme)
 
                     with dcg.TreeNode(C, label="Stair Series"):
                         pre_step_cb = dcg.Checkbox(C, label="pre-step", value=False)
