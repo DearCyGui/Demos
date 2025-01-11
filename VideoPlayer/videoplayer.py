@@ -153,7 +153,7 @@ class VideoDecoder:
             self.consumed_data.set()  # Wake up decoder thread
             self.has_video_frames.set()  # Wake up any waiting consumers
             self.has_audio_frames.set()
-        print("Stopping video decoder...")
+        #print("Stopping video decoder...")
         if self.decoding_thread.is_alive():
             self.decoding_thread.join(timeout=5)  # Add timeout to join
         self.stream_container.close()
@@ -488,10 +488,6 @@ class VideoPlayer(dcg.Window):
         self.last_fps_update = time.monotonic()
         self.actual_fps = 0
         
-        # Add render handler for FPS calculation
-        self.handlers += [
-            dcg.RenderHandler(context, callback=self.update_fps)
-        ]
         # Here we store in instance variables each item created
         # Note this is not needed, as attaching them will already
         # have them stored in the children attribute.
@@ -551,6 +547,9 @@ class VideoPlayer(dcg.Window):
             self.info_text = \
                 dcg.Text(context, 
                          value=f"FPS: {self.decoder.frame_rate}")
+            with dcg.Tooltip(context, target=self.info_text):
+                dcg.Text(context, value="Target and actual FPS")
+                dcg.Text(context, value="Actual fps might be higher due to optimistic frame refresh heuristics")
             
             # Status/Error Display
             self.status_text = dcg.Text(context, value="")
@@ -731,20 +730,20 @@ class VideoPlayer(dcg.Window):
         
         This should be called when closing the application.
         """
-        print("Cleaning up video player...")
+        #print("Cleaning up video player...")
         # Signal threads to stop
         self._running = False
         
         # Stop the decoder first
         if self.decoder:
             self.decoder.stop()
-        print("Decoder stopped")
+        #print("Decoder stopped")
 
         # Wait for presenting thread to stop
         if self.presenting_thread.is_alive():
             self.presenting_thread.join(timeout=5)  # Add timeout to join
 
-        print("Presenting thread stopped")
+        #print("Presenting thread stopped")
             
         # Clean up audio resources
         if self.audio_device:
@@ -755,7 +754,7 @@ class VideoPlayer(dcg.Window):
             except:
                 pass
             sdl3.SDL_Quit()
-        print("Audio stopped")
+        #print("Audio stopped")
 
     def handle_keyboard(self, sender : dcg.KeyPressHandler):
         """
@@ -885,6 +884,7 @@ class VideoPlayer(dcg.Window):
         # in advance and display the first one that is not
         # outdated. This is useful to avoid frame drops.
         self.stream_viewer.push(draw_image, expiry_time)
+        #print("Target expiry:", expiry_time)
         self.stream_viewer.clear(only_outdated=True)
 
     def _update_current_time(self):
@@ -959,6 +959,7 @@ class VideoPlayer(dcg.Window):
     def update_fps(self):
         """Calculate actual FPS based on frames rendered"""
         current_time = time.monotonic()
+        #print("Frame at", current_time)
         time_elapsed = current_time - self.last_fps_update
         if time_elapsed >= 1.0:  # Update FPS every second
             self.actual_fps = self.frames_rendered / time_elapsed
@@ -973,8 +974,9 @@ def main():
 
     C = dcg.Context()
     # vsync: limit to screen refresh rate and have no tearing
-    # wait_for_input: Do not refresh until a change is detected (C.viewport.wake())
+    # wait_for_input: Do not refresh until a change is detected (C.viewport.wake()) DrawStream handles that
     C.viewport.initialize(vsync=True,
+                          wait_for_input=True,
                           title="Integrated Image Processing Viewer")
     # primary: use the whole window area
     # no_bring_to_front_on_focus: enables to have windows on top to
@@ -984,7 +986,8 @@ def main():
     try:
         while C.running:
             # can_skip_presenting: no GPU re-rendering on input that has no impact (such as mouse motion) 
-            C.viewport.render_frame()
+            if C.viewport.render_frame(can_skip_presenting=True):
+                player.update_fps()
     finally:
         player.cleanup()
 
