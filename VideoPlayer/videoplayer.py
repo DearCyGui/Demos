@@ -12,6 +12,7 @@ import logging
 import dearcygui as dcg
 from dearcygui.utils import DrawStream
 
+import gc
 import heapq  # For priority queue used in frame ordering
 import traceback
 import numpy as np
@@ -988,6 +989,12 @@ def main():
             # can_skip_presenting: no GPU re-rendering on input that has no impact (such as mouse motion) 
             if C.viewport.render_frame(can_skip_presenting=True):
                 player.update_fps()
+                # One some platforms (at least X11), when vsync is ON,
+                # the CPU seems to busy wait before the next frame.
+                # Using the sleep reduces CPU usage and let the other
+                # threads run.
+                time.sleep(0.01)
+                gc.collect(0) # collect frequently to avoid long stalls
     finally:
         player.cleanup()
 
