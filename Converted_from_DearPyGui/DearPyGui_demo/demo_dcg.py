@@ -1,6 +1,7 @@
 import colorsys
 import datetime
 import dearcygui as dcg
+import dearcygui.utils
 from math import cos, sin
 import numpy as np
 import time
@@ -1902,6 +1903,49 @@ def show_demo(C : dcg.Context):
                                 dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[255, 255, 0, 255], thickness=0.001)
                                 dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=0.01)
                                 dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=0.001, points=5)
+
+                    with dcg.TreeNode(C, label="Animation with DrawStream"):
+                        dcg.Text(C, value="DrawStream allows you to create animations by showing items sequentially.")
+                        dcg.Text(C, value="Each item is associated with an expiration time.", bullet=True)
+                        dcg.Text(C, value="When time_modulus is set, the animation loops.", bullet=True)
+                        
+                        with dcg.Plot(C, label="Animated Shapes", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            plot.X1.min = 0
+                            plot.X1.max = 1
+                            plot.Y1.min = 0
+                            plot.Y1.max = 1
+                            
+                            # Add shapes that will appear in sequence
+                            with dcg.DrawInPlot(C):
+                                # Create a DrawStream with a 4 second loop
+                                stream = dcg.utils.DrawStream(C)
+                                stream.time_modulus = 4.0  # Loop every 4 seconds
+                                # Red circle at t=0s, expires at t=1s
+                                item1 = dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.2, 
+                                             color=(255, 0, 0, 255), thickness=-3)
+                                stream.push(item1, 1.0)
+                                
+                                # Green triangle at t=1s, expires at t=2s
+                                item2 = \
+                                    dcg.DrawTriangle(C, p1=(0.2, 0.2), p2=(0.8, 0.2), p3=(0.5, 0.8),
+                                               color=(0, 255, 0, 255), thickness=-3)
+                                stream.push(item2, 2.0)
+                                
+                                # Blue rectangle at t=2s, expires at t=3s
+                                item3 = \
+                                    dcg.DrawQuad(C, p1=(0.2, 0.2), p2=(0.8, 0.2), 
+                                           p3=(0.8, 0.8), p4=(0.2, 0.8),
+                                           color=(0, 0, 255, 255), thickness=-3)
+                                stream.push(item3, 3.0)
+                                
+                                # Yellow star at t=3s, expires at t=4s
+                                item4 = \
+                                    dcg.DrawStar(C, center=(0.5, 0.5), radius=0.3, 
+                                           inner_radius=0.15, points=5,
+                                           color=(255, 255, 0, 255), thickness=-3)
+                                stream.push(item4, 4.0)
 
                 with dcg.Tab(C, label="Help"):
                     dcg.Text(C, value="Plotting User Guide")
