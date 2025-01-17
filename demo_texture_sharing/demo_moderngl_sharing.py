@@ -109,7 +109,7 @@ def demo_moderngl_sharing():
     input_texture.use(0)
     
     # Create framebuffer using the DCG texture ID
-    dcg_texture = ctx.external_texture(texture.texture_id, (texture.width, texture.height), 4, 0, "u1")
+    dcg_texture = ctx.external_texture(texture.texture_id, (texture.width, texture.height), 4, 0, "f1")
     fbo = ctx.framebuffer(
         color_attachments=[dcg_texture]
     )

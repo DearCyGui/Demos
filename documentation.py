@@ -335,9 +335,10 @@ class MarkDownText(dcg.Layout, marko.Renderer):
         return ""
 
     def render_thematic_break(self, element):
-        with dcg.DrawInWindow(self.C, height=8, width=10000): # TODO: fix height=1 not working
-            dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
+        #with dcg.DrawInWindow(self.C, height=8, width=10000): # TODO: fix height=1 not working
+        #    dcg.DrawLine(self.C, p1 = (-100, 0), p2 = (10000, 0), color=(255, 255, 255))
         #dcg.Spacer(self.C)
+        dcg.Separator(self.C)
         return ""
 
     def render_heading(self, element):

@@ -65,6 +65,12 @@ cdef class GifButton(dcg.ImageButton):
             # using a vector of PyObjects
             with gil:  # Need GIL for Python list access
                 self._texture = self._frames[i]
+            self.context.viewport.force_present() # content changed
         self._current_frame = i
+        # ask_refresh_after takes the time (s in monotonic time) when we will
+        # need to render a new frame. For the purpose of simplicity of this demo
+        # here we ask an immediate refresh. See DrawStream implementation for
+        # a better implementation.
+        self.context.viewport.ask_refresh_after(0)
         
         return dcg.ImageButton.draw_item(self)
