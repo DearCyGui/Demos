@@ -1880,6 +1880,23 @@ def show_demo(C : dcg.Context):
                         amplitude_slider.callbacks = frequency_slider.callbacks
 
                 with dcg.Tab(C, label="Drawing"):
+                    with dcg.TreeNode(C, label="Drawing in a window or a plot"):
+                        with dcg.Plot(C, label="Drawing in a plot", height=400, width=-1) as plot:
+                            plot.X1.label = "x"
+                            plot.Y1.label = "y"
+                            with dcg.DrawInPlot(C):
+                                dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.1, color=[255, 0, 0, 255], thickness=-2)
+                                dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 255, 0, 255], thickness=-2)
+                                dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[0, 0, 255, 255], thickness=-2)
+                                dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
+                        dcg.Text(C, value="Drawing in a window is similar to drawing in a plot, but plot features are unavailable.")
+                        with dcg.DrawInWindow(C, relative=True, invert_y=True, orig_x = 0., orig_y = 0., scale_x=1., scale_y=1., width=-1, height=400):
+                            dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.1, color=[255, 0, 0, 255], thickness=-2)
+                            dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 255, 0, 255], thickness=-2)
+                            dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[0, 0, 255, 255], thickness=-2)
+                            dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
+                            dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
                     with dcg.TreeNode(C, label="Controling line thickness"):
                         dcg.Text(C, value="Line thickness can be specified in pixels or plot space.")
                         with dcg.Plot(C, label="pixel space", height=400, width=-1) as plot:

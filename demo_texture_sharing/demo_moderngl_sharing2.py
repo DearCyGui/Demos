@@ -1,7 +1,5 @@
 import moderngl
 import dearcygui as dcg
-import imageio
-import os
 import numpy as np
 import pyrr
 from collections import deque
