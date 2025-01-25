@@ -28,6 +28,21 @@ def _config(sender, target : dcg.uiItem):
         item = items
         setattr(item, keyword, value)
 
+def _table_flag_config(sender, target : dcg.baseItem, data):
+    table : dcg.Table
+    (table, flag) = target.user_data
+    flags = table.flags
+    if data:
+        flags |= flag
+    else:
+        flags &= ~flag
+    table.flags = flags
+
+def _table_column_config(sender, target : dcg.baseItem, data):
+    table : dcg.Table
+    (table, column, attribute) = target.user_data
+    setattr(table.col_config[column], attribute, data)
+
 def _log(sender, target, data):
     print(f"Event from sender: {sender}, for target: {target}, with data: {data}")
 
@@ -693,6 +708,52 @@ def show_demo(C : dcg.Context):
                 B2 = dcg.Button(C, label="Button 2", width=75, height=75)
                 dcg.Button(C, label="Button 3")
 
+            with dcg.TreeNode(C, label="Grid Layout using Table API"):
+                dcg.Text(C, value="Tables can be used to layout items in an equally spaced grid pattern.")
+                dcg.Text(C, value="Layout items are preferred for simple use-cases")
+                dcg.Text(C, value="See tables section for more detail on tables.")
+                table_grid_layout_demo = \
+                    dcg.Table(C,
+                              flags=dcg.TableFlag.RESIZABLE | \
+                                    dcg.TableFlag.BORDERS_INNER_H | \
+                                    dcg.TableFlag.BORDERS_OUTER_H | \
+                                    dcg.TableFlag.BORDERS_INNER_V | \
+                                    dcg.TableFlag.BORDERS_OUTER_V)
+                with table_grid_layout_demo.next_row:
+                    dcg.Button(C, label="Button 1")
+                    dcg.Button(C, label="Button 2")
+                    dcg.Button(C, label="Button 3")
+                with table_grid_layout_demo.next_row:
+                    dcg.Spacer(C)
+                    dcg.Button(C, label="Button 4")
+                    dcg.Button(C, label="Button 5")
+                
+                dcg.Checkbox(C,
+                             label="resizable",
+                             value=True,
+                             callback=_table_flag_config,
+                             user_data=(table_grid_layout_demo, dcg.TableFlag.RESIZABLE))
+                dcg.Checkbox(C,
+                             label="borders_innerH",
+                             value=True,
+                             callback=_table_flag_config,
+                             user_data=(table_grid_layout_demo, dcg.TableFlag.BORDERS_INNER_H))
+                dcg.Checkbox(C,
+                             label="borders_outerH",
+                             value=True,
+                             callback=_table_flag_config,
+                             user_data=(table_grid_layout_demo, dcg.TableFlag.BORDERS_OUTER_H))
+                dcg.Checkbox(C,
+                             label="borders_innerV",
+                             value=True,
+                             callback=_table_flag_config,
+                             user_data=(table_grid_layout_demo, dcg.TableFlag.BORDERS_INNER_V))
+                dcg.Checkbox(C,
+                             label="borders_outerV",
+                             value=True,
+                             callback=_table_flag_config,
+                             user_data=(table_grid_layout_demo, dcg.TableFlag.BORDERS_OUTER_V))
+
             with dcg.TreeNode(C, label="Child Windows"):
                 with dcg.ChildWindow(C, width=200, height=100, border=True):
                     for i in range(10):
@@ -1106,6 +1167,778 @@ def show_demo(C : dcg.Context):
                 with dcg.utils.TemporaryTooltip(C, target=target, parent=target.parent):
                     dcg.Text(C, value=f"Tooltip creation time: {datetime.datetime.now()}")
             text_dynamic.handlers += [dcg.GotHoverHandler(C, callback=create_tooltip)]
+
+        with dcg.CollapsingHeader(C, label="Tables"):
+            with dcg.TreeNode(C, label="Basic"):
+                # basic usage of the table api
+                table = dcg.Table(C, header=False)
+                for i in range(4):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+                dcg.Separator(C)
+                dcg.Text(C, value="Tables can be declared in several ways for the same result.")
+                dcg.Text(C, value="Example below are identical but with different syntax.")
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for i in range(4):
+                    for j in range(3):
+                        # This syntax is more verbose but allows
+                        # to skip cells more easily,
+                        # and is the only syntax that
+                        # enables to update a single cell.
+                        table[i, j] = dcg.Text(C, value=f"Row{i} Column{j}")
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for i in range(4):
+                    for j in range(3):
+                        # when not using the with syntax, it is possible
+                        # to pass a string directly which will be 
+                        # shown in the cell. If you only use
+                        # text elements, it is recommended to use
+                        # strings directly as it is more efficient.
+                        table[i, j] = f"Row{i} Column{j}"
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for j in range(3):
+                    with table.next_col:
+                        for i in range(4):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for i in range(4):
+                    with table.row(i): # Note this overwrite the row if it was previously set
+                        for j in range(3):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for j in range(3):
+                    with table.col(j):
+                        for i in range(4):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+                dcg.Separator(C)
+                table = dcg.Table(C, header=False)
+                for i in range(4):
+                    items = []
+                    for j in range(3):
+                        # it is also possible to append dcg.Text/etc elements here
+                        items.append(f"Row{i} Column{j}")
+                    table.append_row(items)
+                    # Same syntax exists for append_col,
+                    # and set_row, set_col to overwrite a row or column.
+                    # Finally remove_row, insert_row, etc enable
+                    # to manipulate rows and columns and shift ranges
+                    # of items.
+
+            with dcg.TreeNode(C, label="Number of columns and rows"):
+                dcg.Text(C, value=\
+                    "By default the number of rows and columns is deduced\nfrom the indices of the items. "
+                    "It is possible to force a\nnumber of visible columns/rows that is different\n"
+                    "from the number of columns/rows in the table,\n"
+                    "using the table.num_rows_visible and table.num_cols_visible attributes.\n"
+                    "table.num_rows and table.num_cols hold the actual number.")
+                # num_rows_visible and num_cols_visible defaults are None, which means
+                # use num_rows and num_cols.
+                table = dcg.Table(C, header=False, flags=dcg.TableFlag.BORDERS)
+                table[1, 2] = "Row 1 Column 2"
+                table.num_cols_visible = 4
+                table.num_rows_visible = 3
+                # For the purpose of this demo, increase the spacing between rows
+                for i in range(3):
+                    table.row_config[i].min_height = 50
+                dcg.Text(C, value=f"This table has actually only {table.num_rows} rows and {table.num_cols} columns.")
+
+            with dcg.TreeNode(C, label="Borders, background"):
+                table = dcg.Table(C,
+                                  header=False,
+                                  flags = dcg.TableFlag.ROW_BG | \
+                                          dcg.TableFlag.BORDERS_INNER_H | \
+                                          dcg.TableFlag.BORDERS_OUTER_H | \
+                                          dcg.TableFlag.BORDERS_INNER_V | \
+                                          dcg.TableFlag.BORDERS_OUTER_V)
+                for i in range(5):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+                with dcg.HorizontalLayout(C):
+                    with dcg.VerticalLayout(C):
+                        dcg.Checkbox(C, label="row_background", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.ROW_BG))
+                        dcg.Checkbox(C, label="borders_innerH", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS_INNER_H))
+                        dcg.Checkbox(C, label="borders_innerV", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS_INNER_V))
+                    with dcg.VerticalLayout(C):
+                        dcg.Checkbox(C, label="borders_outerH", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS_OUTER_H))
+                        dcg.Checkbox(C, label="borders_outerV", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS_OUTER_V))
+                        dcg.Checkbox(C, label="header", value=False, callback=_config, user_data=table)
+
+            with dcg.TreeNode(C, label="Colors"):
+                with dcg.TreeNode(C, label="Alternating row colors"):
+                    dcg.Text(C, value="The TableFlag.ROW_BG flag enables to set alternating row colors.")
+                    dcg.Text(C, value="The colors corresponds to the theme's TableRowBg and TableRowBgAlt.")
+                    table = dcg.Table(C, header=False, flags=dcg.TableFlag.ROW_BG)
+                    table.theme = \
+                        dcg.ThemeColorImGui(C,
+                            TableRowBg=(0, 255, 0),
+                            TableRowBgAlt=(0, 0, 255))
+                    for i in range(6):
+                        with table.next_row:
+                            for j in range(6):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+
+                with dcg.TreeNode(C, label="Manual row colors"):
+                    dcg.Text(C, value="It is also possible to set the row/col colors manually.")
+                    dcg.Text(C, value="The row_config attribute holds the configuration of each row.")
+                    dcg.Text(C, value="The bg_color attribute of a row configuration enables to set the color.")
+                    dcg.Text(C, value="Note that there is no equivalent bg_color for columns")
+                    table = dcg.Table(C, header=False)
+                    for i in range(6):
+                        with table.next_row:
+                            for j in range(6):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+                    for i in range(6):
+                        table.row_config[i].bg_color = (255, 0, 0, i * 255 // 8)
+
+                with dcg.TreeNode(C, label="Manual cell colors"):
+                    dcg.Text(C, value="Cell colors can be set manually.")
+                    dcg.Text(C, value="Table[i, j] returns a TableElement which enables to set a background color.")
+                    dcg.Text(C, value="It is also possible to write a TableElement directly to Table[i, j].")
+                    table = dcg.Table(C, header=False)
+                    for i in range(6):
+                        with table.next_row:
+                            for j in range(6):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+                    table[1, 0].bg_color = (0, 255, 0, 100)# -> will have no effect because the table element is not set
+                    # indeed table[1, 0] returns a copy of the configuration element,
+                    # not a reference. To set the element, one must write it back.
+                    table_element = table[1, 1]
+                    table_element.bg_color = (0, 255, 0, 100)
+                    table[1, 1] = table_element
+                    # Alternative syntax:
+                    table[2, 2] = {"content": "Row2 Column2", "bg_color": (0, 0, 255, 100)}
+                    table[3, 3] = dcg.TableElement(C, content="Row3 Column3", bg_color=(255, 0, 0, 100))
+
+                with dcg.TreeNode(C, label="Combining colors"):
+                    dcg.Text(C, value="It is possible to combine the different color settings.")
+                    dcg.Text(C, value="The color set at the cell level has precedence over the row color.")
+                    dcg.Text(C, value="Which itself has precedence over the alternating row colors.")
+                    table = dcg.Table(C, header=False, flags=dcg.TableFlag.ROW_BG)
+                    table.theme = \
+                        dcg.ThemeColorImGui(C,
+                            TableRowBg=(0, 255, 0),
+                            TableRowBgAlt=(0, 0, 255))
+                    for i in range(6):
+                        with table.next_row:
+                            for j in range(6):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+                    # Note: if you set alpha != 255, blending will occur.
+                    table_element = table[1, 1]
+                    table_element.bg_color = (0, 0, 255)
+                    table[1, 1] = table_element
+                    table.row_config[1].bg_color = (255, 0, 0)
+
+            with dcg.TreeNode(C, label="Resizing"):
+                with dcg.TreeNode(C, label="Stretch columns"):
+                    dcg.Text(C, value="Columns can be stretched to fill the remaining space.")
+                    dcg.Text(C, value="The stretch attribute of a column configuration enables to stretch the column.")
+                    table = dcg.Table(C, header=False, flags=dcg.TableFlag.BORDERS)
+                    for i in range(3):
+                        with table.next_row:
+                            for j in range(3):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+                    # The table policy here defaults stretch = None to stretch = True,
+                    # however it is needed to set manually if one wants to apply
+                    # a non-default stretch weight.
+                    table.col_config[1].stretch = True
+                    table.col_config[1].stretch_weight = 2.
+                    with dcg.HorizontalLayout(C):
+                        dcg.Checkbox(C, label="stretch", value=True, callback=_table_column_config, user_data=(table, 1, "stretch"))
+                        dcg.Checkbox(C, label="resizable", value=False, callback=_table_flag_config, user_data=(table, dcg.TableFlag.RESIZABLE))
+                        dcg.Checkbox(C, label="borders", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS))
+
+                with dcg.TreeNode(C, label="Fixed columns"):
+                    dcg.Text(C, value="Columns can be fixed to a specific width.")
+                    dcg.Text(C, value="The width attribute of a column configuration enables to set the width.")
+                    table = dcg.Table(C, header=False, flags=dcg.TableFlag.BORDERS | dcg.TableFlag.SIZING_FIXED_FIT)
+                    for i in range(3):
+                        with table.next_row:
+                            for j in range(3):
+                                dcg.Text(C, value=f"Row{i} Column{j}")
+                    # Same as above. While the table policy would
+                    # default stretch = None to stretch = False,
+                    # it is needed to set manually if one wants to apply
+                    # a non-default width.
+                    table.col_config[1].stretch = False
+                    table.col_config[1].width = 300
+                    # SIZING_FIXED_FIT interpretes col_config.stretch = None as stretch = False for all columns
+                    with dcg.HorizontalLayout(C):
+                        dcg.Checkbox(C, label="stretch", value=False, callback=_table_column_config, user_data=(table, 1, "stretch"))
+                        dcg.Checkbox(C, label="resizable", value=False, callback=_table_flag_config, user_data=(table, dcg.TableFlag.RESIZABLE))
+                        dcg.Checkbox(C, label="borders", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS))
+                        dcg.Checkbox(C, label="no_host_extendX", value=False, callback=_table_flag_config, user_data=(table, dcg.TableFlag.NO_HOST_EXTEND_X))
+
+            with dcg.TreeNode(C, label="Tooltips"):
+                dcg.Text(C, value="Tooltips can be attributed to cells of a table.")
+                table = dcg.Table(C, header=False)
+                with table.next_row:
+                    for j in range(3):
+                        dcg.Text(C, value=f"Column{j}")
+                        with dcg.Tooltip(C):
+                            dcg.Text(C, value="Tables skip tooltip items when attributing cells.")
+
+                table = dcg.Table(C, header=False)
+                for j in range(3):
+                    # Note it doesn't have to be strings with this syntax.
+                    # It can be directly the inside of a dcg.Tooltip.
+                    # The dcg.Tooltip syntax enables more control (such as
+                    # hovering delay, etc).
+                    # a TableElement can be used instead of a dict.
+                    table[0, j] = {"content": f"Column{j}", "tooltip": f"item {j}"}
+
+            with dcg.TreeNode(C, label="Columns Options"):
+                # Create main table with all the features enabled
+                table = dcg.Table(C, 
+                            header=True,
+                            flags=dcg.TableFlag.BORDERS_INNER_H | \
+                                  dcg.TableFlag.BORDERS_OUTER_H | \
+                                  dcg.TableFlag.BORDERS_INNER_V | \
+                                  dcg.TableFlag.ROW_BG | \
+                                  dcg.TableFlag.HIDEABLE | \
+                                  dcg.TableFlag.REORDERABLE | \
+                                  dcg.TableFlag.RESIZABLE | \
+                                  dcg.TableFlag.SORTABLE | \
+                                  dcg.TableFlag.SCROLL_X | \
+                                  dcg.TableFlag.SCROLL_Y |
+                                  dcg.TableFlag.NO_HOST_EXTEND_X)
+
+                # Add columns with different configuration options
+                # First column with default sort
+                #table.col_config[0].default_sort = True
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+                table.col_config[2].enabled = False # Start hidden
+
+                # Add 8 rows of data with increasing indentation
+                for i in range(8):
+                    with table.next_row:
+                        dcg.Text(C, value=(i * " ") + "Indented One")
+                        dcg.Text(C, value="Hello Two")
+                        dcg.Text(C, value="Hello Three")
+
+                # Column configuration options 
+                options = [
+                    "default_sort", 
+                    "stretch",
+                    "no_resize",
+                    "no_reorder",
+                    "no_hide",
+                    "no_clip",
+                    "no_sort",
+                    "no_sort_ascending",
+                    "no_sort_descending", 
+                    "no_header_width",
+                    "prefer_sort_ascending",
+                    "prefer_sort_descending"
+                ]
+
+                tb_config = dcg.Table(C, header=False)
+                for i in range(3):
+                    tb_config[0, i]=["One", "Two", "Three"][i]
+                    for (j, opt) in enumerate(options):
+                        tb_config[j+1, i] = dcg.Checkbox(C,
+                            label=opt, callback=_table_column_config,
+                            user_data=(table, i, opt))
+
+            with dcg.TreeNode(C, label="Columns states"):
+                # Create table with resizable columns
+                table = dcg.Table(C, 
+                            header=True, 
+                            flags=dcg.TableFlag.BORDERS_OUTER_H | \
+                                  dcg.TableFlag.BORDERS_INNER_H | \
+                                  dcg.TableFlag.HIDEABLE | \
+                                  dcg.TableFlag.SIZING_FIXED_SAME |
+                                  dcg.TableFlag.RESIZABLE)
+
+                # Add columns with different configuration options
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+                table.col_config[3].label = "Four"
+                column_visible_text = dcg.Text(C, value="Last column is not Visible")
+
+                # color the columns when they are hovered:
+                for i in range(4):
+                    bg_color = (255, 0, 0, 100)
+                    def update_color_on_hover(sender, table=table, i=i):
+                        for j in range(3):
+                            element = table[j, i]
+                            element.bg_color = bg_color
+                            table[j, i] = element
+                    def update_color_on_unhover(sender, table=table, i=i):
+                        for j in range(3):
+                            element = table[j, i]
+                            element.bg_color = 0
+                            table[j, i] = element
+                    def update_color(sender, table=table, i=i):
+                        nonlocal bg_color
+                        bg_color = np.random.randint(0, 255, 3).tolist() + [100]
+                        if table.col_config[i].hovered:
+                            for j in range(3):
+                                element = table[j, i]
+                                element.bg_color = bg_color
+                                table[j, i] = element
+                    def toggle_open(sender, table=table, i=i):
+                        table.col_config[i].num_rows_visible = i
+                    table.col_config[i].handlers += [
+                        dcg.GotHoverHandler(C,
+                                            callback=update_color_on_hover),
+                        dcg.LostHoverHandler(C,
+                                            callback=update_color_on_unhover),
+                        dcg.ClickedHandler(C, callback=update_color),
+                        dcg.ToggledOpenHandler(C, callback=toggle_open),
+                        dcg.ToggledCloseHandler(C, callback=toggle_open)
+                    ]
+                    if i == 3:
+                        # In the case of col_config, the render handler corresponds to
+                        # the column being visible or not. Items are still rendered.
+                        table.col_config[i].handlers += [
+                            dcg.LostRenderHandler(C,
+                                callback=lambda : column_visible_text.configure(value="Last column is not Visible")),
+                            dcg.GotRenderHandler(C,
+                                callback=lambda : column_visible_text.configure(value="Last column is Visible"))
+                        ]
+                        
+
+                # Add 3 rows of data
+                for i in range(3):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Hello {i}, {j}                      ")
+                        dcg.Button(C, label="Buttons do not block hover")
+
+            with dcg.TreeNode(C, label="Columns widths"): # TODO
+                # Create table with resizable columns
+                table = dcg.Table(C, 
+                            header=True,
+                            flags=dcg.TableFlag.BORDERS_OUTER_H | \
+                                  dcg.TableFlag.BORDERS_INNER_H | \
+                                  dcg.TableFlag.BORDERS_OUTER_V | \
+                                  dcg.TableFlag.BORDERS_INNER_V |
+                                  dcg.TableFlag.NO_KEEP_COLUMNS_VISIBLE |
+                                  dcg.TableFlag.RESIZABLE)
+
+                # Add columns with different configuration options
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+
+                # Add 3 rows of data
+                for i in range(3):
+                    for j in range(3):
+                        table[i, j] = f"Hello {i}, {j}"
+
+                # Add text to show column width
+                with table.next_row:
+                    for j in range(3):
+                        text_id = dcg.TextValue(C, print_format="(w: %0.f)", value=0.)
+                        text_id.handlers += [
+                            dcg.RenderHandler(C,
+                                user_data = (text_id, table, j),
+                                callback=lambda s: s.user_data[0].configure(
+                                    value=s.user_data[1].col_config[s.user_data[2]].width)
+                                )
+                        ]
+
+                # Same but with content width
+                with table.next_row:
+                    for j in range(3):
+                        text_id = dcg.TextValue(C, print_format="(w: %0.f)", value=0.)
+                        text_id.handlers += [
+                            dcg.RenderHandler(C,
+                                user_data = (text_id, table, j),
+                                callback=lambda s: s.user_data[0].configure(
+                                    value=s.user_data[1].col_config[s.user_data[2]].content_area[0])
+                                )
+                        ]
+
+                # Checkboxes for a few table options that affect sizing
+                with dcg.HorizontalLayout(C):
+                    for option in ["no_keep_columns_visible", "borders_inner_H", "borders_outer_H", "borders_inner_V", "borders_outer_V"]:
+                        dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+
+            with dcg.TreeNode(C, label="Row heights"):
+                # Create table with resizable columns
+                table = dcg.Table(C, 
+                            header=True,
+                            flags=dcg.TableFlag.BORDERS_OUTER_H | \
+                                  dcg.TableFlag.BORDERS_INNER_H | \
+                                  dcg.TableFlag.BORDERS_OUTER_V | \
+                                  dcg.TableFlag.BORDERS_INNER_V |
+                                  dcg.TableFlag.RESIZABLE)
+
+                # Add columns with different configuration options
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+
+                # Add 3 rows of data
+                for i in range(3):
+                    # Force increasing min_height
+                    table.row_config[i].min_height = 20 + 30 * i
+                    for j in range(3):
+                        table[i, j] = f"min height = {20 + 30 * i}"
+
+            with dcg.TreeNode(C, label="Padding"):
+                table = dcg.Table(C,
+                                  header=False,
+                                  flags=dcg.TableFlag.RESIZABLE | \
+                                        dcg.TableFlag.HIDEABLE | \
+                                        dcg.TableFlag.REORDERABLE | \
+                                        dcg.TableFlag.BORDERS_OUTER_V | \
+                                        dcg.TableFlag.BORDERS_INNER_H)
+
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "three"
+
+                for i in range(5):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Button(C, label=f"Hello {i}, {j}", width=-1)
+
+                with dcg.HorizontalLayout(C):
+                    for option in ["pad_outer_X", "no_pad_outer_X", "no_pad_inner_X", "borders_outer_V", "borders_inner_V"]:
+                        dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+
+            with dcg.TreeNode(C, label="Reorderable, hideable, with headers"):
+                table = dcg.Table(C,
+                                  header=True,
+                                  flags=dcg.TableFlag.BORDERS_OUTER_H | \
+                                        dcg.TableFlag.BORDERS_INNER_H | \
+                                        dcg.TableFlag.BORDERS_OUTER_V | \
+                                        dcg.TableFlag.BORDERS_INNER_V | \
+                                        dcg.TableFlag.HIDEABLE | \
+                                        dcg.TableFlag.REORDERABLE | \
+                                        dcg.TableFlag.RESIZABLE)
+
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "three"
+
+                for i in range(5):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Hello {i}, {j}")
+
+                with dcg.HorizontalLayout(C):
+                    for option in ["hideable", "reorderable", "resizable"]:
+                        dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+
+            with dcg.TreeNode(C, label="Outer Size"):
+                table = dcg.Table(C, 
+                                  header=False,
+                                  flags=dcg.TableFlag.BORDERS_INNER_H | \
+                                        dcg.TableFlag.BORDERS_OUTER_H | \
+                                        dcg.TableFlag.BORDERS_INNER_V | \
+                                        dcg.TableFlag.BORDERS_OUTER_V | \
+                                        dcg.TableFlag.ROW_BG | \
+                                        dcg.TableFlag.SIZING_FIXED_FIT |
+                                        dcg.TableFlag.NO_HOST_EXTEND_X,
+                                  height=150)
+
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two" 
+                table.col_config[2].label = "three"
+
+                for i in range(10):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Cell {i}, {j}")
+
+                with dcg.HorizontalLayout(C):
+                    for option in ["no_host_extend_X", "no_host_extend_Y", "resizable"]:
+                        dcg.Checkbox(C, label=option, value=False, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+
+                dcg.Text(C, value="Using explicit size:")
+                table2 = dcg.Table(C,
+                                     header=False, 
+                                     flags=dcg.TableFlag.BORDERS_INNER_H | \
+                                           dcg.TableFlag.BORDERS_OUTER_H | \
+                                           dcg.TableFlag.BORDERS_INNER_V | \
+                                           dcg.TableFlag.BORDERS_OUTER_V | \
+                                           dcg.TableFlag.ROW_BG | \
+                                           dcg.TableFlag.SIZING_FIXED_FIT |
+                                           dcg.TableFlag.NO_HOST_EXTEND_X,
+                                     height=300,
+                                     width=300)
+
+                table2.col_config[0].label = "One"
+                table2.col_config[1].label = "Two"
+                table2.col_config[2].label = "three"
+
+                for i in range(6):
+                    with table2.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Cell {i}, {j}")
+
+            with dcg.TreeNode(C, label="Scrolling"):
+                table = dcg.Table(C, 
+                                  header=True,
+                                  height=150,
+                                  width=150,
+                                  flags=dcg.TableFlag.BORDERS | \
+                                        dcg.TableFlag.CONTEXT_MENU_IN_BODY | \
+                                        dcg.TableFlag.ROW_BG | \
+                                        dcg.TableFlag.SIZING_FIXED_FIT | \
+                                        dcg.TableFlag.SCROLL_X | \
+                                        dcg.TableFlag.SCROLL_Y)
+
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "three"
+
+                for i in range(25):
+                    with table.next_row:
+                        dcg.InputValue(C, label=" ", format="int", step=0)
+                        dcg.Button(C, label=f"Cell {i}, 1")
+                        dcg.Text(C, value=f"Cell {i}, 2")
+
+                with dcg.HorizontalLayout(C):
+                    for option in ["scroll_X", "scroll_Y", "resizable"]:
+                        dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+                with dcg.HorizontalLayout(C):
+                    def _table_frozen_rows(sender, target, value, table=table):
+                        table.num_rows_frozen = value
+                    dcg.Slider(C, label="Number of frozen rows", format="int", value=0, min_value=0, max_value=25, callback=_table_frozen_rows)
+                    def _table_frozen_cols(sender, target, value, table=table):
+                        table.num_cols_frozen = value
+                    dcg.Slider(C, label="Number of frozen columns", format="int", value=0, min_value=0, max_value=3, callback=_table_frozen_cols)
+
+            with dcg.TreeNode(C, label="Filtering"):
+                dcg.Text(C, value="Using Filter (column 3)")
+                table = dcg.Table(C,
+                                  header=True,
+                                  flags = \
+                                    dcg.TableFlag.BORDERS | \
+                                    dcg.TableFlag.NO_HOST_EXTEND_X | \
+                                    dcg.TableFlag.CONTEXT_MENU_IN_BODY | \
+                                    dcg.TableFlag.ROW_BG | \
+                                    dcg.TableFlag.SIZING_FIXED_FIT | \
+                                    dcg.TableFlag.SCROLL_Y,
+                                   height=300)
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+
+                for i in range(25):
+                    with table.next_row:
+                        dcg.InputValue(C, label=" ", format="int", step=0)
+                        dcg.Button(C, label=f"Cell {i}, 1")
+                        dcg.Text(C, value=str(int(10000*np.random.randn())))
+
+                def _filter_rows(sender, target, value, table=table):
+                    if table is None:
+                        return
+                    for i in range(table.num_rows):
+                        table.row_config[i].show = value in table[i, 2].content.value
+                dcg.InputText(C, label="Filter", decimal=True, before=table, callback=_filter_rows)
+
+            with dcg.TreeNode(C, label="Sorting"):
+                dcg.Text(C, value="Sorting")
+                table = dcg.Table(C,
+                                  header=True,
+                                  flags = \
+                                    dcg.TableFlag.BORDERS | \
+                                    dcg.TableFlag.NO_HOST_EXTEND_X | \
+                                    dcg.TableFlag.CONTEXT_MENU_IN_BODY | \
+                                    dcg.TableFlag.ROW_BG | \
+                                    dcg.TableFlag.SIZING_FIXED_FIT | \
+                                    dcg.TableFlag.SCROLL_Y | \
+                                    dcg.TableFlag.SORTABLE |
+                                    dcg.TableFlag.SORT_MULTI |
+                                    dcg.TableFlag.SORT_TRISTATE,
+                                   height=300)
+                table.col_config[0].label = "One"
+                table.col_config[1].label = "Two"
+                table.col_config[2].label = "Three"
+
+                # When writing the content as a string, it uses
+                # this value for the sorting.
+                # When writing an item, it uses it's uuid (creation order)
+                # to have a custom order, you can write to the
+                # "ordering_value" field of table[i, j]
+
+                for i in range(25):
+                    # The content of the table is used to infer ordering_value
+                    # here we pass an integer which will be used for sorting.
+                    # The displayed element is a conversion of this integer to a string.
+                    table[i, 0] = int(10000*np.random.randn())
+                    # Alternative way of setting ordering value directly
+                    # when passing a complex content
+                    v1 = int(10000*np.random.randn())
+                    table[i, 1] = {
+                        "content": dcg.Text(C,
+                                            value=str(v1),
+                                            color = (255, 255, 0)),
+                        "ordering_value": v1 # Any type is accepted. The sorting is done according to the type of the value.
+                    }
+                # Alternate way of setting ordering value using a different
+                # syntax
+                with table.next_col:
+                    for i in range(25):
+                        dcg.Text(C,
+                                 value=str(int(10000*np.random.randn())),
+                                 color = (0, 255, 255))
+                for i in range(25):
+                    # table[i, 2].ordering_value = ... won't work because
+                    # it modified the table element but doesn't set it again.
+                    table_element = table[i, 2]
+                    table_element.ordering_value = int(table_element.content.value)
+                    table[i, 2] = table_element
+
+                # Extend the table with interesting elements for sorting
+                for i in range(25):
+                    table[i+25, 0] = table[i, 0]
+                    table[i+25, 1] = table[(i+12)%25, 1]
+                    table[i+25, 2] = table[(i+6)%25, 2]
+
+                def _change_sorting_type(sender, target, value, table=table):
+                    for i in range(table.num_rows):
+                        for j in range(table.num_cols):
+                            table_element = table[i, j]
+                            if value == "integer":
+                                table_element.ordering_value = int(table_element.ordering_value)
+                            else:
+                                table_element.ordering_value = str(table_element.ordering_value)
+                            table[i, j] = table_element
+                dcg.RadioButton(C, label="Sort as ", items=["integer", "string (lexicographic)"],
+                                horizontal=True,
+                                value="integer", callback=_change_sorting_type)
+                with dcg.HorizontalLayout(C):
+                    for option in ["sortable", "sort_multi", "sort_tristate"]:
+                        dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
+                dcg.Text(C, wrap=0,
+                         value="Multi: Hold shift to sort on multiple columns. "
+                               "The array contains duplicated values to demonstrate this feature.")
+                dcg.Text(C, value="Tristate: Adds a neutral sorting arrow")
+
+            with dcg.TreeNode(C, label="Selecting rows"):
+                #Create theme that hides table headers
+                table_theme = \
+                    dcg.ThemeColorImGui(C,
+                        HeaderActive=(0, 0, 0, 0),
+                        Header=(0, 0, 0, 0))
+
+                table_sel_rows = dcg.Table(C, header=True, theme=table_theme)
+                table_sel_rows.col_config[0].label = "First"
+                table_sel_rows.col_config[1].label = "Second"
+                table_sel_rows.col_config[2].label = "Third"
+
+                def clb_selectable(sender, target, user_data):
+                    print(f"Row {user_data}")
+
+                for i in range(10):
+                    with table_sel_rows.next_row:
+                        for j in range(3):
+                            dcg.Selectable(C,
+                                label=f"Row{i} Column{j}",
+                                callback=clb_selectable, 
+                                span_columns=True,
+                                user_data=i)
+
+            with dcg.TreeNode(C, label="Selecting cells"):
+                table_sel_cols = dcg.Table(C, header=True, theme=table_theme)
+                table_sel_cols.col_config[0].label = "First"
+                table_sel_cols.col_config[1].label = "Second"
+                table_sel_cols.col_config[2].label = "Third"
+
+                def clb_selectable(sender, target, user_data):
+                    print(f"Row {user_data}")
+
+                for i in range(10):
+                    with table_sel_cols.next_row:
+                        for j in range(3):
+                            dcg.Selectable(C,
+                                label=f"Row{i} Column{j}",
+                                callback=clb_selectable,
+                                user_data=(i, j))
+
+            with dcg.TreeNode(C, label="Sizing Policy"):
+                def create_table_set(size_policy: dcg.TableFlag):
+                    """Create a pair of tables with given sizing policy"""
+                    # First table with more rows
+                    table1 = dcg.Table(C, header=False,
+                                      flags=dcg.TableFlag.BORDERS_INNER_H | \
+                                            dcg.TableFlag.BORDERS_OUTER_H | \
+                                            dcg.TableFlag.BORDERS_INNER_V | \
+                                            dcg.TableFlag.BORDERS_OUTER_V | \
+                                            dcg.TableFlag.ROW_BG | size_policy)
+                    for i in range(8):
+                        with table1.next_row:
+                            for j in range(3):
+                                dcg.Text(C, value="Oh dear")
+
+                    # Second table with varying width content
+                    table2 = dcg.Table(C, header=False,
+                                      flags=dcg.TableFlag.BORDERS_INNER_H | \
+                                            dcg.TableFlag.BORDERS_OUTER_H | \
+                                            dcg.TableFlag.BORDERS_OUTER_V | \
+                                            dcg.TableFlag.ROW_BG | size_policy)
+                    for i in range(3):
+                        with table2.next_row:
+                            dcg.Text(C, value="AAAA")
+                            dcg.Text(C, value="BBBBBBBB")
+                            dcg.Text(C, value="CCCCCCCCCCCC")
+                    return table1, table2
+
+                # Create tables with different policies
+                tables_fixed_fit = create_table_set(dcg.TableFlag.SIZING_FIXED_FIT)
+                tables_fixed_same = create_table_set(dcg.TableFlag.SIZING_FIXED_SAME)
+                tables_stretch_prop = create_table_set(dcg.TableFlag.SIZING_STRETCH_PROP)
+                tables_stretch_same = create_table_set(dcg.TableFlag.SIZING_STRETCH_SAME)
+
+                all_tables = [*tables_fixed_fit, *tables_fixed_same, 
+                            *tables_stretch_prop, *tables_stretch_same]
+                SIZING_MASK = dcg.TableFlag.SIZING_FIXED_FIT | \
+                              dcg.TableFlag.SIZING_FIXED_SAME | \
+                              dcg.TableFlag.SIZING_STRETCH_PROP | \
+                              dcg.TableFlag.SIZING_STRETCH_SAME
+
+                # Controls
+                policies = ["FIXED_FIT", "FIXED_SAME", "STRETCH_PROP", "STRETCH_SAME"]
+
+                def update_policy(table_pair_idx, policy_name):
+                    """Update sizing policy for a pair of tables"""
+                    policy = getattr(dcg.TableFlag, "SIZING_"+policy_name)
+                    start_idx = table_pair_idx * 2
+                    all_tables[start_idx].flags &= ~SIZING_MASK
+                    all_tables[start_idx].flags |= policy
+                    all_tables[start_idx + 1].flags &= ~SIZING_MASK
+                    all_tables[start_idx + 1].flags |= policy
+
+                def update_flag(flag: dcg.TableFlag, value: bool):
+                    """Update flag for all tables"""
+                    for table in all_tables:
+                        flags = table.flags
+                        if value:
+                            flags |= flag
+                        else:
+                            flags &= ~flag
+                        table.flags = flags
+
+                # Add controls at the top
+                with dcg.HorizontalLayout(C, before=tables_fixed_fit[0]):
+                    dcg.Checkbox(C, label="resizable",
+                               callback=lambda s, t, d: update_flag(dcg.TableFlag.RESIZABLE, d))
+                    dcg.Checkbox(C, label="no_host_extendX",
+                               callback=lambda s, t, d: update_flag(dcg.TableFlag.NO_HOST_EXTEND_X, d))
+
+                # Add policy selectors for each pair
+                for i in range(4):
+                    dcg.Combo(C, items=policies, label="Sizing Policy",
+                             value=policies[i],
+                             before=all_tables[2*i],
+                             callback=lambda s, t, d, idx=i: update_policy(idx, d))
+
 
         with dcg.CollapsingHeader(C, label="Plots"):
 
