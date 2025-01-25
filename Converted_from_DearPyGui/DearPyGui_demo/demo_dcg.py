@@ -1270,6 +1270,94 @@ def show_demo(C : dcg.Context):
                         dcg.Checkbox(C, label="borders_outerV", value=True, callback=_table_flag_config, user_data=(table, dcg.TableFlag.BORDERS_OUTER_V))
                         dcg.Checkbox(C, label="header", value=False, callback=_config, user_data=table)
 
+            with dcg.TreeNode(C, label="Manipulating items"):
+                dcg.Text(C, value="The following section shows how to manipulate table items and groups of items.")
+
+                # Create a basic table with some content
+                table = dcg.Table(C, header=False, flags=dcg.TableFlag.BORDERS)
+                for i in range(3):
+                    with table.next_row:
+                        for j in range(3):
+                            dcg.Text(C, value=f"Row{i} Column{j}")
+
+                dcg.Separator(C)
+                dcg.Text(C, value="Basic item manipulation:")
+
+                def swap_cells(table=table):
+                    table.swap((0, 0), (1, 1))
+                dcg.Button(C, label="Swap (0,0) and (1,1)", callback=swap_cells)
+
+                def delete_cell(table=table):
+                    del table[0, 0]
+                dcg.Button(C, label="Delete cell (0,0)", callback=delete_cell)
+
+                def set_cell(table=table):
+                    table[0, 0] = "New Value"
+                dcg.Button(C, label="Set cell (0,0)", callback=set_cell)
+
+                dcg.Separator(C)
+                dcg.Text(C, value="Row manipulation:")
+
+                def swap_rows(table=table):
+                    table.swap_rows(0, 1)
+                dcg.Button(C, label="Swap rows 0 and 1", callback=swap_rows)
+
+                def remove_row(table=table):
+                    table.remove_row(0)
+                dcg.Button(C, label="Remove row 0", callback=remove_row)
+
+                def insert_row(table=table):
+                    table.insert_row(0, ["New", "Row", "Here"])
+                dcg.Button(C, label="Insert row at 0", callback=insert_row)
+
+                def append_row(table=table):
+                    table.append_row(["Appended", "Row", "Here"])
+                dcg.Button(C, label="Append row", callback=append_row)
+
+                dcg.Separator(C)
+                dcg.Text(C, value="Column manipulation:")
+
+                def swap_cols(table=table):
+                    table.swap_cols(0, 1)
+                dcg.Button(C, label="Swap columns 0 and 1", callback=swap_cols)
+
+                def remove_col(table=table):
+                    table.remove_col(0)
+                dcg.Button(C, label="Remove column 0", callback=remove_col)
+
+                def insert_col(table=table):
+                    table.insert_col(0, ["New", "Column", "Here"])
+                dcg.Button(C, label="Insert column at 0", callback=insert_col)
+
+                def append_col(table=table):
+                    table.append_col(["Appended", "Column", "Here"])
+                dcg.Button(C, label="Append column", callback=append_col)
+
+                dcg.Separator(C)
+                dcg.Text(C, value="Table iteration and clearing:")
+
+                table_output = None
+                def update_table_output(table=table):
+                    nonlocal table_output
+                    output = "Table contents:\n"
+                    for (i, j) in table:
+                        content = table[i,j].content
+                        if content is None:
+                            value = None
+                        elif isinstance(content, dcg.uiItem):
+                            value = (type(content), content.label, content.value)
+                        else:
+                            value = str(content)
+                        output += f"({i},{j}): {value}\n"
+                    table_output.value = output
+
+                dcg.Button(C, label="Show table contents", callback=update_table_output)
+                table_output = dcg.InputText(C, readonly=True, height=200, multiline=True) 
+
+                def clear_table(table=table):
+                    table.clear()
+                dcg.Button(C, label="Clear table", callback=clear_table)
+
             with dcg.TreeNode(C, label="Colors"):
                 with dcg.TreeNode(C, label="Alternating row colors"):
                     dcg.Text(C, value="The TableFlag.ROW_BG flag enables to set alternating row colors.")
