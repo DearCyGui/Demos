@@ -3,6 +3,7 @@ import datetime
 import dearcygui as dcg
 import dearcygui.utils
 from math import cos, sin
+import os
 import numpy as np
 import time
 
@@ -188,9 +189,9 @@ def show_demo(C : dcg.Context):
                 dcg.InputValue(C, label="input float", format="float", print_format="%.3f", callback=_log)
                 dcg.InputValue(C, label="input scientific", format="float", print_format="%e", callback=_log)
 
-                dcg.InputValue(C, label="input floatx", format="float", array_size=4, callback=_log, value=[1,2,3,4])
+                dcg.InputValue(C, label="input floatx", format="float", size=4, callback=_log, value=[1,2,3,4])
                 dcg.InputValue(C, label="input double", format="double", print_format="%.14f", callback=_log)
-                dcg.InputValue(C, label="input doublex", format="double", print_format="%.14f", array_size=4, callback=_log, value=[1,2,3,4])
+                dcg.InputValue(C, label="input doublex", format="double", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
 
                 drag_int = dcg.Slider(C, label="drag int", format="int", drag=True, callback=_log)
                 add_help_symbol(drag_int, 
@@ -219,8 +220,8 @@ def show_demo(C : dcg.Context):
                 dcg.ColorEdit(C, label="color edit floats", value=(.5, 1, .25, .1), callback=_log)
                 
                 dcg.ListBox(C, items=("Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", 
-                                     "Strawberry", "Watermelon"), label="listbox", num_items=4, callback=_log)
-                dcg.ColorButton(C, color=(255, 0, 0, 255), label="color button", callback=_log)
+                                     "Strawberry", "Watermelon"), label="listbox", num_items_shown_when_open=4, callback=_log)
+                dcg.ColorButton(C, value=(255, 0, 0, 255), label="color button", callback=_log)
 
             with dcg.TreeNode(C, label="Combo"):
                 items = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -285,7 +286,7 @@ def show_demo(C : dcg.Context):
                 # Instead we create the item, and append it later
                 # at the equivalent location as the DPG code.
                 color_picker = dcg.ColorPicker(C, value=(255, 0, 255, 200),
-                                label="Color Picker", alpha_preview=True,
+                                label="Color Picker", alpha_preview="full",
                                 no_alpha=False, alpha_bar=True, 
                                 width=200)
                 
@@ -451,8 +452,9 @@ def show_demo(C : dcg.Context):
                 with dcg.TreeNode(C, label="Password Input"):
                     password = dcg.InputText(C, label="password", password=True, callback=_log)
                     dcg.InputText(C, label="password (w/ hint)", password=True, hint="<password>", 
-                                source=password, callback=_log)
-                    dcg.InputText(C, label="password (clear)", source=password, callback=_log)
+                                  shareable_value=password.shareable_value, callback=_log)
+                    dcg.InputText(C, label="password (clear)",
+                                  shareable_value=password.shareable_value, callback=_log)
 
             with dcg.TreeNode(C, label="Simple Plots"):
                 # Simple plots are simplified plotting widgets
@@ -461,7 +463,7 @@ def show_demo(C : dcg.Context):
                 data = (0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2)
                 dcg.SimplePlot(C, label="Frame Times", value=data)
                 dcg.SimplePlot(C, label="Histogram", value=data, height=80, 
-                             histogram=True, min_scale=0.0)
+                             histogram=True, scale_min=0.0)
 
                 data1 = np.cos(np.pi/30 * np.arange(70))
 
@@ -472,8 +474,7 @@ def show_demo(C : dcg.Context):
                     dcg.ProgressBar(C, label="Progress Bar", value=0.78, overlay="78%")
                     dcg.Text(C, value="Progress Bar")
 
-                theme = dcg.ThemeColorImPlot(C, PlotHistogram=(255,0,0,255))
-                dcg.ProgressBar(C, value=0.78, overlay="1367/1753", theme=theme)
+                dcg.ProgressBar(C, value=0.78, overlay="1367/1753")
 
             with dcg.TreeNode(C, label="Multi-component Widgets"):
 
@@ -481,37 +482,37 @@ def show_demo(C : dcg.Context):
                     with dcg.VerticalLayout(C):
                         float_source = dcg.InputValue(C, label=f"input float {i}",
                                                       min_value=0.0, max_value=100.0,
-                                                      format="float", array_size=i)
-                        dcg.Slider(C, label=f"drag float {i}", source=float_source,
-                                   format="float", array_size=i, drag=True)
-                        dcg.Slider(C, label=f"slider float {i}", source=float_source,
-                                   format="float", array_size=i)
+                                                      format="float", size=i)
+                        dcg.Slider(C, label=f"drag float {i}", shareable_value=float_source.shareable_value,
+                                   format="float", size=i, drag=True)
+                        dcg.Slider(C, label=f"slider float {i}", shareable_value=float_source.shareable_value,
+                                   format="float", size=i)
 
                     with dcg.VerticalLayout(C):
                         double_source = dcg.InputValue(C, label=f"input double {i}",
                                                        min_value=0.0, max_value=100.0,
-                                                       format="double", array_size=i)
-                        dcg.Slider(C, label=f"drag double {i}", source=double_source,
-                                   format="double", array_size=i, drag=True)
-                        dcg.Slider(C, label=f"slider double {i}", source=double_source,
-                                   format="double", array_size=i)
+                                                       format="double", size=i)
+                        dcg.Slider(C, label=f"drag double {i}", shareable_value=double_source.shareable_value,
+                                   format="double", size=i, drag=True)
+                        dcg.Slider(C, label=f"slider double {i}", shareable_value=double_source.shareable_value,
+                                   format="double", size=i)
 
                     with dcg.VerticalLayout(C):
                         int_source = dcg.InputValue(C, label=f"input int {i}",
                                                     min_value=0, max_value=100,
-                                                    format="int", array_size=i)
-                        dcg.Slider(C, label=f"drag int {i}", source=int_source,
-                                   format="int", array_size=i, drag=True)
-                        dcg.Slider(C, label=f"slider int {i}", source=int_source,
-                                   format="int", array_size=i)
+                                                    format="int", size=i)
+                        dcg.Slider(C, label=f"drag int {i}", shareable_value=int_source.shareable_value,
+                                   format="int", size=i, drag=True)
+                        dcg.Slider(C, label=f"slider int {i}", shareable_value=int_source.shareable_value,
+                                   format="int", size=i)
 
                     dcg.Spacer(C, height=10)
 
             with dcg.TreeNode(C, label="Vertical Sliders"):
                 with dcg.HorizontalLayout(C):
-                    dcg.Slider(C, label=" ", value=1, vertical=True,
+                    dcg.Slider(C, label=" ", value=1, vertical=True, width=20,
                                max_value=5, height=160, format="int")
-                    dcg.Slider(C, label=" ", value=1.0, vertical=True,
+                    dcg.Slider(C, label=" ", value=1.0, vertical=True, width=20,
                                max_value=5.0, height=160, format="float")
 
                     with dcg.HorizontalLayout(C):
@@ -524,7 +525,7 @@ def show_demo(C : dcg.Context):
                                     FrameBgActive=hsv(i/7.0, 0.7, 0.5),
                                     FrameBgHovered=hsv(i/7.0, 0.6, 0.5))
 
-                            dcg.Slider(C, label=" ", value=values[i],
+                            dcg.Slider(C, label=" ", value=values[i], width=20,
                                        vertical=True, max_value=1.0, height=160,
                                        format="float", theme=t)
 
@@ -533,7 +534,7 @@ def show_demo(C : dcg.Context):
                                 with dcg.HorizontalLayout(C):
                                     values = [0.20, 0.80, 0.40, 0.25]
                                     for j in range(4):
-                                        dcg.Slider(C, label=" ", value=values[j],
+                                        dcg.Slider(C, label=" ", value=values[j], width=20,
                                                    vertical=True, max_value=1.0, height=50,
                                                    format="float")
 
@@ -1076,15 +1077,24 @@ def show_demo(C : dcg.Context):
                     print(f"Selected paths: {paths}")
 
                 dcg.Button(C, label="Show File Open Dialog", 
-                             callback=lambda: dcg.show_open_file_dialog(_log_paths))
+                             callback=lambda: dcg.show_open_file_dialog(C, _log_paths))
                 dcg.Button(C, label="Show File Open Dialog (multiple files selectable)", 
-                             callback=lambda: dcg.show_open_file_dialog(_log_paths, allow_multiple_files=True))
+                             callback=lambda: dcg.show_open_file_dialog(C, _log_paths, allow_multiple_files=True))
+                dcg.Button(C, label="Show File Open Dialog (with filters, etc)", 
+                             callback=lambda: dcg.show_open_file_dialog(C,
+                                                                        _log_paths,
+                                                                        allow_multiple_files=True,
+                                                                        filters=[("Python", "py;pyw"), ("All Files", "*")],
+                                                                        default_location=os.path.dirname(__file__),
+                                                                        title="Please pick a file",
+                                                                        accept="Yes",
+                                                                        cancel="No"))
                 dcg.Button(C, label="Show File Save Dialog",
-                             callback=lambda: dcg.show_save_file_dialog(_log_paths))
+                             callback=lambda: dcg.show_save_file_dialog(C, _log_paths))
                 dcg.Button(C, label="Show Folder Dialog",
-                             callback=lambda: dcg.show_open_folder_dialog(_log_paths))
+                             callback=lambda: dcg.show_open_folder_dialog(C, _log_paths))
                 dcg.Button(C, label="Show Folder Dialog (multiple directories selectable)",
-                             callback=lambda: dcg.show_open_folder_dialog(_log_paths, allow_multiple_files=True))
+                             callback=lambda: dcg.show_open_folder_dialog(C, _log_paths, allow_multiple_files=True))
 
         with dcg.CollapsingHeader(C, label="Tooltips"):
             dcg.Text(C, value="Tooltips are floating windows that appear on hovering. Tooltips can be \n"
@@ -2234,8 +2244,7 @@ def show_demo(C : dcg.Context):
 
                             bar_group_series = dcg.PlotBarGroups(C,
                                                                  values=values_group_series,
-                                                                 labels=["Midterm Exam", "Final Exam", "Course Grade"],
-                                                                 weight=1)
+                                                                 labels=["Midterm Exam", "Final Exam", "Course Grade"])
                         
                         
                         def _set_horizontal(sender, target, data):
@@ -2292,7 +2301,7 @@ def show_demo(C : dcg.Context):
                             plot_bar_stacks.Y1.min = -0.5
                             plot_bar_stacks.Y1.max = 19.5
                             plot_bar_stacks.Y1.no_initial_fit = True
-                            bars_groups = dcg.PlotBarGroups(C, values=data_div, labels=labels_div, weight=1, group_size=0.75, shift=0, stacked=True, horizontal=True)
+                            bars_groups = dcg.PlotBarGroups(C, values=data_div, labels=labels_div, group_size=0.75, shift=0, stacked=True, horizontal=True)
                         
                         def divergent_stack_cb(sender, target, data):
                             if data:
@@ -2338,7 +2347,7 @@ def show_demo(C : dcg.Context):
                             plot_inf_lines.X1.label = "x"
                             plot_inf_lines.Y1.label = "y"
                             dcg.PlotInfLines(C, X=infinite_x_data, label="vertical")
-                            dcg.PlotInfLines(C, Y=infinite_y_data, label="horizontal", horizontal=True)
+                            dcg.PlotInfLines(C, X=infinite_y_data, label="horizontal", horizontal=True)
 
                     with dcg.TreeNode(C, label="Pie Charts"):
                         with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
@@ -2370,7 +2379,7 @@ def show_demo(C : dcg.Context):
                                 plot_pie_series2.Y1.no_initial_fit = True
                                 plot_pie_series2.Y1.min = 0
                                 plot_pie_series2.Y1.max = 1
-                                dcg.PlotPieChart(C, x=0.5, y=0.5, radius=0.5, values=[1, 1, 2, 3, 5], labels=["A", "B", "C", "D", "E"], normalize=True, format="%.0f")
+                                dcg.PlotPieChart(C, x=0.5, y=0.5, radius=0.5, values=[1, 1, 2, 3, 5], labels=["A", "B", "C", "D", "E"], normalize=True, label_format="%.0f")
 
                     with dcg.TreeNode(C, label="Heatmaps"):
                         values = (0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0,
@@ -2525,7 +2534,7 @@ def show_demo(C : dcg.Context):
 
                 with dcg.Tab(C, label="Subplots"):
                     with dcg.TreeNode(C, label="Basic"):
-                        with dcg.Subplots(C, cols=3, rows=3, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                        with dcg.Subplots(C, cols=3, rows=3, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], col_ratios=[5.0, 1.0, 1.0]) as subplot:
                             for i in range(9):
                                 with dcg.Plot(C, no_title=True) as plot:
                                     plot.X1.no_tick_labels = True
@@ -2534,7 +2543,7 @@ def show_demo(C : dcg.Context):
                         ConfigureOptions(C, subplot, 1, "no_resize", "no_title", before=subplot)
 
                     with dcg.TreeNode(C, label="Item Sharing"):
-                        with dcg.Subplots(C, cols=3, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                        with dcg.Subplots(C, cols=3, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], col_ratios=[5.0, 1.0, 1.0]) as subplot:
                             for i in range(6):
                                 with dcg.Plot(C, no_title=True) as plot:
                                     plot.X1.no_tick_labels = True
@@ -2543,7 +2552,7 @@ def show_demo(C : dcg.Context):
                         ConfigureOptions(C, subplot, 1, "col_major", before=subplot)
 
                     with dcg.TreeNode(C, label="Linked Axes"):
-                        with dcg.Subplots(C, cols=2, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], column_ratios=[5.0, 1.0, 1.0]) as subplot:
+                        with dcg.Subplots(C, cols=2, rows=2, label="My Subplots", width=-1, height=600, row_ratios=[5.0, 1.0, 1.0], col_ratios=[5.0, 1.0, 1.0]) as subplot:
                             for i in range(4):
                                 with dcg.Plot(C, no_title=True) as plot:
                                     plot.X1.no_tick_labels = True
@@ -2744,13 +2753,13 @@ def show_demo(C : dcg.Context):
                     with dcg.TreeNode(C, label="Legend Options"):
 
                         with dcg.HorizontalLayout(C):
-                            north_legend = dcg.Checkbox(C, label="North", tag="north_legend", value=False)
-                            east_legend = dcg.Checkbox(C, label="East", tag="east_legend", value=False)
-                            west_legend = dcg.Checkbox(C, label="West", tag="west_legend", value=False)
-                            south_legend = dcg.Checkbox(C, label="South", tag="south_legend", value=False)
-                        horizontal_legend = dcg.Checkbox(C, label="Horizontal", tag="horizontal_legend", value=False)
-                        outside_legend = dcg.Checkbox(C, label="Outside", tag="outside_legend", value=False)
-                        sort_legend = dcg.Checkbox(C, label="Sort", tag="sort_legend", value=False)
+                            north_legend = dcg.Checkbox(C, label="North", value=False)
+                            east_legend = dcg.Checkbox(C, label="East", value=False)
+                            west_legend = dcg.Checkbox(C, label="West", value=False)
+                            south_legend = dcg.Checkbox(C, label="South", value=False)
+                        horizontal_legend = dcg.Checkbox(C, label="Horizontal", value=False)
+                        outside_legend = dcg.Checkbox(C, label="Outside", value=False)
+                        sort_legend = dcg.Checkbox(C, label="Sort", value=False)
 
                         with dcg.Plot(C, height=400, width=-1) as plot_with_legend:
                             plot_with_legend.legend_config.configure(location=0, outside=False, sorted=False, horizontal=False)
@@ -2810,14 +2819,14 @@ def show_demo(C : dcg.Context):
                                 dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 255, 0, 255], thickness=-2)
                                 dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[0, 0, 255, 255], thickness=-2)
                                 dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
-                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, num_points=5)
                         dcg.Text(C, value="Drawing in a window is similar to drawing in a plot, but plot features are unavailable.")
                         with dcg.DrawInWindow(C, relative=True, invert_y=True, orig_x = 0., orig_y = 0., scale_x=1., scale_y=1., width=-1, height=400):
                             dcg.DrawCircle(C, center=(0.5, 0.5), radius=0.1, color=[255, 0, 0, 255], thickness=-2)
                             dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 255, 0, 255], thickness=-2)
                             dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[0, 0, 255, 255], thickness=-2)
                             dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
-                            dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
+                            dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, num_points=5)
                     with dcg.TreeNode(C, label="Controling line thickness"):
                         dcg.Text(C, value="Line thickness can be specified in pixels or plot space.")
                         with dcg.Plot(C, label="pixel space", height=400, width=-1) as plot:
@@ -2830,7 +2839,7 @@ def show_demo(C : dcg.Context):
                                 dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 0, 255, 255], thickness=-2)
                                 dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[255, 255, 0, 255], thickness=-2)
                                 dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=-20)
-                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, points=5)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=-2, num_points=5)
                         with dcg.Plot(C, label="plot space", height=400, width=-1) as plot:
                             plot.X1.label = "x"
                             plot.Y1.label = "y"
@@ -2840,7 +2849,7 @@ def show_demo(C : dcg.Context):
                                 dcg.DrawTriangle(C, p1=(0.25, 0.75), p2=(0.75, 0.75), p3=(0.5, 0.25), color=[0, 0, 255, 255], thickness=0.001)
                                 dcg.DrawQuad(C, p1=(0.25, 0.25), p2=(0.75, 0.25), p3=(0.75, 0.75), p4=(0.25, 0.75), color=[255, 255, 0, 255], thickness=0.001)
                                 dcg.DrawText(C, pos=(0.5, 0.5), text="Hello, world!", color=[255, 255, 255, 255], size=0.01)
-                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=0.001, points=5)
+                                dcg.DrawStar(C, center=(0.75, 0.25), color=[255, 0, 255, 255], radius=0.1, inner_radius=0.05, thickness=0.001, num_points=5)
 
                     with dcg.TreeNode(C, label="Animation with DrawStream"):
                         dcg.Text(C, value="DrawStream allows you to create animations by showing items sequentially.")
@@ -2881,7 +2890,7 @@ def show_demo(C : dcg.Context):
                                 # Yellow star at t=3s, expires at t=4s
                                 item4 = \
                                     dcg.DrawStar(C, center=(0.5, 0.5), radius=0.3, 
-                                           inner_radius=0.15, points=5,
+                                           inner_radius=0.15, num_points=5,
                                            color=(255, 255, 0, 255), thickness=-3)
                                 stream.push(item4, 4.0)
 
