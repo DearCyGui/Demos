@@ -839,6 +839,7 @@ def show_demo():
                 B2 = dpg.add_button(label="Button 2", width=75, height=75)
                 dpg.add_button(label="Button 3")
 
+            """
             with dpg.tree_node(label="Grid Layout using Table API"):
                 layout_demo_table = dpg.generate_uuid()
                 dpg.add_text("Tables can be used to layout items in an equally spaced grid pattern.")
@@ -864,6 +865,7 @@ def show_demo():
                         dpg.add_table_cell()
                         dpg.add_button(label="Button 4")
                         dpg.add_button(label="Button 5")
+            """
 
             with dpg.tree_node(label="Containers"):
 
