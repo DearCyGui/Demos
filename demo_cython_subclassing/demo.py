@@ -15,8 +15,8 @@ pyximport.install(setup_args=setup_args, language_level="3")
 
 import time
 import gc
-from .dynamic_button import *
-from .heavy import *
+from dynamic_button import *
+from heavy import *
 
 C = dcg.Context()
 

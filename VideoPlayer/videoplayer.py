@@ -492,7 +492,7 @@ class VideoPlayer(dcg.Window):
         # Here we store in instance variables each item created
         # Note this is not needed, as attaching them will already
         # have them stored in the children attribute.
-        self.controls = dcg.HorizontalLayout(context, parent=self, horizontal=True)
+        self.controls = dcg.HorizontalLayout(context, parent=self)
         with self.controls:
             # Play/Pause Button
             self.play_button = \

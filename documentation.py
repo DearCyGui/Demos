@@ -324,7 +324,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
             lexer = None
 
         formatter = Terminal256Formatter(bg='dark', style='monokai')
-        text = text if lexer is None else highlight(code, lexer, formatter)
+        text = code if lexer is None else highlight(code, lexer, formatter)
         with dcg.ChildWindow(self.C, indent=-1, auto_resize_y=True, theme=self.no_spacing):
             lines = text.split("\n")
             for line in lines:
