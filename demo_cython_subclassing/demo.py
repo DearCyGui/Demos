@@ -18,6 +18,8 @@ import gc
 from dynamic_button import *
 from heavy import *
 
+from gif_button import GifButton as GifButtonPython
+
 C = dcg.Context()
 
 
@@ -58,6 +60,9 @@ def create_demo_window(C : dcg.Context):
             # cython subclassing with custom draw() override for dynamic content
             dcg.Text(C, value="This button is made with a custom draw() method in Cython")
             GifButton(C, "demo.gif", label="Hello Word", width=200, height=200)
+            dcg.Separator(C)
+            dcg.Text(C, value="This button is made with Python subclassing")
+            GifButtonPython(C, "demo.gif", label="Hello Word (Python)", width=200, height=200)
             dcg.Separator(C)
             
             # Visual comparison section
