@@ -208,7 +208,7 @@ class CubeDemo:
         shared_context.make_current()
         if self.window_internal_texture is None:
             self.window_internal_texture = ctx.texture((image.shape[1], image.shape[0]), 4, dtype='f1')
-        self.window_internal_texture.write(image.tobytes())
+        self.window_internal_texture.write(bytes(image))
         self.__render(self.fbo_internal, self.window_internal_texture, angle1, angle2, angle3)
         result = self.alternative_texture.read()
         result = np.frombuffer(result, dtype=np.uint8).reshape((self.texture.height, self.texture.width, 4))

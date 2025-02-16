@@ -25,7 +25,7 @@ cdef class GifButton(dcg.ImageButton):
         try:
             while True:
                 # Convert frame to RGBA
-                frame = np.array(gif.convert('RGBA'))/255.
+                frame = np.array(gif.convert('RGBA'), dtype=np.float32)/255.
                 # Create texture from frame
                 texture = dcg.Texture(context)
                 texture.set_content(frame)
