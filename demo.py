@@ -125,7 +125,7 @@ def create_demo_window(C : dcg.Context):
                 dcg.Text(C, value="This is a very long text that will cause horizontal scrolling to appear in this child window")
             
             # Frameless child window
-            with dcg.ChildWindow(C, width=200, height=100, no_frame=True):
+            with dcg.ChildWindow(C, width=200, height=100):
                 dcg.Text(C, value="A frameless child window\nwithout borders")
             
             # Resizable child window
