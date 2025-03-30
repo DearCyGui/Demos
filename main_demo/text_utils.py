@@ -311,7 +311,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
         return ""
 
     def render_quote(self, element):
-        with dcg.ChildWindow(self.C, width=0, height=0):
+        with dcg.ChildWindow(self.C, auto_resize_y=True):
             text = self.render_children_if_not_str(element)
             if text != "":
                 TextAnsi(self.C, bullet=True, value=make_italic(text))
