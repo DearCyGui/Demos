@@ -2,6 +2,9 @@ import dearcygui as dcg
 from demo_utils import documented, democode,\
     push_group, pop_group, launch_demo, demosection
 import math
+import numpy as np
+from PIL import Image
+import time
 
 # decorators:
 # - documented: the description (markdown) is displayed
@@ -73,6 +76,9 @@ def _drawing_containers(C: dcg.Context):
     - `dcg.DrawInvisibleButton`: This drawing container enables to have interactable area.
         For ease of use, it accepts drawing children. Its coordinate system is top left
         origin and (1, 1) for the bottom right corner.
+    - `dcg.DrawStream`: This container is a timed DrawingList. It enables to draw a different
+        item every frame depending on timing constraints. It can be used to create
+        animations. The coordinate system corresponds to the parent drawing container.
     - `dcg.DrawingClip`: This container is reserved for advanced use-cases such as only displaying
         some items at specific zoom levels (e.g. in a `dcg.Plot`), or to skip rendering
         items outside the visible region of the canvas (in which case it is only useful
@@ -758,7 +764,606 @@ def _advanced_combinations(C: dcg.Context):
 
         gauge_value.callback = update_gauge
 
+@demosection
+@documented
+def _draw_images(C: dcg.Context):
+    """
+    ### Drawing Images
+    
+    `dcg.DrawImage` enables to draw a static image at a specified position.
+    It supports three ways to express its position in space:
+    - p1, p2, p3, p4, the positions of the corners of the image, in
+       a clockwise order
+    - pmin and pmax, where pmin = p1, and pmax = p3, and p2/p4
+        are automatically set such that the image is parallel
+        to the axes.
+    - center, direction, width, height for the coordinate of the center,
+        the angle of (center, middle of p2 and p3) against the x horizontal axis,
+        and the width/height of the image at direction 0.
 
+    The systems are similar, but writing to p1/p2/p3/p4 is more expressive
+    as it allows to have non-rectangular shapes.
+    The last system enables to indicate a size in screen space rather
+    than in coordinate space by passing negative values to width and height.
+
+    Finally, it takes uv1/uv2/uv3/uv4 parameters. They are the normalized
+    texture coordinates at p1/p2/p3/p4. uv1 = (0, 0) means that the top
+    left of the texture is at p1, and uv3 = (1, 1) means that the bottom
+    right of the texture is at p3.
+
+    It can be useful to use uv1/uv2/uv3/uv4 to display only a portion of a texture,
+    for instance when combining a lot of small images in a texture (which is a common
+    practice in game development for performance reasons).
+
+    The texture passed must be a `dcg.Texture` object (see next section).
+
+    `DrawImage` take also as input:
+    - color_multiplier: a color multiplier applied to the whole image
+    - rounding: if set, the borders will be rounded (useful for custom buttons).
+        The image requires to be parallel to the axes with this setting.
+
+    """
+
+
+@demosection
+@documented
+def _draw_texture(C: dcg.Context):
+    """
+    Textures are a representation of an image content in GPU memory.
+    They are required for dcg.DrawImage.
+
+    DearCyGui supports displaying two types of textures:
+    - uint8 textures, which are 8-bit unsigned integer textures
+        (i.e. 0-255 for each channel).
+    - float textures, which are 32-bit floating point textures
+        (i.e. 0.0-1.0 for each channel).
+
+    The textures can have 1 (gray), 2 (red, green), 3 (red, green, blue),
+    or 4 (red, green, blue, alpha) channels.
+
+    To create a texture, you need to pass an array (for instance a numpy array)
+    to dcg.Texture's set_value method. Alternatively it can be passed at
+    texture creation as secondary positional parameter (after the context).
+
+    Textures can be created at any moment and are uploaded to the GPU right away.
+    The upload does not block rendering and is not instantaneous. It can be
+    performed in a background thread. The texture content can be resized, and
+    DearCyGui implements a pool of released textures, thus it is close in performance
+    between creating a new dcg.Texture and reusing an existing one.
+
+    Additional parameters are:
+    - hint_dynamic: This parameter affects GPU texture placement and
+        indicates that the texture may be very frequently updated (e.g. every frame).
+    - nearest_neighbor_upsampling: If set, when the texture is zoomed in, it will
+        use nearest neighbor interpolation instead of bilinear interpolation.
+
+    """
+
+
+@demosection
+@documented
+@democode
+def _draw_animation(C: dcg.Context):
+    """
+
+
+    """
+    class GifButton(dcg.DrawInWindow):
+        """A button that displays an animated GIF using DrawInWindow and DrawStream"""
+        
+        def __init__(self, context, gif_path, width=0, height=0, **kwargs):
+            """Initialize the GIF button
+            
+            Args:
+                context: DearCyGui context
+                gif_path: Path to GIF file
+                width: Width of button (0 = autosize)
+                height: Height of button (0 = autosize) 
+                **kwargs: Additional arguments passed to DrawInWindow
+            """
+            # Create button behavior and prepare container
+            super().__init__(context, button=True, width=width, height=height, **kwargs)
+            
+            # Load GIF and convert frames to textures
+            self._frames = []
+            self._total_duration = 0
+            
+            gif = Image.open(gif_path)
+            try:
+                while True:
+                    # Convert frame to RGBA
+                    frame = np.array(gif.convert('RGBA'))/255.
+                    
+                    # Create texture from frame
+                    texture = dcg.Texture(context)
+                    texture.set_value(frame)
+                    self._frames.append(texture)
+                    
+                    # Get frame duration in seconds
+                    duration = gif.info['duration'] / 1000.0  
+                    self._total_duration += duration
+                    
+                    # Try to move to next frame
+                    gif.seek(gif.tell() + 1)
+            except EOFError:
+                pass
+
+            # Create draw stream for animation
+            self._stream = dcg.DrawStream(context, parent=self)
+            self._stream.time_modulus = self._total_duration
+            
+            # Setup initial frame display and animation
+            elapsed_time = 0
+            for texture in self._frames:
+                # Add frame to stream with its expiration time
+                expiry = time.monotonic() + elapsed_time
+                image = dcg.DrawImage(context, texture=texture)
+                if width > 0 and height > 0:
+                    # Use explicit dimensions if provided
+                    image.pmin = (0, 0)
+                    image.pmax = (width, height)
+                self._stream.push(image, expiry)
+                elapsed_time += duration
+
+
+@demosection
+@documented
+def _draw_texture_advanced(C: dcg.Context):
+    """
+    ### Advanced Texture Usage
+
+    dcg.Texture allows various advanced features:
+    - The `read` method allows to read the texture content back to a numpy array.
+        It is possible to only read a portion of the texture.
+    - The content of DearCyGui can be retrieved as a Texture. For this
+        purpose the Viewport's `retrieve_framebuffer` parameter must be set
+        to True. This will create a framebuffer object every frame, which
+        can be accessed through the Viewport's `framebuffer` attribute.
+    - The `allocate` method allows to allocate a texture without uploading
+        data. This is useful when you can to create a texture that will be
+        shared with another OpenGL context, and do not want to initialize
+        it with `set_value`.
+    - The `texture_id` attribute allows to access the OpenGL texture ID. This
+        can be used to share the texture with another OpenGL context.
+
+    #### OpenGL sharing
+
+    There are several ways to retrieve an OpenGL context in DearCyGui:
+    - The easiest one is through the context's `create_new_shared_gl_context`.
+        This will create a new OpenGL context that shares access to DearCyGui's
+        resources. It returns a `SharedGLContext` object, which has the methods
+        `make_current` to make the context current, and `release` to release
+        it. `destroy` terminates the context. It supports the `with` statement.
+    - The context's `rendering_context` attribute returns a `BackendRenderingContext`
+        object, which only supports the `with` syntax and locks texture uploads. It should
+        not be used directly for rendering, but can be used to create a shared GL
+        context with external tools (such as OpenCL, CUDA, etc.).
+
+    Note a context must not be current when creating and allocating a new dcg.Texture.
+
+    #### Importing an external texture
+
+    It is not possible to import an external texture directly in DearCyGui. It must
+    be created through dcg.Texture.
+
+    #### OpenGL to DearCyGui - DearCyGui to OpenGL
+
+    When rendering in separate OpenGL contexts, it is important both for performance
+    and to avoid glitches to properly synchronize rendering to textures and using
+    texture contents.
+
+    For the purpose of DearCyGui using a texture rendered in an external GL context,
+    `dcg.Texture` provides the following methods:
+    - `gl_begin_write`: Locks a texture for a write operation for an external GL context.
+
+        The target GL context MUST be current.
+
+        The call inserts a GPU fence to ensure any previous
+        DearCyGui rendering reading from the texture finishes
+        before the texture is written to.
+    - `gl_end_write`: Unlocks a texture after a write operation for an external GL context.
+
+        The target GL context MUST be current.
+
+        The call issues a GPU fence that will be used by
+        DearCyGui to ensure the texture is not read from
+        before the write operation has finished.
+
+    Note if you render only once to the texture and do not update it (and uses glFinish),
+    there is no need to synchronize.
+
+    For the purpose of external OpenGL using DearCyGui's framebuffer,
+    `dcg.Texture` provides the following methods:
+    - `gl_begin_read`: Locks a texture for a read operation for an external GL context.
+
+        The target GL context MUST be current.
+
+        The call inserts a GPU fence to ensure any previous
+        DearCyGui rendering or upload finishes before the texture
+        is read.
+    - `gl_end_read`: Unlocks a texture after a read operation for an external GL context.
+
+        The target GL context MUST be current.
+
+        The call issues a GPU fence that will be used by
+        DearCyGui to ensure the texture is not written to
+        before the read operation has finished.
+
+    Note that DearCyGui does not need to have a visible window to render !
+    It is entirely possible to render only to a framebuffer and display the
+    result in another OpenGL context.
+
+    For this purpose, the viewport can be initialized with `visible=False`
+    and `retrieve_framebuffer=True`.
+
+    As the viewport will not have any window, it will need to receive keyboard
+    and mouse events manually. You can inform DearCyGui of these events using
+    the context methods `inject_key_down`, `inject_key_up`, `inject_mouse_pos`,
+    `inject_mouse_button_down`, `inject_mouse_button_up`, and `inject_mouse_wheel`.
+
+    Note due to SDL constraints, it is not possible to create DearCyGui contexts
+    in separate threads, nor it is possible to call `render_frame` in a separate thread.
+    """
+    pass
+
+@demosection
+@documented
+@democode
+def _draw_texture_advanced_example(C: dcg.Context):
+    """
+    ### Advanced Texture Usage with OpenGL Integration
+    
+    This example demonstrates most of the advanced texture usage features
+    presented in the previous section. It shows how to create a shared OpenGL
+    context, render a cube in that context, and then use the rendered texture
+    in the main DearCyGui context. It also demonstrates how to synchronize
+    rendering between the two contexts.
+    """
+    try:
+        import moderngl
+        import pyrr
+    except ImportError:
+        dcg.Text(C, value="This example requires the moderngl and pyrr packages.\n"
+                          "Please install them using 'pip install moderngl pyrr'.",
+                          color=(255, 255, 255), size=-16)
+        return
+    
+    class CubeDemo(dcg.ChildWindow):
+        def __init__(self, main_context, **kwargs):
+            super().__init__(main_context, **kwargs)
+            self.start_time = time.time()
+            
+            # Create OpenGL shared context
+            self.shared_context = main_context.create_new_shared_gl_context(3, 3)
+            if self.shared_context is None:
+                raise ValueError("Failed to create shared context")
+            
+            # Setup ModernGL and create resources
+            self.shared_context.make_current()
+            self.ctx = moderngl.create_context()
+            
+            # Define shaders
+            self.program = self.ctx.program(
+                vertex_shader="""
+                #version 330 core
+                in vec3 position;
+                in vec2 texCoord;
+                out vec2 vTexCoord;
+                uniform mat4 model;
+                uniform mat4 view;
+                uniform mat4 projection;
+                
+                void main() {
+                    gl_Position = projection * view * model * vec4(position, 1.0);
+                    vTexCoord = texCoord;
+                }
+                """,
+                fragment_shader="""
+                #version 330 core
+                in vec2 vTexCoord;
+                out vec4 fragColor;
+                uniform sampler2D tex;
+                
+                void main() {
+                    fragColor = texture(tex, vTexCoord);
+                }
+                """
+            )
+            
+            # Create cube vertices and indices
+            cube_vertices = np.array([
+                # front face
+                -1.0, -1.0, -1.0,  0.0, 1.0,
+                -1.0,  1.0, -1.0,  0.0, 0.0,
+                 1.0,  1.0, -1.0,  1.0, 0.0,
+                 1.0, -1.0, -1.0,  1.0, 1.0,
+                
+                # back face
+                 1.0, -1.0,  1.0,  0.0, 1.0,
+                 1.0,  1.0,  1.0,  0.0, 0.0,
+                -1.0,  1.0,  1.0,  1.0, 0.0,
+                -1.0, -1.0,  1.0,  1.0, 1.0,
+                
+                # left face
+                -1.0, -1.0,  1.0,  0.0, 1.0,
+                -1.0,  1.0,  1.0,  0.0, 0.0,
+                -1.0,  1.0, -1.0,  1.0, 0.0,
+                -1.0, -1.0, -1.0,  1.0, 1.0,
+                
+                # right face
+                 1.0, -1.0, -1.0,  0.0, 1.0,
+                 1.0,  1.0, -1.0,  0.0, 0.0,
+                 1.0,  1.0,  1.0,  1.0, 0.0,
+                 1.0, -1.0,  1.0,  1.0, 1.0,
+                
+                # top face
+                -1.0,  1.0, -1.0,  0.0, 1.0,
+                -1.0,  1.0,  1.0,  0.0, 0.0,
+                 1.0,  1.0,  1.0,  1.0, 0.0,
+                 1.0,  1.0, -1.0,  1.0, 1.0,
+                
+                # bottom face
+                -1.0, -1.0,  1.0,  0.0, 1.0,
+                -1.0, -1.0, -1.0,  0.0, 0.0,
+                 1.0, -1.0, -1.0,  1.0, 0.0,
+                 1.0, -1.0,  1.0,  1.0, 1.0
+            ], dtype='f4')
+
+            cube_indices = np.array([
+                # front
+                0, 1, 2, 2, 3, 0,
+                # back
+                4, 5, 6, 6, 7, 4,
+                # left
+                8, 9, 10, 10, 11, 8,
+                # right
+                12, 13, 14, 14, 15, 12,
+                # top
+                16, 17, 18, 18, 19, 16,
+                # bottom
+                20, 21, 22, 22, 23, 20
+            ], dtype='i4')
+            
+            # Create vertex buffer, index buffer, and vertex array
+            self.vbo = self.ctx.buffer(cube_vertices.tobytes())
+            self.ibo = self.ctx.buffer(cube_indices.tobytes())
+            self.vao = self.ctx.vertex_array(
+                self.program,
+                [(self.vbo, '3f 2f', 'position', 'texCoord')],
+                self.ibo
+            )
+            
+            # Create output texture for the main context
+            self.shared_context.release() # Important to release the context before creating the texture
+            self.output_texture = dcg.Texture(main_context)
+            self.output_texture.allocate(width=1024, height=1024, num_chans=4, uint8=True)
+            self.shared_context.make_current()
+            
+            # Create OpenGL resources for rendering
+            dcg_texture = self.ctx.external_texture(
+                self.output_texture.texture_id, 
+                (self.output_texture.width, self.output_texture.height), 
+                4, 0, "f1"
+            )
+            
+            depth_rb = self.ctx.depth_renderbuffer(
+                (self.output_texture.width, self.output_texture.height)
+            )
+            
+            self.fbo = self.ctx.framebuffer(
+                color_attachments=[dcg_texture],
+                depth_attachment=depth_rb
+            )
+            
+            self.shared_context.release()
+
+            with self:
+                with dcg.VerticalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+                    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+                        # Create a DearCyGui window to display the cube
+                        dcg.Image(main_context, texture=self.output_texture)
+
+        def render(self, invisible_context):
+            # Get the DearCyGui framebuffer from invisible context
+            ui_texture = invisible_context.viewport.framebuffer
+            
+            # Make our OpenGL context current
+            self.shared_context.make_current()
+            
+            # Get the UI texture as ModernGL texture
+            moderngl_ui_texture = self.ctx.external_texture(
+                ui_texture.texture_id,
+                (ui_texture.width, ui_texture.height),
+                4, 0, "f1"
+            )
+            
+            # Set texture parameters
+            moderngl_ui_texture.filter = (moderngl.LINEAR, moderngl.LINEAR)
+            moderngl_ui_texture.repeat_x = False
+            moderngl_ui_texture.repeat_y = False
+            moderngl_ui_texture.use(0)
+            
+            # Begin synchronization for textures
+            ui_texture.gl_begin_read()
+            self.output_texture.gl_begin_write()
+            
+            # prepare rendering to our framebuffer
+            self.fbo.use()
+            
+            # Enable OpenGL features
+            self.ctx.enable(moderngl.DEPTH_TEST)
+            self.ctx.enable(moderngl.CULL_FACE)
+            self.ctx.front_face = 'ccw'
+            
+            # Calculate rotation based on time (slow rotation)
+            elapsed = time.time() - self.start_time
+            angle_x = 20.0 * math.sin(elapsed * 0.2)
+            angle_y = 30.0 * math.sin(elapsed * 0.1)
+            angle_z = 15.0 * math.sin(elapsed * 0.15)
+            
+            # Create model matrix with rotation
+            rotation = pyrr.matrix44.create_from_eulers([
+                math.radians(angle_x), 
+                math.radians(angle_y), 
+                math.radians(angle_z)
+            ])
+            model_matrix = pyrr.matrix44.create_identity()
+            model_matrix = pyrr.matrix44.multiply(model_matrix, rotation)
+            
+            # Set uniform values
+            self.program['model'].write(model_matrix.astype('f4').tobytes())
+            self.program['view'].write(pyrr.matrix44.create_look_at(
+                eye=[3.0, 3.0, 3.0],
+                target=[0.0, 0.0, 0.0],
+                up=[0.0, 1.0, 0.0]
+            ).astype('f4').tobytes())
+            self.program['projection'].write(pyrr.matrix44.create_perspective_projection(
+                fovy=45.0, aspect=1.0, near=0.1, far=100.0
+            ).astype('f4').tobytes())
+            
+            # Clear framebuffer
+            self.ctx.clear(0.1, 0.1, 0.1, 1.0)
+            
+            # Render the cube
+            self.vao.render(moderngl.TRIANGLES)
+            
+            # End synchronization
+            ui_texture.gl_end_read()
+            self.output_texture.gl_end_write()
+            
+            # Release the ModernGL texture and shared context
+            moderngl_ui_texture.release()
+            self.shared_context.release()
+            
+            # Inform main context of updated content
+            self.context.viewport.wake()
+            
+            return self.output_texture
+        
+        def __del__(self):
+            try:
+                self.shared_context.make_current()
+                self.vao.release()
+                self.vbo.release()
+                self.ibo.release()
+                self.program.release()
+                self.fbo.release()
+                self.ctx.release()
+                self.shared_context.release()
+            except:
+                pass
+
+    class InvisibleUI(dcg.Window):
+        def __init__(self, invisible_context: dcg.Context):
+            super().__init__(invisible_context,
+                             parent=invisible_context.viewport,
+                             primary=True)
+            self.no_scrollbar = True
+            # Create UI elements that will appear on the cube
+            with self:
+                dcg.Text(invisible_context, value=f"DearCyGui + OpenGL Integration", 
+                        color=(255, 255, 255), scaling_factor=2.)
+                
+                dcg.Separator(invisible_context)
+                
+                # Add some dynamic content
+                self.current_time = dcg.TextValue(
+                    invisible_context, 
+                    print_format="Current time: %.1f s",
+                    shareable_value=dcg.SharedDouble(invisible_context, 0.0),
+                    scaling_factor=1.3
+                )
+                
+                # Add rotating star shape
+                with dcg.DrawInWindow(invisible_context, width=-1, height=-1) as self.diw:                
+                    # Add some animated shapes
+                    dcg.DrawStar(invisible_context, center=(175, 175), 
+                            radius=150, num_points=5,
+                            color=(255, 255, 0), fill=(255, 255, 0, 150),
+                            inner_radius=70, thickness=-2)
+                    
+                    # Add text in the center
+                    dcg.DrawText(invisible_context, pos=(175, 175), 
+                            text="3D CUBE", size=-48, 
+                            color=(255, 255, 255))
+                # Draw at the corners to indicate cube borders
+                with dcg.ViewportDrawList(invisible_context, front=True,
+                                          parent=invisible_context.viewport):
+                    dcg.DrawRect(invisible_context,
+                                 pmin=(0, 0),
+                                 pmax=(invisible_context.viewport.pixel_width,
+                                       invisible_context.viewport.pixel_height),
+                                 color=(255, 255, 255),
+                                 fill=(0, 0, 0, 0),
+                                 thickness=-30)
+
+        def update(self):
+            t = time.time()
+            # Update rotation and colors
+            for item in self.diw.children:
+                if hasattr(item, 'direction'):
+                    item.direction = (t%100) * 0.3
+                if hasattr(item, 'color'):
+                    r = int(127 + 127 * math.sin(t * 0.7))
+                    g = int(127 + 127 * math.sin(t * 0.5))
+                    b = int(127 + 127 * math.sin(t * 0.3))
+                    item.color = (r, g, b)
+                if hasattr(item, 'fill'):
+                    item.fill = (r//2, g//2, b//2, 150)
+                 
+                # Update time display
+                self.current_time.value = t
+
+    with C.rendering_context:
+        invisible_context = dcg.Context()
+    invisible_context.viewport.initialize(
+        visible=False, retrieve_framebuffer=True, 
+        width=512, height=512,
+        title="Invisible")
+    invisible_context.viewport.theme = \
+        dcg.ThemeColorImGui(invisible_context,
+                            Text=(30, 0, 30),
+                            WindowBg=(180, 180, 180))
+
+    invisible_ui = InvisibleUI(invisible_context)
+    cube_demo = CubeDemo(C, width=-1, auto_resize_y=True)
+
+    # update loop:
+    # We cheat around the limitation that render_frame
+    # must be called from the main thread by using
+    # a CustomHandler.
+    class MainThreadCallbackHandler(dcg.CustomHandler):
+        def __init__(self, context, callback):
+            super().__init__(context)
+            self.mt_callback = callback
+
+        def check_can_bind(self, target):
+            return True
+
+        def check_status(self):
+            return True
+
+        def run(self, target):
+            self.mt_callback()
+
+    def render_invisible_ui():
+        # Update the invisible UI
+        # Okay to render in the main thread
+        # because we do not use the main context
+        # at all.
+        invisible_ui.update()
+        invisible_context.viewport.render_frame()
+
+    def render_cube():
+        # Render the cube (NOT in the main thread!!!),
+        cube_demo.render(invisible_context)
+
+    cube_demo.handlers += [
+        MainThreadCallbackHandler(C, callback=render_invisible_ui),
+        dcg.RenderHandler(C, callback=render_cube)
+    ]
+
+pop_group()          
 
 if __name__ == "__main__":
     launch_demo(title="Drawing Demo")
