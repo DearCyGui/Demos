@@ -60,7 +60,8 @@ def _getting_documentation(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Context, dcg.Window, dcg.ChildWindow,
+             dcg.Callback, dcg.baseHandler, dcg.baseTheme, dcg.baseFont)
 @documented
 def _concepts(C: dcg.Context):
     """
@@ -155,7 +156,7 @@ def _concepts(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Viewport, dcg.Window, dcg.ViewportDrawList, dcg.MenuBar)
 @documented
 def _getting_started(C: dcg.Context):
     """
@@ -199,7 +200,7 @@ def _getting_started(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Button)
 @documented
 @democode
 def _how_to_use_this_demo(C: dcg.Context):

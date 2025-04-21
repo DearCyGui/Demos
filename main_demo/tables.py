@@ -35,7 +35,7 @@ pop_group()  # End Introduction
 
 push_group("Creating Tables")
 
-@demosection
+@demosection(dcg.Table)
 @documented
 def _table_creation(C: dcg.Context):
     """
@@ -58,7 +58,7 @@ def _table_creation(C: dcg.Context):
     pass
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Button, dcg.TableElement)
 @documented
 @democode
 def _indexing(C: dcg.Context):
@@ -82,7 +82,7 @@ def _indexing(C: dcg.Context):
     table[1, 2] = "Cell 2,3"
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Text, dcg.TableElement)
 @documented
 @democode
 def _accessing(C: dcg.Context):
@@ -105,7 +105,7 @@ def _accessing(C: dcg.Context):
         for i in range(4):
             dcg.Text(C, value=f"Replaced Row{i} Column1")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Button, dcg.Text)
 @documented
 @democode
 def _appending_1(C: dcg.Context):
@@ -130,7 +130,7 @@ def _appending_1(C: dcg.Context):
         dcg.Text(C, value="Cell 1,3")
         dcg.Text(C, value="Cell 2,3")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Button)
 @documented
 @democode
 def _appending_2(C: dcg.Context):
@@ -150,7 +150,7 @@ def _appending_2(C: dcg.Context):
     table.append_row([dcg.Button(C, label="Cell 2,1"), "Cell 2,2"])
     table.append_col(["Cell 1,3", "Cell 2,3"])
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Text)
 @documented
 @democode
 def _table_size(C: dcg.Context):
@@ -182,7 +182,7 @@ def _table_size(C: dcg.Context):
     dcg.Text(C, value=f"Number of actual columns: {table.num_cols}")
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableElement, dcg.Button, dcg.VerticalLayout, dcg.HorizontalLayout, dcg.ChildWindow)
 @documented
 @democode
 def _cell_content(C: dcg.Context):
@@ -231,7 +231,7 @@ def _cell_content(C: dcg.Context):
         for word in long_string.split():
             dcg.Text(C, value=word)
 
-@demosection
+@demosection(dcg.Table)
 @documented
 def _other_methods(C: dcg.Context):
     """
@@ -257,7 +257,7 @@ pop_group()  # End Creating Tables
 push_group("Formatting")
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableColConfig, dcg.TableRowConfig)
 @documented
 def _formatting_intro(C: dcg.Context):
     """
@@ -277,7 +277,7 @@ def _formatting_intro(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag)
 @documented
 def _table_flags(C: dcg.Context):
     """
@@ -349,7 +349,7 @@ def _table_flags(C: dcg.Context):
     """
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig)
 @documented
 def _col_flags(C: dcg.Context):
     """
@@ -398,7 +398,7 @@ def _col_flags(C: dcg.Context):
     - **HoveredHandler/LostHoverHandler**: When mouse enters/leaves column
     """
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableRowConfig)
 @documented
 def _row_flags(C: dcg.Context):
     """
@@ -424,7 +424,7 @@ def _row_flags(C: dcg.Context):
     Rows do not support handlers.
     """
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig)
 @documented
 @democode
 def _headers(C: dcg.Context):
@@ -537,7 +537,7 @@ def _headers(C: dcg.Context):
     dcg.Text(C, value="- Hideable columns (right-click on header)")
     dcg.Text(C, value="- Column reordering (drag headers)")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Spacer)
 @documented
 @democode
 def _sizing_policies(C: dcg.Context):
@@ -585,7 +585,7 @@ def _sizing_policies(C: dcg.Context):
     
     create_table(dcg.TableFlag.SIZING_STRETCH_SAME, "SIZING_STRETCH_SAME")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.Checkbox)
 @documented
 @democode
 def _column_resizing(C: dcg.Context):
@@ -641,7 +641,7 @@ def _column_resizing(C: dcg.Context):
     
     dcg.Checkbox(C, label="Resizable Columns", value=True, callback=toggle_resizable)
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig)
 @documented
 @democode
 def _row_height(C: dcg.Context):
@@ -676,7 +676,7 @@ def _row_height(C: dcg.Context):
     
     dcg.Text(C, value="Notice how rows respect their minimum height regardless of content")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.Separator, dcg.Slider)
 @documented
 @democode
 def _outer_size_scrolling(C: dcg.Context):
@@ -745,7 +745,7 @@ def _outer_size_scrolling(C: dcg.Context):
             for j in range(6):
                 dcg.Text(C, value=f"Cell with more text than fits {i},{j}")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.Separator)
 @documented
 @democode
 def _advanced_column_options(C: dcg.Context):
@@ -808,7 +808,7 @@ def _advanced_column_options(C: dcg.Context):
     
     dcg.Text(C, value="Try right-clicking on column headers to see available options")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.Checkbox, dcg.HorizontalLayout)
 @documented
 @democode
 def _padding_options(C: dcg.Context):
@@ -873,7 +873,7 @@ pop_group()  # End Formatting
 push_group("Interactions")
 
 
-@demosection
+@demosection(dcg.Table)
 @documented
 def _interactions_intro(C: dcg.Context):
     """
@@ -892,7 +892,7 @@ def _interactions_intro(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Table, dcg.Tooltip, dcg.TableFlag)
 @documented
 @democode
 def _tooltips(C: dcg.Context):
@@ -966,7 +966,7 @@ def _tooltips(C: dcg.Context):
     # Note on tooltip behavior
     dcg.Text(C, value="Note: Hover over cells with truncated text to see the full description")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.InputText, dcg.EditedHandler)
 @documented
 @democode
 def _filtering(C: dcg.Context):
@@ -1060,7 +1060,7 @@ def _filtering(C: dcg.Context):
     filter_value.handlers += [dcg.EditedHandler(C, callback=apply_filter)]
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.Checkbox)
 @documented
 @democode
 def _sorting(C: dcg.Context):
@@ -1217,7 +1217,7 @@ def _sorting(C: dcg.Context):
     
     dcg.Text(C, value="The date column sorts chronologically, not alphabetically")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.Selectable)
 @documented
 @democode
 def _selection(C: dcg.Context):
@@ -1315,7 +1315,8 @@ def _selection(C: dcg.Context):
     # Explanation
     dcg.Text(C, value="Click on any row or cell to select it")
 
-@demosection
+@demosection(dcg.Table, dcg.TableColConfig, dcg.GotHoverHandler, dcg.LostFocusHandler,
+             dcg.ClickedHandler, dcg.ToggledCloseHandler, dcg.ToggledOpenHandler)
 @documented
 @democode
 def _column_handlers(C: dcg.Context):
@@ -1413,7 +1414,8 @@ def _column_handlers(C: dcg.Context):
     dcg.Text(C, bullet=True, value="Click the second column to change text color")
     dcg.Text(C, bullet=True, value="Right-click on the header and toggle the third column")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.GotHoverHandler, dcg.LostHoverHandler,
+             dcg.ClickedHandler, dcg.ResizeHandler)
 @documented
 @democode
 def _table_handlers(C: dcg.Context):
@@ -1514,7 +1516,7 @@ pop_group()  # End Interactions
 push_group("Styling")
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.HorizontalLayout, dcg.VerticalLayout)
 @documented
 @democode
 def _table_borders(C: dcg.Context):
@@ -1570,7 +1572,7 @@ def _table_borders(C: dcg.Context):
                          callback=toggle_flag,
                          user_data=dcg.TableFlag.BORDERS_OUTER_V)
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableRowConfig, dcg.Checkbox)
 @documented
 @democode
 def _table_row_background(C: dcg.Context):
@@ -1621,7 +1623,7 @@ def _table_row_background(C: dcg.Context):
     
     dcg.Text(C, value="Each row has manually set background color with increasing opacity")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableElement)
 @documented
 @democode
 def _cell_background(C: dcg.Context):
@@ -1670,7 +1672,7 @@ def _cell_background(C: dcg.Context):
     dcg.Text(C, value="modify it, and set it back. Simply modifying the return value")
     dcg.Text(C, value="of table[i, j].bg_color = ... won't work!")
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.TableColConfig, dcg.ThemeColorImGui)
 @documented
 @democode
 def _combining_colors(C: dcg.Context):
@@ -1735,7 +1737,7 @@ def _combining_colors(C: dcg.Context):
     dcg.Text(C, bullet=True, value="Notice the blending effects in column 3 where row and cell colors combine")
 
 
-@demosection
+@demosection(dcg.Table, dcg.TableFlag, dcg.ThemeList, dcg.ThemeColorImGui, dcg.ThemeStyleImGui)
 @documented
 @democode
 def _table_theme_attributes(C: dcg.Context):

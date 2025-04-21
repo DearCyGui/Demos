@@ -1,6 +1,7 @@
 import dearcygui as dcg
 from demo_utils import documented, democode,\
-    push_group, pop_group, launch_demo, demosection
+    push_group, pop_group, launch_demo, demosection,\
+    display_item_documentation
 import math
 import numpy as np
 from PIL import Image
@@ -76,7 +77,7 @@ def _drawing_containers(C: dcg.Context):
     - `dcg.DrawInvisibleButton`: This drawing container enables to have interactable area.
         For ease of use, it accepts drawing children. Its coordinate system is top left
         origin and (1, 1) for the bottom right corner.
-    - `dcg.DrawStream`: This container is a timed DrawingList. It enables to draw a different
+    - `dcg.utils.DrawStream`: This container is a timed DrawingList. It enables to draw a different
         item every frame depending on timing constraints. It can be used to create
         animations. The coordinate system corresponds to the parent drawing container.
     - `dcg.DrawingClip`: This container is reserved for advanced use-cases such as only displaying
@@ -88,9 +89,22 @@ def _drawing_containers(C: dcg.Context):
     In this demo we will only demonstrate the use of `DrawInWindow`, `ViewportDrawList`,
     `DrawingList` and `DrawingScales`. `DrawInPlot` is shown in the `Plot` demo.
     """
-    pass
+    with dcg.TreeNode(C, label="DrawInWindow"):
+        display_item_documentation(C, dcg.DrawInWindow)
+    with dcg.TreeNode(C, label="ViewportDrawList"):
+        display_item_documentation(C, dcg.ViewportDrawList)
+    with dcg.TreeNode(C, label="DrawingList"):
+        display_item_documentation(C, dcg.DrawingList)
+    with dcg.TreeNode(C, label="DrawingScale"):
+        display_item_documentation(C, dcg.DrawingScale)
+    with dcg.TreeNode(C, label="DrawInvisibleButton"):
+        display_item_documentation(C, dcg.DrawInvisibleButton)
+    with dcg.TreeNode(C, label="DrawStream"):
+        display_item_documentation(C, dcg.utils.DrawStream)
+    with dcg.TreeNode(C, label="DrawingClip"):
+        display_item_documentation(C, dcg.DrawingClip)
 
-@demosection
+@demosection(dcg.DrawInWindow, dcg.DrawInPlot, dcg.DrawStar, dcg.DrawText)
 @documented
 @democode
 def _thickness_considerations(C: dcg.Context):
@@ -173,7 +187,7 @@ def _thickness_considerations(C: dcg.Context):
             dcg.DrawText(C, pos=(0.75, 0.7), text="Default (1)", 
                         color=(255, 255, 255), size=-12)
 
-@demosection
+@demosection(dcg.DrawingList, dcg.DrawingClip, dcg.DrawSplitBatch)
 @documented
 def _drawing_trivia(C: dcg.Context):
     """
@@ -211,7 +225,7 @@ pop_group()  # end of Introduction
 
 push_group("Available shapes")
 
-@demosection
+@demosection(dcg.DrawInWindow, dcg.DrawCircle, dcg.DrawRect, dcg.DrawQuad)
 @documented
 @democode
 def _basic_shapes(C: dcg.Context):
@@ -235,6 +249,22 @@ def _basic_shapes(C: dcg.Context):
     Each shape can be filled and/or outlined. Set `color=0` for filled shapes
     with no outline.
     """
+    with dcg.TreeNode(C, label="DrawCircle"):
+        display_item_documentation(C, dcg.DrawCircle)
+    with dcg.TreeNode(C, label="DrawRect"):
+        display_item_documentation(C, dcg.DrawRect)
+    with dcg.TreeNode(C, label="DrawTriangle"):
+        display_item_documentation(C, dcg.DrawTriangle)
+    with dcg.TreeNode(C, label="DrawQuad"):
+        display_item_documentation(C, dcg.DrawQuad)
+    with dcg.TreeNode(C, label="DrawEllipse"):
+        display_item_documentation(C, dcg.DrawEllipse)
+    with dcg.TreeNode(C, label="DrawArc"):
+        display_item_documentation(C, dcg.DrawArc)
+    with dcg.TreeNode(C, label="DrawRegularPolygon"):
+        display_item_documentation(C, dcg.DrawRegularPolygon)
+    with dcg.TreeNode(C, label="DrawStar"):
+        display_item_documentation(C, dcg.DrawStar)
     with dcg.DrawInWindow(C, width=600, height=300):
         # Circle
         dcg.DrawCircle(C, center=(100, 100), radius=50, 
@@ -279,7 +309,8 @@ def _basic_shapes(C: dcg.Context):
                     color=(255, 255, 255), size=-16)
 
 
-@demosection
+@demosection(dcg.DrawArrow, dcg.DrawLine, dcg.DrawBezierCubic, 
+             dcg.DrawBezierQuadratic, dcg.DrawPolyline)
 @documented
 @democode
 def _line_based_drawings(C: dcg.Context):
@@ -367,7 +398,7 @@ def _line_based_drawings(C: dcg.Context):
                     color=(255, 255, 255), size=-14)
 
 
-@demosection
+@demosection(dcg.DrawRegularPolygon, dcg.DrawStar)
 @documented
 @democode
 def _regular_shapes(C: dcg.Context):
@@ -446,7 +477,7 @@ def _regular_shapes(C: dcg.Context):
                         color=(255, 255, 255), size=-14)
 
 
-@demosection
+@demosection(dcg.DrawText, dcg.DrawValue)
 @documented
 @democode
 def _text_and_values(C: dcg.Context):
@@ -497,7 +528,9 @@ def _text_and_values(C: dcg.Context):
         dcg.InputText(C, shareable_value=shared_text, width=-1)
 
 
-@demosection
+@demosection(dcg.DrawInvisibleButton, dcg.GotHoverHandler,
+             dcg.LostHoverHandler, dcg.ClickedHandler,
+             dcg.DraggingHandler, dcg.DraggedHandler)
 @documented
 @democode
 def _interactive_elements(C: dcg.Context):
@@ -593,7 +626,8 @@ def _interactive_elements(C: dcg.Context):
         dcg.Text(C, value="The DrawInvisibleButton component allows you to create custom interactive elements.")
         dcg.Text(C, value="It can be used to implement draggable items, custom buttons, and more.")
 
-@demosection
+@demosection(dcg.DrawInWindow, dcg.DrawArc, dcg.DrawCircle,
+             dcg.DrawLine, dcg.DrawText, dcg.HorizontalLayout)
 @documented
 @democode
 def _advanced_combinations(C: dcg.Context):
@@ -764,7 +798,7 @@ def _advanced_combinations(C: dcg.Context):
 
         gauge_value.callback = update_gauge
 
-@demosection
+@demosection(dcg.DrawImage)
 @documented
 def _draw_images(C: dcg.Context):
     """
@@ -805,7 +839,7 @@ def _draw_images(C: dcg.Context):
     """
 
 
-@demosection
+@demosection(dcg.Texture)
 @documented
 def _draw_texture(C: dcg.Context):
     """
@@ -840,7 +874,7 @@ def _draw_texture(C: dcg.Context):
     """
 
 
-@demosection
+@demosection(dcg.DrawInWindow, dcg.utils.DrawStream)
 @documented
 @democode
 def _draw_animation(C: dcg.Context):
@@ -906,7 +940,7 @@ def _draw_animation(C: dcg.Context):
                 elapsed_time += duration
 
 
-@demosection
+@demosection(dcg.Context, dcg.Texture)
 @documented
 def _draw_texture_advanced(C: dcg.Context):
     """
@@ -1006,7 +1040,7 @@ def _draw_texture_advanced(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.ChildWindow, dcg.Texture, dcg.CustomHandler, dcg.RenderHandler)
 @documented
 @democode
 def _draw_texture_advanced_example(C: dcg.Context):

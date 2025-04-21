@@ -1,9 +1,6 @@
 from demo_utils import documented, democode, push_group, pop_group, launch_demo, demosection
 import dearcygui as dcg
-import numpy as np
-import random
-import time
-import datetime
+
 
 
 # decorators:
@@ -32,7 +29,7 @@ def _basics(C: dcg.Context):
     pass
 
 
-@demosection
+@demosection(dcg.Text, dcg.Button, dcg.Checkbox, dcg.Slider, dcg.InputText)
 @documented
 @democode
 def _creating_basic_items(C: dcg.Context):
@@ -89,7 +86,7 @@ def _creating_basic_items(C: dcg.Context):
                   hint="Type here...")
 
 
-@demosection
+@demosection(dcg.Button, dcg.Text)
 @documented
 @democode
 def _configuring_items(C: dcg.Context):
@@ -151,7 +148,7 @@ def _configuring_items(C: dcg.Context):
     button3.callback = new_callback
 
 
-@demosection
+@demosection(dcg.ChildWindow, dcg.Text, dcg.Button)
 @documented
 @democode
 def _item_tree(C: dcg.Context):
@@ -199,7 +196,7 @@ def _item_tree(C: dcg.Context):
     fourth_parent.children += [floating_text]
 
 
-@demosection
+@demosection(dcg.Window, dcg.Viewport)
 @documented
 def _windows(C: dcg.Context):
     """
@@ -257,7 +254,7 @@ def _windows(C: dcg.Context):
     - `on_close`: Callback function triggered when window is closed
     """
 
-@demosection
+@demosection(dcg.MenuBar, dcg.Menu, dcg.MenuItem, dcg.ChildWindow, dcg.Separator)
 @documented
 @democode
 def _menu_bars(C: dcg.Context):
@@ -316,7 +313,7 @@ def _menu_bars(C: dcg.Context):
         dcg.Text(C, value="Try clicking on the menu items above!")
 
 
-@demosection
+@demosection(dcg.VerticalLayout, dcg.HorizontalLayout, dcg.ChildWindow, dcg.CollapsingHeader, dcg.TreeNode, dcg.TabBar, dcg.Tab)
 @documented
 @democode
 def _containers(C: dcg.Context):
@@ -393,7 +390,7 @@ def _containers(C: dcg.Context):
             dcg.Text(C, value="Content for Tab 3")
 
 
-@demosection
+@demosection(dcg.GotHoverHandler, dcg.LostHoverHandler, dcg.ClickedHandler, dcg.ActivatedHandler, dcg.DeactivatedHandler, dcg.HandlerList, dcg.HandlerListOP)
 @documented
 @democode
 def _handlers(C: dcg.Context):
@@ -479,7 +476,7 @@ def _handlers(C: dcg.Context):
     toggle_button.callback = toggle_visibility
 
 
-@demosection
+@demosection(dcg.ChildWindow, dcg.Button, dcg.Text, dcg.Spacer, dcg.HorizontalLayout, dcg.VerticalLayout, dcg.Alignment)
 @documented
 @democode
 def _positioning(C: dcg.Context):
@@ -608,7 +605,7 @@ def _positioning(C: dcg.Context):
         dcg.Button(C, label="Button 3", width=100)
 
 
-@demosection
+@demosection(dcg.Text, dcg.Button, dcg.ThemeColorImGui, dcg.ThemeStyleImGui, dcg.ChildWindow)
 @documented
 @democode
 def _styling(C: dcg.Context):

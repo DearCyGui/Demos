@@ -10,6 +10,8 @@ import textwrap
 import numpy as np
 
 from text_utils import MarkDownText
+from dataclasses import dataclass
+from typing import Any, Optional, Dict
 
 def democode(f):
     """
@@ -265,25 +267,45 @@ def pop_group():
     if _current_path:
         _current_path.pop()
 
-def demosection(func):
+def demosection(*doc_classes):
     """
     Mark a function as a section in the demo.
     The function will be added to the current group.
+    
+    Args:
+        doc_classes: Optional list of classes to show documentation for in the menu bar
     """
-    # Get the function name as title
-    title = func.__name__
-    
-    # Add to the current path in our hierarchy
-    current = _demo_sections
-    for part in _current_path:
-        if part not in current:
-            current[part] = OrderedDict()
-        current = current[part]
-    
-    # Store the function
-    current[title] = func
-    
-    return func
+    if len(doc_classes) == 1 and callable(doc_classes[0]) and not doc_classes[0].__name__[0].isupper():
+        # Called without arguments as @demosection
+        func = doc_classes[0]
+        title = func.__name__
+        
+        # Add to the current path in our hierarchy
+        current = _demo_sections
+        for part in _current_path:
+            if part not in current:
+                current[part] = OrderedDict()
+            current = current[part]
+        
+        # Store the function with no documented classes
+        current[title] = (func, [])
+        return func
+    else:
+        # Called with arguments as @demosection(...)
+        def wrapper(func):
+            title = func.__name__
+            
+            # Add to the current path in our hierarchy
+            current = _demo_sections
+            for part in _current_path:
+                if part not in current:
+                    current[part] = OrderedDict()
+                current = current[part]
+            
+            # Store the function with its documented classes
+            current[title] = (func, doc_classes or [])
+            return func
+        return wrapper
 
 class DemoContentContainer(dcg.ChildWindow):
     """
@@ -291,16 +313,18 @@ class DemoContentContainer(dcg.ChildWindow):
     This container can be styled with different background colors and layout properties.
     """
     
-    def __init__(self, context, content_type="doc", **kwargs):
+    def __init__(self, context, content_type="doc", doc_links=(), **kwargs):
         """
         Initialize a demo content container.
         
         Args:
             context: DearCyGui context
             content_type: Type of content ('doc' for documentation, 'code' for code)
+            doc_links: documentation links
             **kwargs: Additional arguments passed to dcg.ChildWindow
         """
         self.content_type = content_type
+        self.doc_links = doc_links
         self.no_scrollbar = True
         self.auto_resize_y = True
         self.border = False
@@ -371,8 +395,8 @@ class DemoWindow(dcg.Window):
             )
     
     def _setup_controls(self):
-        """Set up the controls bar for visual parameters"""
-        with dcg.MenuBar(self.context, parent=self):
+        """Set up the controls bar for visual parameters, etc"""
+        with dcg.MenuBar(self.context, parent=self) as self.doc_bar:
             # These will be implemented later
             pass
 
@@ -385,10 +409,12 @@ class DemoWindow(dcg.Window):
             if isinstance(value, OrderedDict):
                 # Recursively build the tree
                 text_dict[key], code_dict[key] = self._build_item_tree(value)
-            elif callable(value):
+            elif isinstance(value, tuple) and len(value) == 2:
+                # Unpack the function and doc_classes
+                func, doc_classes = value
                 placeholder = dcg.Layout(self.context)
                 with placeholder:
-                    value(self.context)
+                    func(self.context)
                 items = placeholder.children
                 if len(items) == 0:
                     return
@@ -399,14 +425,18 @@ class DemoWindow(dcg.Window):
                 else:
                     code = items
                 if text is not None:
-                    container = DemoContentContainer(self.context, content_type="doc")
+                    container = DemoContentContainer(self.context,
+                                                     content_type="doc",
+                                                     doc_links=doc_classes)
                     container.set_background_color(self._doc_bg_color)
                     text.parent = container
                     text_dict[key] = container
                 else:
                     text_dict[key] = None
                 if code is not None:
-                    container = DemoContentContainer(self.context, content_type="code")
+                    container = DemoContentContainer(self.context,
+                                                     content_type="code",
+                                                     doc_links=doc_classes if text is None else ())
                     container.set_background_color(self._code_bg_color)
                     for element in code:
                         element.parent = container
@@ -465,6 +495,28 @@ class DemoWindow(dcg.Window):
         """
         pass
 
+    def _on_show_item(self, sender, target):
+        if not target.value: # opened tab
+            return
+        self.doc_bar.children = []
+        with self.doc_bar:
+            # Get the text and code sections from the sender's user data
+            text_section, code_section = target.user_data
+            # Retrieve the documentation links to show
+            doc_links = ()
+            if text_section is not None and hasattr(text_section, "doc_links"):
+                doc_links = text_section.doc_links
+            if code_section is not None and hasattr(code_section, "doc_links"):
+                doc_links += code_section.doc_links
+
+            # Add them to the menu bar
+            def _show_documentation(sender, target, value):
+                # Show the documentation for the selected item
+                ItemDocumentation(self.context, target.user_data, modal=True)
+            for link in doc_links:
+                dcg.Button(self.context, label=link.__name__,
+                           callbacks=_show_documentation, user_data=link)
+
     def _create_tabs_from_hierarchy(self,
                                     _text_sections: OrderedDict,
                                     _code_sections: OrderedDict,
@@ -478,18 +530,337 @@ class DemoWindow(dcg.Window):
                 formatted_group_name = " ".join(formatted_group_name).title()
             else:
                 formatted_group_name = group_name
-            with dcg.Tab(self.context, label=formatted_group_name):
-                text_content = _text_sections[group_name]
-                code_content = _code_sections[group_name]
+            text_content = _text_sections[group_name]
+            code_content = _code_sections[group_name]
+            with dcg.Tab(self.context,
+                         label=formatted_group_name,
+                         user_data=(text_content, code_content)) as parent_tab:
                 if isinstance(text_content, OrderedDict):
                     assert isinstance(code_content, OrderedDict)
                     with dcg.TabBar(self.context):
                         self._create_tabs_from_hierarchy(text_content, code_content, level + 1)
                 else:
+                    # When clicked
+                    parent_tab.callbacks = [self._on_show_item]
+                    # When switching from a parent tab to another (will trigger for all tabs)
+                    parent_tab.handlers = [dcg.GotRenderHandler(self.context, callback=self._on_show_item)]
                     if text_content is not None:
                         text_content.parent = self.context.fetch_parent_queue_back()
                     if code_content is not None:
                         code_content.parent = self.context.fetch_parent_queue_back()
+
+@dataclass
+class PropertyInfo:
+    """Information about a class property."""
+    # The name of the property
+    name: str
+    
+    # Documentation string describing the property
+    docstring: str
+    
+    # Whether the property can be modified
+    writable: bool
+    
+    # Whether the property can be accessed
+    accessible: bool
+    
+    # Default value of the property when initialized
+    default_value: Any
+
+    # Whether this property is dynamic (implemented in getattr/setattr)
+    dynamic: bool = False
+    
+    # Whether this property is inherited from a parent class
+    inherited: bool = False
+    
+    # Name of the parent class this property is inherited from (if any)
+    inherited_from: Optional[str] = None
+    
+    @property
+    def readonly(self) -> bool:
+        """Whether the property is read-only."""
+        return self.accessible and not self.writable
+    
+    @property
+    def disabled(self) -> bool:
+        """Whether the property is disabled (not accessible)."""
+        return not self.accessible
+
+@dataclass
+class MethodInfo:
+    """Information about a class method."""
+    # The name of the method
+    name: str
+    
+    # Documentation string describing the method
+    docstring: str
+    
+    # String representation of the method signature
+    signature: str
+    
+    # Whether this method is inherited from a parent class
+    inherited: bool = False
+    
+    # Name of the parent class this method is inherited from (if any)
+    inherited_from: Optional[str] = None
+
+class ItemParser:
+    """
+    Parses class docstrings and organizes class attributes for documentation purposes.
+    
+    This utility class extracts and processes documentation information from a class,
+    including its properties, methods, and their docstrings, without implementing
+    any visual components.
+    """
+    
+    def __init__(self, C: dcg.Context, object_class):
+        """
+        Initialize the docstring parser for a given class.
+        
+        Args:
+            object_class: The class to parse documentation from
+        """
+        self._context = C
+        self._object_class = object_class
+        self._class_name = object_class.__name__
+        self._class_docstring = inspect.getdoc(object_class) or ""
+        
+        # Properties and methods collections
+        self._property_dict: Dict[str, PropertyInfo] = {}
+        self._method_dict: Dict[str, MethodInfo] = {}
+        
+        # Parse the class attributes and properties
+        self._parse_class_attributes()
+    
+    @property
+    def docstring(self) -> str:
+        """The documentation string of the class."""
+        return self._class_docstring
+    
+    @property
+    def parent(self):
+        """The class being documented."""
+        return self._object_class
+    
+    @property
+    def properties(self) -> list[PropertyInfo]:
+        """List of all properties in the class."""
+        return list(self._property_dict.values())
+    
+    @property
+    def methods(self) -> list[MethodInfo]:
+        """List of all methods in the class."""
+        return list(self._method_dict.values())
+    
+    def _parse_class_attributes(self):
+        """Parse all attributes and organize them by type."""
+        # Get class attributes (static)
+        class_attributes = [v[0] for v in inspect.getmembers_static(self._object_class)]
+        
+        # Get base classes (for inheritance tracking)
+        base_classes = self._object_class.__mro__[1:]  # Skip self
+        
+        # Create a temporary instance to inspect dynamic attributes
+        try:
+            instance = self._object_class(self._context, attach=False)
+            attributes = dir(instance)
+            dynamic_attributes = set(attributes).difference(set(class_attributes))
+        except:
+            # If we can't create an instance, fallback to class attributes
+            instance = None
+            attributes = dir(self._object_class)
+            dynamic_attributes = set()
+        
+        # Process each attribute
+        for attr in sorted(attributes):
+            if attr.startswith("__"):  # Skip dunder methods
+                continue
+                
+            attr_inst = getattr(self._object_class, attr, None)
+            if attr_inst is not None and inspect.isbuiltin(attr_inst):
+                continue
+                
+            is_dynamic = attr in dynamic_attributes
+            is_property = inspect.isdatadescriptor(attr_inst)
+            is_class_method = inspect.ismethoddescriptor(attr_inst)
+            
+            # Check inheritance
+            inherited = False
+            inherited_from = None
+            for base in base_classes:
+                if hasattr(base, attr):
+                    base_attr = getattr(base, attr, None)
+                    if base_attr is attr_inst:
+                        inherited = True
+                        inherited_from = base.__name__
+                        break
+            
+            # Store docstring if available
+            doc = inspect.getdoc(attr_inst) if attr_inst else None
+            
+            # Check if property is accessible/writable
+            default_value = None
+            is_accessible = False
+            is_writable = False
+            
+            try:
+                if hasattr(instance, attr):
+                    default_value = getattr(instance, attr)
+                    is_accessible = True
+                    setattr(instance, attr, default_value)
+                    is_writable = True
+            except AttributeError:
+                pass
+            except (TypeError, ValueError, OverflowError):
+                is_writable = True
+                pass
+            
+            # Categorize the attribute
+            if is_property or (is_dynamic and is_accessible):
+                # Create PropertyInfo object
+                prop_info = PropertyInfo(
+                    name=attr,
+                    docstring=doc,
+                    writable=is_writable,
+                    accessible=is_accessible,
+                    default_value=default_value,
+                    dynamic=is_dynamic,
+                    inherited=inherited,
+                    inherited_from=inherited_from
+                )
+                
+                # Store and categorize
+                self._property_dict[attr] = prop_info
+                    
+            elif is_class_method:
+                # Get method signature
+                try:
+                    signature = str(inspect.signature(attr_inst))
+                except (ValueError, TypeError):
+                    signature = "()"
+                
+                # Create MethodInfo object
+                method_info = MethodInfo(
+                    name=attr,
+                    docstring=doc or "",
+                    signature=signature,
+                    inherited=inherited,
+                    inherited_from=inherited_from
+                )
+                
+                # Store method
+                self._method_dict[attr] = method_info
+
+class PropertyDocNode(dcg.TreeNode):
+    """
+    A button about a property. When clicked, it opens a documentation window
+    for the property.
+    """
+    def __init__(self, context, property_info: PropertyInfo, **kwargs):
+        """
+        Initialize the button with the property information.
+        
+        Args:
+            context: DearCyGui context
+            property_info: The property information to document
+            **kwargs: Additional arguments passed to dcg.Button
+        """
+        super().__init__(context, label=property_info.name, **kwargs)
+        self.property_info = property_info
+        docstring = self.property_info.docstring
+        
+        with self:
+            if docstring is not None:
+                MarkDownText(self.context, value=docstring)
+
+class MethodDocNode(dcg.TreeNode):
+    """
+    A button about a method. When clicked, it opens a documentation window
+    for the method.
+    """
+    def __init__(self, context, method_info: MethodInfo, **kwargs):
+        """
+        Initialize the button with the method information.
+        
+        Args:
+            context: DearCyGui context
+            method_info: The method information to document
+            **kwargs: Additional arguments passed to dcg.Button
+        """
+        super().__init__(context, label=method_info.name, **kwargs)
+        self.method_info = method_info
+        docstring = self.method_info.docstring
+        
+        with self:
+            if docstring is not None:
+                MarkDownText(self.context, value=docstring)
+            # Add method signature
+            signature = f"Signature: {self.method_info.signature}"
+            MarkDownText(self.context, value=signature)
+
+def display_item_documentation(context: dcg.Context, item_class, show_inherited=False):
+    """
+    Display the documentation for the given item class inside the
+    current container.
+    """
+    # Display docstring, class inheritance, properties, methods as a treenode
+    item_info = ItemParser(context, item_class)
+    docstring = item_info.docstring
+    if docstring:
+        with dcg.TreeNode(context, label="Class Docstring"):
+            MarkDownText(context, value=docstring)
+
+    # Display non-inherited properties
+    if len([p for p in item_info.properties if not p.inherited or show_inherited]) > 0:
+        with dcg.TreeNode(context, label="Properties"):
+            for prop in item_info.properties:
+                if not prop.inherited or show_inherited:
+                    PropertyDocNode(context, prop)
+    # Display non-inherited methods
+    if len([m for m in item_info.methods if not m.inherited or show_inherited]) > 0:
+        with dcg.TreeNode(context, label="Methods"):
+            for method in item_info.methods:
+                if not method.inherited or show_inherited:
+                    MethodDocNode(context, method)
+
+    if len(item_class.__mro__) > 1 and item_class.__mro__[1].__name__ != "object":
+        # Display inheritance tree
+        with dcg.TreeNode(context, label="Inheritance"):
+            for base in item_class.__mro__[1:]:
+                if base.__name__ != item_class.__name__ and base.__name__ != "object":
+                    with dcg.TreeNode(context, label=base.__name__):
+                        display_item_documentation(context, base)
+
+class ItemDocumentation(dcg.Window):
+    """
+    Represents a window that displays documentation for a specific item class.
+    """
+    def __init__(self, context, item_class, **kwargs):
+        """
+        Initialize the documentation window.
+        
+        Args:
+            context: DearCyGui context
+            item_class: The class of the item to document
+            **kwargs: Additional arguments passed to dcg.Window
+        """
+        super().__init__(context,
+                         label=f"{item_class.__name__} Documentation",
+                         width="0.9*fullx",
+                         height="0.9*fully")
+        self.configure(**kwargs)
+        self._object_class = item_class
+        with self:
+            dcg.Checkbox(self.context, label="Show all inherited properties", callbacks=self._toggle_inherited)
+            display_item_documentation(self.context, item_class)
+
+    def _toggle_inherited(self, sender, target, value):
+        """
+        Toggle the display of inherited properties and methods.
+        """
+        self.children = [target]  # Erase all but keep the button
+        with self:
+            display_item_documentation(self.context, self._object_class, show_inherited=value)
 
 
 def launch_demo(title="DearCyGui Demo"):

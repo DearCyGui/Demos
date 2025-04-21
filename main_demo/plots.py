@@ -15,7 +15,7 @@ import datetime
         
 push_group("Introduction")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.PlotLegendConfig, dcg.AxisTag, dcg.PlotAnnotation)
 @documented
 def _intro(C: dcg.Context):
     """
@@ -62,7 +62,7 @@ push_group("Basic Plots")
 
 push_group("Scatter Plots")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotScatter)
 @documented
 def _scatter_plots(C: dcg.Context):
     """
@@ -82,7 +82,7 @@ def _scatter_plots(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotScatter)
 @documented
 @democode
 def _scatter_basic(C: dcg.Context):
@@ -111,7 +111,7 @@ def _scatter_basic(C: dcg.Context):
         plot.X1.label = "X Axis"
         plot.Y1.label = "Y Axis"
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotScatter, dcg.PlotMarker, dcg.ThemeStyleImPlot, dcg.ThemeColorImPlot)
 @documented
 @democode
 def _scatter_markers(C: dcg.Context):
@@ -178,7 +178,7 @@ def _scatter_markers(C: dcg.Context):
         plot.X1.label = "X Value"
         plot.Y1.label = "Y Value"
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotScatter, dcg.PlotMarker, dcg.ThemeStyleImPlot, dcg.ThemeColorImPlot)
 @documented
 @democode
 def _scatter_example(C: dcg.Context):
@@ -231,7 +231,7 @@ def _scatter_example(C: dcg.Context):
         plot.X1.label = "Sepal Length (cm)"
         plot.Y1.label = "Sepal Width (cm)"
 
-@demosection
+@demosection(dcg.DrawInPlot, dcg.DrawRegularPolygon, dcg.DrawInvisibleButton, dcg.Tooltip)
 @documented
 @democode
 def _scatter_advanced(C: dcg.Context):
@@ -317,7 +317,7 @@ pop_group()  # End Scatter Plots
 push_group("Line Plots")
 
 # Line plots - demonstrates basic line plots with different styles
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine)
 @documented
 def _line_plots(C: dcg.Context):
     """
@@ -338,7 +338,7 @@ def _line_plots(C: dcg.Context):
     pass
 
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine)
 @documented
 @democode
 def _line_basic(C: dcg.Context):
@@ -375,7 +375,7 @@ def _line_basic(C: dcg.Context):
         plot.Y1.label = "Y Axis"
 
 
-@demosection
+@demosection(dcg.PlotLine, dcg.ThemeList, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _line_styling(C: dcg.Context):
@@ -411,7 +411,7 @@ def _line_styling(C: dcg.Context):
         plot.Y1.label = "Y Value"
 
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine, dcg.PlotShadedLine, dcg.ThemeList, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _line_shaded(C: dcg.Context):
@@ -458,7 +458,7 @@ def _line_shaded(C: dcg.Context):
         plot.Y1.label = "Y Value"
 
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine, dcg.PlotStairs, dcg.ThemeList, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _line_segments_steps(C: dcg.Context):
@@ -510,7 +510,7 @@ def _line_segments_steps(C: dcg.Context):
         plot.Y1.label = "Y Value"
 
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine, dcg.AxesResizeHandler)
 @documented
 @democode
 def _line_large_data(C: dcg.Context):
@@ -614,7 +614,7 @@ def _line_large_data(C: dcg.Context):
         dcg.Text(C, value="Double-click in the plot area to fit data to view.")
 
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLine, dcg.AxisScale)
 @documented
 @democode
 def _line_time_series(C: dcg.Context):
@@ -678,7 +678,7 @@ def _line_time_series(C: dcg.Context):
 pop_group()  # End Line Plots
 push_group("Bar Charts")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotBars)
 @documented
 @democode
 def _bar_charts(C: dcg.Context):
@@ -717,7 +717,7 @@ def _bar_charts(C: dcg.Context):
         plot.X1.label = "Categories"
         plot.Y1.label = "Values"
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotBars, dcg.ThemeList, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _bar_styling(C: dcg.Context):
@@ -765,7 +765,7 @@ def _bar_styling(C: dcg.Context):
         plot.X1.label = "Quarter"
         plot.Y1.label = "Sales ($K)"
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotBars, dcg.PlotBarGroups, dcg.ThemeList, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _grouped_bars(C: dcg.Context):
@@ -852,7 +852,7 @@ def _grouped_bars(C: dcg.Context):
         
         dcg.Text(C, value="Note: PlotBarGroups requires less code and handles spacing automatically")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotBarGroups)
 @documented
 @democode
 def _stacked_bars(C: dcg.Context):
@@ -899,7 +899,7 @@ def _stacked_bars(C: dcg.Context):
         plot.X1.label = "Projects"
         plot.Y1.label = "Hours"
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotBars, dcg.PlotBarGroups)
 @documented
 @democode
 def _horizontal_bars(C: dcg.Context):
@@ -979,7 +979,7 @@ def _horizontal_bars(C: dcg.Context):
 pop_group()  # End Bar Plots
 push_group("Pie Charts")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotPieChart)
 @documented
 @democode
 def _pie_charts(C: dcg.Context):
@@ -1027,7 +1027,8 @@ def _pie_charts(C: dcg.Context):
         
         dcg.Text(C, value="Note: Pie charts are best for showing 5-7 categories at most")
 
-@demosection
+@demosection(dcg.Plot, dcg.DrawInPlot, dcg.HorizontalLayout, dcg.DrawArc,
+             dcg.DrawTriangle, dcg.DrawPolygon, dcg.DrawText)
 @documented
 @democode
 def _advanced_pie_charts(C: dcg.Context):
@@ -1228,7 +1229,7 @@ pop_group()  # End Pie Plots
 
 push_group("Statistical Plots")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotHistogram, dcg.PlotErrorBars, dcg.PlotStems, dcg.PlotHistogram2D, dcg.PlotHeatmap)
 @documented
 def _statistical_plots(C: dcg.Context):
     """
@@ -1247,7 +1248,7 @@ def _statistical_plots(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.PlotBars, dcg.PlotErrorBars, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _error_bars(C: dcg.Context):
@@ -1296,7 +1297,7 @@ def _error_bars(C: dcg.Context):
         
         dcg.Text(C, value="Error bars can be attached to any data series to show uncertainty")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotHistogram, dcg.PlotHistogram2D, dcg.PlotHeatmap, dcg.Checkbox, dcg.Slider)
 @documented
 @democode
 def _histogram(C: dcg.Context):
@@ -1357,7 +1358,7 @@ def _histogram(C: dcg.Context):
         
         dcg.Text(C, value="Histograms are useful for visualizing distributions and identifying patterns in data")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotHistogram, dcg.PlotHistogram2D, dcg.PlotHeatmap)
 @documented
 @democode
 def _histogram_2d(C: dcg.Context):
@@ -1414,7 +1415,7 @@ def _histogram_2d(C: dcg.Context):
         
         dcg.Text(C, value="2D histograms reveal patterns in bivariate data that might be missed in separate 1D histograms")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotStems, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _stem_plots(C: dcg.Context):
@@ -1458,7 +1459,7 @@ pop_group()  # End Statistical Plots
 
 push_group("Specialized Plots")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotHeatmap, dcg.PlotDigital, dcg.utils.PlotCandleStick)
 @documented
 def _specialized_plots(C: dcg.Context):
     """
@@ -1478,7 +1479,7 @@ def _specialized_plots(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotHeatmap, dcg.Checkbox)
 @documented
 @democode
 def _heatmaps(C: dcg.Context):
@@ -1541,7 +1542,7 @@ def _heatmaps(C: dcg.Context):
         dcg.Text(C, value="Heatmaps are useful for visualizing patterns in matrix data")
         dcg.Text(C, value="Applications include: correlation matrices, geographical data, image processing")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotInfLines, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _infinite_lines(C: dcg.Context):
@@ -1593,7 +1594,7 @@ def _infinite_lines(C: dcg.Context):
         
         dcg.Text(C, value="Infinite lines are useful for marking reference values, thresholds, or important positions")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotDigital, dcg.PlotLine, dcg.RenderHandler)
 @documented
 @democode
 def _digital_plots(C: dcg.Context):
@@ -1700,7 +1701,7 @@ def _digital_plots(C: dcg.Context):
         dcg.Text(C, value="Digital plots are useful for visualizing binary signals, logic states, or thresholds")
         dcg.Text(C, value="Note: Digital plots don't respond to Y-axis zooming, allowing overlaid analog plots")
 
-@demosection
+@demosection(dcg.Plot, dcg.utils.PlotCandleStick)
 @documented
 @democode
 def _financial_charts(C: dcg.Context):
@@ -1790,7 +1791,7 @@ pop_group()  # End Basic Plots
 
 push_group("Axes")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisScale, dcg.AxisTag)
 @documented
 def _axes_overview(C: dcg.Context):
     """
@@ -1861,7 +1862,7 @@ def _axes_overview(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisScale, dcg.AxisTag, dcg.AxesResizeHandler, dcg.PlotLine, dcg.TreeNode)
 @documented
 @democode
 def _basic_axes_customization(C: dcg.Context):
@@ -1935,7 +1936,7 @@ def _basic_axes_customization(C: dcg.Context):
         y_max_slider.value = y_max
     plot.handlers = [dcg.AxesResizeHandler(C, callback=on_plot_interaction)]
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisScale, dcg.AxisTag, dcg.PlotLine)
 @documented
 @democode
 def _axis_scales(C: dcg.Context):
@@ -2014,7 +2015,7 @@ def _axis_scales(C: dcg.Context):
         dcg.Text(C, value="Log10 scale: Ideal for data spanning multiple orders of magnitude")
         dcg.Text(C, value="Symmetric Log: Useful for data with both positive and negative values that need log scaling")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisScale, dcg.AxisTag, dcg.PlotLine, dcg.PlotAnnotation)
 @documented
 @democode
 def _time_axis_formatting(C: dcg.Context):
@@ -2094,7 +2095,7 @@ def _time_axis_formatting(C: dcg.Context):
     dcg.Text(C, value="Note: Time axes use UNIX timestamps (seconds since January 1, 1970 UTC)")
     dcg.Text(C, value="Try different time ranges and formatting options to see how they affect the display")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.TreeNode, dcg.Checkbox)
 @documented
 @democode
 def _multiple_axes(C: dcg.Context):
@@ -2166,7 +2167,7 @@ def _multiple_axes(C: dcg.Context):
     dcg.Text(C, value="Each series is associated with a specific axis, allowing for clear comparison.")
     dcg.Text(C, value="Toggle the checkboxes to show/hide individual axes.")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.PlotInfLines, dcg.TreeNode, dcg.Checkbox)
 @documented
 @democode
 def _axis_orientation(C: dcg.Context):
@@ -2222,7 +2223,7 @@ def _axis_orientation(C: dcg.Context):
     dcg.Text(C, value="The 'invert' option reverses the direction of increasing values.")
     dcg.Text(C, value="Try combinations of these options to see their effects!")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.PlotLine, dcg.ChildWindow, dcg.TreeNode, dcg.Checkbox)
 @documented
 @democode
 def _axis_constraints_locking(C: dcg.Context):
@@ -2292,7 +2293,7 @@ def _axis_constraints_locking(C: dcg.Context):
     dcg.Text(C, value="Constraint Min/Max: Sets a limit beyond which the axis cannot be set")
     dcg.Text(C, value="Pan Stretch: When locked, allows the axis to stretch when panning")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.PlotLine, dcg.PlotBars, dcg.Checkbox, dcg.Combo)
 @documented
 @democode
 def _axis_custom_ticks_labels(C: dcg.Context):
@@ -2393,7 +2394,7 @@ def _axis_custom_ticks_labels(C: dcg.Context):
     dcg.Text(C, value="Custom labels let you display categorical data or special marker positions.")
     dcg.Text(C, value="Format strings control how numeric values appear on axes.")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisTag, dcg.PlotAnnotation, dcg.TreeNode)
 @documented
 @democode
 def _axis_tags_annotations(C: dcg.Context):
@@ -2478,7 +2479,7 @@ pop_group()  # End Axes
 
 push_group("Subplots")
 
-@demosection
+@demosection(dcg.Subplots, dcg.Plot)
 @documented
 def _subplots_intro(C: dcg.Context):
     """
@@ -2503,7 +2504,7 @@ def _subplots_intro(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Subplots, dcg.Plot)
 @documented
 @democode
 def _basic_subplots(C: dcg.Context):
@@ -2548,7 +2549,7 @@ def _basic_subplots(C: dcg.Context):
         with dcg.Plot(C, label="Linear") as plot4:
             dcg.PlotLine(C, label="x/10", X=x, Y=y4)
 
-@demosection
+@demosection(dcg.Subplots, dcg.Plot)
 @documented
 @democode
 def _subplot_layout(C: dcg.Context):
@@ -2609,7 +2610,7 @@ def _subplot_layout(C: dcg.Context):
                 data = np.sin(t + i/2) * (i+1)/6
                 dcg.PlotLine(C, label=f"Series {i+1}", X=t, Y=data)
 
-@demosection
+@demosection(dcg.Subplots, dcg.Plot, dcg.PlotAxisConfig)
 @documented
 @democode
 def _sharing_axes_legends(C: dcg.Context):
@@ -2667,7 +2668,8 @@ def _sharing_axes_legends(C: dcg.Context):
     dcg.Text(C, value="Plot 1 and 3 share the same Y-axis (left column)", bullet=True)
     dcg.Text(C, value="Try zooming or panning one of these linked plots to see the effect", bullet=True)
 
-@demosection
+@demosection(dcg.Subplots, dcg.Plot, dcg.PlotAxisConfig, dcg.PlotInfLines, dcg.PlotHistogram,
+             dcg.PlotScatter, dcg.PlotBars)
 @documented
 @democode
 def _practical_dashboard(C: dcg.Context):
@@ -2758,7 +2760,7 @@ pop_group()  # End Subplots
 
 push_group("Legends")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLegendConfig)
 @documented
 def _legend_overview(C: dcg.Context):
     """
@@ -2794,7 +2796,7 @@ def _legend_overview(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLegendConfig, dcg.PlotLine, dcg.Checkbox)
 @documented
 @democode
 def _legend_basic(C: dcg.Context):
@@ -2840,7 +2842,7 @@ def _legend_basic(C: dcg.Context):
     dcg.Text(C, value="Try toggling the legend visibility with the checkbox above.")
     dcg.Text(C, value="Note that the gray line doesn't appear in the legend because it has an empty label.")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLegendConfig, dcg.LegendLocation, dcg.PlotScatter, dcg.PlotLine)
 @documented
 @democode
 def _legend_position(C: dcg.Context):
@@ -2932,7 +2934,7 @@ def _legend_position(C: dcg.Context):
     dcg.Text(C, value="Try different combinations of location, outside, and horizontal settings.")
     dcg.Text(C, value="Outside legends can be useful to maximize the data display area.")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLegendConfig, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _legend_styling(C: dcg.Context):
@@ -2995,7 +2997,7 @@ def _legend_styling(C: dcg.Context):
     dcg.Text(C, value="Legend entries can be clicked to show/hide the corresponding plot item.")
     dcg.Text(C, value="Hover over a legend entry to highlight the corresponding data in the plot.")
 
-@demosection
+@demosection(dcg.Plot, dcg.PlotLegendConfig, dcg.PlotLine, dcg.PlotScatter, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 @democode
 def _legend_popup_menus(C: dcg.Context):
@@ -3077,7 +3079,7 @@ pop_group()  # End Legends
 
 push_group("Plot Styling")
 
-@demosection
+@demosection(dcg.Plot, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 def _plot_styling_overview(C: dcg.Context):
     """
@@ -3115,7 +3117,7 @@ def _plot_styling_overview(C: dcg.Context):
     """
     pass
 
-@demosection
+@demosection(dcg.Plot, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 def _color_customization(C: dcg.Context):
     """
@@ -3166,7 +3168,7 @@ def _color_customization(C: dcg.Context):
     """
 
 
-@demosection
+@demosection(dcg.Plot, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
 @documented
 def _style_parameters(C: dcg.Context):
     """
@@ -3227,7 +3229,7 @@ def _style_parameters(C: dcg.Context):
     or to emphasize specific aspects of your data visualization.
     """
 
-@demosection
+@demosection(dcg.Plot, dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot, dcg.PlotAnnotation, dcg.AxisTag, dcg.utils.StyleEditor)
 @documented
 @democode
 def _style_demo(C: dcg.Context):
@@ -3260,7 +3262,7 @@ def _style_demo(C: dcg.Context):
 
 pop_group()  # End Plot Styling
 
-@demosection
+@demosection(dcg.Plot)
 @documented
 def _plot_configuration_options(C: dcg.Context):
     """
