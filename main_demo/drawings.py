@@ -4,6 +4,7 @@ from demo_utils import documented, democode,\
     display_item_documentation
 import math
 import numpy as np
+import os
 from PIL import Image
 import time
 
@@ -879,8 +880,20 @@ def _draw_texture(C: dcg.Context):
 @democode
 def _draw_animation(C: dcg.Context):
     """
-
-
+    ### Animated Drawing Elements
+    
+    DearCyGui supports creating animations with these key components:
+    
+    - `DrawStream`: A container for time-based drawing elements
+    - Timing control for frame-by-frame animation
+    - Integration with `DrawInWindow` for interactive animated widgets
+    
+    This example shows:
+    1. Basic animation using `DrawStream`
+    2. Creating a custom animated button with GIF support 
+    3. Programmatic shape animation
+    
+    Animations are great for providing visual feedback and creating engaging interfaces.
     """
     class GifButton(dcg.DrawInWindow):
         """A button that displays an animated GIF using DrawInWindow and DrawStream"""
@@ -900,13 +913,14 @@ def _draw_animation(C: dcg.Context):
             
             # Load GIF and convert frames to textures
             self._frames = []
+            self._frame_durations = []
             self._total_duration = 0
             
             gif = Image.open(gif_path)
             try:
                 while True:
                     # Convert frame to RGBA
-                    frame = np.array(gif.convert('RGBA'))/255.
+                    frame = np.array(gif.convert('RGBA'))
                     
                     # Create texture from frame
                     texture = dcg.Texture(context)
@@ -914,30 +928,199 @@ def _draw_animation(C: dcg.Context):
                     self._frames.append(texture)
                     
                     # Get frame duration in seconds
-                    duration = gif.info['duration'] / 1000.0  
+                    duration = gif.info.get('duration', 100) / 1000.0  # Default 100ms if not specified
+                    self._frame_durations.append(duration)
                     self._total_duration += duration
                     
                     # Try to move to next frame
                     gif.seek(gif.tell() + 1)
             except EOFError:
-                pass
+                pass  # End of frames reached
 
             # Create draw stream for animation
-            self._stream = dcg.DrawStream(context, parent=self)
+            self._stream = dcg.utils.DrawStream(context, parent=self)
             self._stream.time_modulus = self._total_duration
             
             # Setup initial frame display and animation
             elapsed_time = 0
-            for texture in self._frames:
-                # Add frame to stream with its expiration time
-                expiry = time.monotonic() + elapsed_time
+            for i, texture in enumerate(self._frames):
+                # Add frame to stream with its duration
+                expiry = elapsed_time + self._frame_durations[i]
                 image = dcg.DrawImage(context, texture=texture)
                 if width > 0 and height > 0:
                     # Use explicit dimensions if provided
                     image.pmin = (0, 0)
                     image.pmax = (width, height)
                 self._stream.push(image, expiry)
-                elapsed_time += duration
+                elapsed_time = expiry
+    
+    class AnimatedSpinner(dcg.DrawInWindow):
+        """A spinning loader animation using programmatic drawing"""
+        
+        def __init__(self, context, radius=30, color=(0, 119, 255), **kwargs):
+            """Initialize the spinner
+            
+            Args:
+                context: DearCyGui context
+                radius: Radius of the spinner
+                color: Base color of the spinner
+                **kwargs: Additional arguments passed to DrawInWindow
+            """
+            size = radius * 2 + 10  # Add padding
+            super().__init__(context, width=size, height=size, **kwargs)
+            
+            self._radius = radius
+            self._center_x = size // 2
+            self._center_y = size // 2
+            self._base_color = color
+            self._start_time = time.time()
+            
+            # Create draw stream
+            self._stream = dcg.utils.DrawStream(context, parent=self)
+            self._stream.time_modulus = 2.0  # 2 second animation cycle
+            
+            # Create animation frames
+            self._create_animation(context)
+        
+        def _create_animation(self, context):
+            # Create 20 frames for smooth animation
+            num_segments = 8
+            segments_per_frame = 1
+            rotation_per_frame = 2 * math.pi / 20  # Full rotation in 20 frames
+            
+            for frame in range(20):
+                # Calculate rotation for this frame
+                rotation = frame * rotation_per_frame
+                
+                # Create a drawing list for this frame
+                elapsed_time = frame / 10.0  # 10 frames per second
+                expiry_time = elapsed_time + 0.1  # Each frame lasts 0.1 seconds
+                
+                with dcg.DrawingList(context) as drawing:
+                    # Draw segments with varying opacity
+                    for i in range(num_segments):
+                        angle = rotation + (i * 2 * math.pi / num_segments)
+                        
+                        # Calculate position
+                        x1 = self._center_x + self._radius * 0.5 * math.cos(angle)
+                        y1 = self._center_y + self._radius * 0.5 * math.sin(angle)
+                        x2 = self._center_x + self._radius * math.cos(angle)
+                        y2 = self._center_y + self._radius * math.sin(angle)
+                        
+                        # Calculate opacity (fade based on position in rotation)
+                        opacity = 55 + 200 * (i / num_segments)
+                        color = (self._base_color[0], self._base_color[1], self._base_color[2], int(opacity))
+                        
+                        # Draw the segment
+                        dcg.DrawLine(context, p1=(x1, y1), p2=(x2, y2), color=color, thickness=-3)
+                
+                # Add to stream
+                self._stream.push(drawing, expiry_time)
+    
+    class PulsingCircle(dcg.DrawInWindow):
+        """A circle that pulses in and out with color changes"""
+        
+        def __init__(self, context, radius=40, **kwargs):
+            """Initialize the pulsing circle
+            
+            Args:
+                context: DearCyGui context
+                radius: Maximum radius of the circle
+                **kwargs: Additional arguments passed to DrawInWindow
+            """
+            size = radius * 2 + 20  # Add padding
+            super().__init__(context, width=size, height=size, **kwargs)
+            
+            self._max_radius = radius
+            self._center_x = size // 2
+            self._center_y = size // 2
+            
+            # Create draw stream with 3-second cycle
+            self._stream = dcg.utils.DrawStream(context, parent=self)
+            self._stream.time_modulus = 3.0
+            
+            # Create animation frames
+            self._create_animation(context)
+        
+        def _create_animation(self, context):
+            # Create 60 frames for a smooth 3-second animation (20fps)
+            num_frames = 60
+            
+            for frame in range(num_frames):
+                # Calculate progress through animation (0.0 to 1.0)
+                progress = frame / num_frames
+                t = progress * 2 * math.pi  # Convert to radians for sin/cos
+                
+                # Calculate radius and color for this frame
+                radius_factor = 0.5 + 0.5 * math.sin(t)  # Oscillate between 0.5 and 1.0
+                radius = self._max_radius * radius_factor
+                
+                # Create oscillating colors
+                r = int(127 + 127 * math.sin(t))
+                g = int(127 + 127 * math.sin(t + 2*math.pi/3))
+                b = int(127 + 127 * math.sin(t + 4*math.pi/3))
+                
+                # Create a drawing for this frame
+                elapsed_time = 3.0 * progress
+                expiry_time = elapsed_time + 0.05  # Each frame lasts 0.05 seconds
+                
+                with dcg.DrawingList(context) as drawing:
+                    # Draw the circle
+                    dcg.DrawCircle(context, 
+                                  center=(self._center_x, self._center_y),
+                                  radius=radius,
+                                  color=(r, g, b, 255),
+                                  fill=(r, g, b, 100),
+                                  thickness=-2)
+                
+                # Add to stream
+                self._stream.push(drawing, expiry_time)
+    
+    # Display the examples
+    with dcg.VerticalLayout(C, width=-1):
+        dcg.Text(C, value="Animation Examples")
+        
+        # For GIF example, we should check if the demo gif exists
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        demo_gif_path = os.path.join(current_dir, "..", "demo_cython_subclassing", "demo.gif")
+        try:
+            dcg.Text(C, value="1. Animated GIF Button")
+            gif_button = GifButton(C, gif_path=demo_gif_path, width=150, height=100)
+            click_animation = dcg.Text(C, value="Click the animation!")
+            
+            # Add click handler to demonstrate interactivity
+            def on_button_click():
+                dcg.Text(C,
+                         previous_sibling=click_animation,
+                         value=f"Button clicked at {time.strftime('%H:%M:%S')}")
+            
+            gif_button.callback = on_button_click
+        except Exception as e:
+            dcg.Text(C, value=f"Could not load GIF example: {str(e)}")
+        
+        dcg.Separator(C)
+        
+        # Programmatic animations
+        with dcg.HorizontalLayout(C, width=-1):
+            # Spinner example
+            with dcg.VerticalLayout(C):
+                dcg.Text(C, value="2. Loading Spinner")
+                AnimatedSpinner(C, radius=30)
+            
+            # Pulsing circle example
+            with dcg.VerticalLayout(C):
+                dcg.Text(C, value="3. Pulsing Circle")
+                PulsingCircle(C, radius=35)
+        
+        dcg.Separator(C)
+        
+        # Explanation of DrawStream
+        dcg.Text(C, value="How DrawStream Works:", color=(255, 255, 0))
+        dcg.Text(C, value="1. Create a DrawStream container and set its time_modulus (cycle length)")
+        dcg.Text(C, value="2. Push drawing items with expiry times (when to switch to the next item)")
+        dcg.Text(C, value="3. The stream automatically displays the correct item based on elapsed time")
+        dcg.Text(C, value="4. The viewport is woken up at the end of each cycle to render the next item")
+        dcg.Text(C, value="5. For smooth animation, create many frames with short display durations")
 
 
 @demosection(dcg.Context, dcg.Texture)

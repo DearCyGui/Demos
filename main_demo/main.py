@@ -19,15 +19,11 @@ pop_group()
 push_group("Drawings")
 import drawings
 pop_group()
-push_group("Styles")
+push_group("Themes")
 import styles
 pop_group()
 push_group("Subclassing")
 import subclassing
 pop_group()
-push_group("Advanced")
-import advanced
-pop_group()
-
 if __name__ == "__main__":
-    launch_demo(title="Dearcygui Demo")
+    launch_demo(title="DearCyGui Demo")

@@ -514,8 +514,9 @@ class DemoWindow(dcg.Window):
                 # Show the documentation for the selected item
                 ItemDocumentation(self.context, target.user_data, modal=True)
             for link in doc_links:
-                dcg.Button(self.context, label=link.__name__,
+                dcg.Button(self.context, label=link.__name__, small=True,
                            callbacks=_show_documentation, user_data=link)
+        self.context.viewport.wake() # Wake the viewport to refresh the display
 
     def _create_tabs_from_hierarchy(self,
                                     _text_sections: OrderedDict,
@@ -654,6 +655,8 @@ class ItemParser:
     
     def _parse_class_attributes(self):
         """Parse all attributes and organize them by type."""
+        if not isinstance(self._object_class, type):
+            return
         # Get class attributes (static)
         class_attributes = [v[0] for v in inspect.getmembers_static(self._object_class)]
         
@@ -823,7 +826,7 @@ def display_item_documentation(context: dcg.Context, item_class, show_inherited=
                 if not method.inherited or show_inherited:
                     MethodDocNode(context, method)
 
-    if len(item_class.__mro__) > 1 and item_class.__mro__[1].__name__ != "object":
+    if isinstance(item_class, type) and len(item_class.__mro__) > 1 and item_class.__mro__[1].__name__ != "object":
         # Display inheritance tree
         with dcg.TreeNode(context, label="Inheritance"):
             for base in item_class.__mro__[1:]:

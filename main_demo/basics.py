@@ -17,7 +17,7 @@ def _basics(C: dcg.Context):
 
     In this section, we will cover the basics of DearCygui:
     - How to create and configure an item
-    - how to manipulate the item tree
+    - How to manipulate the item tree
     - How to configure the context and viewport
     - How to create a window
     - How to create a menu bar
@@ -36,7 +36,8 @@ def _creating_basic_items(C: dcg.Context):
     """
     ## Creating Basic Items
     
-    UI elements in DearCyGui are called **items**. All items share these common features:
+    UI elements in DearCyGui are built by instantiating Python object.
+    All UI items share these common features:
     
     - They take the Context as their first parameter
     - They can be configured using keyword arguments or by setting properties after creation
@@ -58,8 +59,9 @@ def _creating_basic_items(C: dcg.Context):
     
     dcg.Button(C, 
                label="Click Me", 
-               callback=button_callback,
-               tip="This button will change its label when clicked")
+               callback=button_callback)
+    with dcg.Tooltip(C):
+        dcg.Text(C, value="This button will change its label when clicked")
     
     # Creating a checkbox
     def checkbox_callback(sender, target, data):
@@ -169,18 +171,18 @@ def _item_tree(C: dcg.Context):
     The viewport is the ultimate root of the item tree.
     """
     # Method 1: Using the "with" statement
-    with dcg.ChildWindow(C, width=300, height=200, label="Parent Container"):
+    with dcg.ChildWindow(C, width=-1, height=200, label="Parent Container"):
         # These items will automatically become children of the ChildWindow
         dcg.Text(C, value="I'm a child of the ChildWindow (using 'with')")
         dcg.Button(C, label="Me too!")
     
     # Method 2: Setting parent during creation
-    parent_container = dcg.ChildWindow(C, width=300, height=200, label="Another Parent")
+    parent_container = dcg.ChildWindow(C, width=-1, height=200, label="Another Parent")
     dcg.Text(C, value="I'm a child (using parent parameter)", parent=parent_container)
     dcg.Button(C, label="Same here", parent=parent_container)
     
     # Method 3: Setting parent after creation
-    another_parent = dcg.ChildWindow(C, width=300, height=200, label="Third Parent")
+    another_parent = dcg.ChildWindow(C, width=-1, height=200, label="Third Parent")
     text_item = dcg.Text(C, value="I'll be moved", attach=False)  # attach=False prevents automatic attachment
     button_item = dcg.Button(C, label="Me too", attach=False)
     
@@ -189,7 +191,7 @@ def _item_tree(C: dcg.Context):
     button_item.parent = another_parent
     
     # Method 4: Using the children list
-    fourth_parent = dcg.ChildWindow(C, width=300, height=200, label="Fourth Parent")
+    fourth_parent = dcg.ChildWindow(C, width=-1, height=200, label="Fourth Parent")
     floating_text = dcg.Text(C, value="Adding via children list", attach=False)
     
     # Append to the parent's children list
@@ -328,6 +330,7 @@ def _containers(C: dcg.Context):
     - **CollapsingHeader**: A collapsible section that can be expanded/collapsed
     - **TreeNode**: A hierarchical collapsible item, useful for tree structures
     - **TabBar/TabItem**: Organizes content into tabs
+    - **Layout**: A generic container, typically used by subclassing it when creating custom widgets.
     
     Containers help create structured and responsive interfaces.
     """
@@ -408,6 +411,9 @@ def _handlers(C: dcg.Context):
     - Built-in handlers include: `HoverHandler`, `ClickedHandler`, `FocusHandler`, etc.
     
     Handlers help create interactive, dynamic interfaces with minimal performance impact.
+
+    Usage of handlers and the various types of handlers are explained in more depth
+    in the related sections of this demo.
     """
     # Create a text element that will display status information
     status_text = dcg.Text(C, value="Hover over or click elements to see events")
@@ -614,7 +620,7 @@ def _styling(C: dcg.Context):
     
     DearCyGui provides multiple ways to customize the appearance of UI elements:
     
-    - **Item Properties**: Some items accept attributes such as `color`and `fill`
+    - **Item Properties**: Some items accept attributes such as `color` and `fill`
     - **Theme Colors**: Apply color settings using `ThemeColorImGui` and `ThemeColorImPlot`
     - **Theme Styles**: Adjust spacing and sizes using `ThemeStyleImGui` and `ThemeStyleImPlot`
     - **Fonts**: Change text appearance using custom fonts

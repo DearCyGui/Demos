@@ -97,7 +97,7 @@ def _concepts(C: dcg.Context):
     to the items to render. These objects can be
     - Handlers, which are responsible for triggering Python callbacks
         when specific conditions are met.
-    - Styles, which are responsible for changing the appearance of
+    - Themes, which are responsible for changing the appearance of
         the objects.
     - Fonts, which are responsible for changing the font of the
         objects.
@@ -130,7 +130,7 @@ def _concepts(C: dcg.Context):
     of what you could do with subclassing:
     - Subclass `Context` in order to attach variables that
        are accessible from all objects.
-    - Subclass containers (ChildWindow, Layout, DrawingList, etc)
+    - Subclass containers (`ChildWindow`, `Layout`, `DrawingList`, etc)
         and upon creation attach a set of widgets to it.
     - Define the callbacks as methods of your subclass
     - Store important object specific variables or states
@@ -210,11 +210,12 @@ def _how_to_use_this_demo(C: dcg.Context):
     This demo attemps to give an overview of many of the
     tools available in DearCyGui. It features a collection
     of small examples focusing on specific features. They
-    are generally accompanied by a short code snippet.
+    are generally accompanied by a short code snippet, as well
+    as a few documentation links in the top bar.
     This snippet can be edited through the 'show Source' button.
 
-    The code snippets are executed in a ChildWindow that is
-    created below the explanation text. The ChildWindow is
+    The code snippets are executed in a `ChildWindow` that is
+    created below the explanation text. The `ChildWindow` is
     specified as default parent using the `with` statement,
     which is why it is not needed to specify the parent
     in the code snippets.
