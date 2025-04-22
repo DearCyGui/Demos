@@ -1985,63 +1985,6 @@ def _shared_values(C: dcg.Context):
 
 pop_group()  # End Styling and Theming
 
-push_group("Practical Examples")
-
-@demosection
-@documented
-@democode
-def _form_example(C: dcg.Context):
-    """
-    ## Form Input Example
-    
-    A complete form implementation demonstrating:
-    
-    - Input validation and feedback
-    - Layout organization for form fields
-    - Handling form submission
-    - Error messaging and confirmation
-    
-    This example shows how to combine basic widgets into a practical interface.
-    """
-    ...
-
-@demosection
-@documented
-@democode
-def _calculator_example(C: dcg.Context):
-    """
-    ## Simple Calculator
-    
-    A working calculator that demonstrates:
-    
-    - Grid-based button layout
-    - Input and display coordination
-    - Event handling for numeric input
-    - State management for calculations
-    
-    This example shows how to create an interactive application with state.
-    """
-    ...
-
-@demosection
-@documented
-@democode
-def _settings_panel(C: dcg.Context):
-    """
-    ## Settings Panel
-    
-    A complete settings interface that demonstrates:
-    
-    - Organized categories with tabs or tree nodes
-    - Various input types for different settings
-    - Real-time preview of setting changes
-    - Settings persistence pattern
-    
-    This example shows how to create structured configuration interfaces.
-    """
-    ...
-
-pop_group()  # End Practical Examples
 
 if __name__ == "__main__":
     launch_demo(title="Widgets Demo")
