@@ -605,7 +605,7 @@ class AvailableItems(dcg.Layout):
                 "Themes": [dcg.baseTheme],
                 "Values": [dcg.SharedValue]
             }
-            filter.items=filter_names.keys()
+            filter.items=list(filter_names.keys())
             filter.value="All"
 
             def update_item_list(sender, item, value):
@@ -666,7 +666,7 @@ class DocumentationWindow(dcg.Window):
                         text = fp.read()
                     selection[docname] = MarkDownText(C, show=False, value=text)
 
-            radio_button.items = selection.keys()
+            radio_button.items = list(selection.keys())
             def pick_selection(sender, target, value):
                 # Unselect previous items:
                 for item in selection.values():
