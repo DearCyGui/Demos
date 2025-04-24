@@ -59,6 +59,7 @@ def create_demo_window(C : dcg.Context):
                 dcg.Text(C, value="Click to open this section")
             #display_docstring_in_child_window(C, dcg.Button)
         with dcg.CollapsingHeader(C, label="Draw items") as draw_items:
+            # TODO: this looks very ugly, positions are not good
             dcg.Text(C, value="Some available shapes:")
             with dcg.DrawInWindow(C, width=600, height=600):
                 dcg.DrawArrow(C, p1 = [80, 50], p2 = [50, 50])

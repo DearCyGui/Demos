@@ -1,9 +1,8 @@
 import dearcygui as dcg
 import math
-import time
-import threading
-import config
-from config import *
+import typing
+
+from context import TetrisContext
 
 def get_distance_between_points(point1: list, point2: list):
     # Calculates the distance between two points
@@ -11,7 +10,7 @@ def get_distance_between_points(point1: list, point2: list):
 
 # Add pos to DrawImage to control block position more easily
 class BlockPiece(dcg.DrawImage):
-    def __init__(self, context, **kwargs):
+    def __init__(self, context: TetrisContext, **kwargs):
         super().__init__(context, **kwargs)
 
     @property
@@ -24,7 +23,7 @@ class BlockPiece(dcg.DrawImage):
         self.pmax = (value[0]+1, value[1])
 
 class BlockDrawing(dcg.DrawingList):
-    def __init__(self, context, name, start_pos, **kwargs):
+    def __init__(self, context: TetrisContext, name, start_pos, **kwargs):
         super().__init__(context, **kwargs)
 
         shape = {
@@ -39,7 +38,7 @@ class BlockDrawing(dcg.DrawingList):
         self.name = name
         self.positions = []
 
-        texture=context[name]
+        texture = getattr(context, name)
 
         for pos_delta in shape[name]:
             pos = (start_pos[0] + pos_delta[0],
@@ -94,28 +93,29 @@ class BlockDrawing(dcg.DrawingList):
 
 
 class Block(BlockDrawing):
-    def __init__(self, context, name, *args, **kwargs):
+    def __init__(self, context: TetrisContext, name, *args, **kwargs):
         super().__init__(context, name, (3, 19), *args, **kwargs)
         self.cells = 4  # Number of cells occupied by the block
-        config.block_count += 1
+        context.block_count += 1
 
         # Mark occupied blocks
-        config.cells_occupied.update(self.positions)
+        context.cells_occupied.update(self.positions)
 
         # Update statistics
         # Take the value shown, add 1 and set value
-        text_item = C[name+"_stat"]
+        text_item = getattr(context, name+"_stat")
         text_item.text = str(int(text_item.text)+1)
-        text_total = C["Total_block_stat"]
+        text_total = context.Total_block_stat
         text_total.value = str(int(text_total.value)+1)
 
     def try_motion(self, new_positions):
         """Perform a motion of it is allowed"""
-        config.cells_occupied.difference_update(self.positions)
-        forbidden = config.cells_occupied.union(config.cell_boundary)
+        C = typing.cast(TetrisContext, self.context)
+        C.cells_occupied.difference_update(self.positions)
+        forbidden = C.cells_occupied.union(C.cell_boundary)
         if len(forbidden.intersection(set(new_positions))) == 0:
             self.apply_positions(new_positions)
-        config.cells_occupied.update(self.positions)
+        C.cells_occupied.update(self.positions)
 
     def try_rotate(self):
         """Try to rotate 90 degrees clockwise"""
@@ -136,15 +136,16 @@ class Block(BlockDrawing):
         # Function controls the continuous downward movement of the blocks
         success = True
         new_positions = self.preview_shift(0, -1)
-        config.cells_occupied.difference_update(self.positions)
-        forbidden = config.cells_occupied.union(config.cell_boundary)
+        C = typing.cast(TetrisContext, self.context)
+        C.cells_occupied.difference_update(self.positions)
+        forbidden = C.cells_occupied.union(C.cell_boundary)
         if len(forbidden.intersection(set(new_positions))) == 0:
             self.apply_positions(new_positions)
         else:
-            config.current_block = None # Block has stopped moving
+            C.current_block = None # Block has stopped moving
             # Register the block pieces to the dead list
             for c in self.children:
-                config.dead_blocks[c.pos] = c
+                C.dead_blocks[c.pos] = c
             # Move the block pieces to the parent
             for c in self.children:
                 c.parent = self.parent
@@ -152,7 +153,7 @@ class Block(BlockDrawing):
             self.parent = None
             # Will be deleted when not referenced anymore
             success = False
-        config.cells_occupied.update(self.positions)
+        C.cells_occupied.update(self.positions)
         return success
 
 
@@ -181,8 +182,11 @@ class BlockStatistics(dcg.DrawingList):
                          thickness=0.1,
                          color=[168, 168, 168],
                          parent=self)
-            dcg.DrawText(context,
+            setattr(
+                context,
+                name+"_stat",
+                dcg.DrawText(context,
                          pos=[8.5, y + 0.3],
                          text="0", size=0.5,
-                         color=[168, 168, 168],
-                         tag=name+"_stat")
+                         color=[168, 168, 168])
+            )
