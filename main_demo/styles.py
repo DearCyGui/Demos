@@ -351,7 +351,7 @@ def _theme_color_imgui(C: dcg.Context):
                 with dcg.Tab(C, label="Tab 2"):
                     dcg.Text(C, value="Tab 2 content")
 
-    with dcg.TreeNode(C, label="View all ThemeColorImGui properties", default_open=True):
+    with dcg.TreeNode(C, label="View all ThemeColorImGui properties", value=True):
         display_item_documentation(C, dcg.ThemeColorImGui)
 
 @demosection(dcg.ThemeStyleImGui)
@@ -432,7 +432,7 @@ def _theme_style_imgui(C: dcg.Context):
         dcg.Button(C, label="Styled Button")
         dcg.InputText(C, label="Styled Input", hint="With combined styles")
 
-    with dcg.TreeNode(C, label="View all ThemeStyleImGui properties", default_open=True):
+    with dcg.TreeNode(C, label="View all ThemeStyleImGui properties", value=True):
         display_item_documentation(C, dcg.ThemeStyleImGui)
 
 @demosection(dcg.ThemeColorImPlot, dcg.ThemeStyleImPlot)
@@ -528,10 +528,10 @@ def _theme_implot(C: dcg.Context):
         dcg.PlotScatter(C, label="Points", X=x[::10], Y=y1[::10], theme=points_theme)
 
     with dcg.HorizontalLayout(C):
-        with dcg.TreeNode(C, label="View all ThemeColorImPlot properties", default_open=True, width=300):
+        with dcg.TreeNode(C, label="View all ThemeColorImPlot properties", value=True, width=300):
             display_item_documentation(C, dcg.ThemeColorImPlot)
         
-        with dcg.TreeNode(C, label="View all ThemeStyleImPlot properties", default_open=True, width=300):
+        with dcg.TreeNode(C, label="View all ThemeStyleImPlot properties", value=True, width=300):
             display_item_documentation(C, dcg.ThemeStyleImPlot)
 
 pop_group()  # End Theme Properties

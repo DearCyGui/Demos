@@ -95,10 +95,10 @@ def _button_widgets(C: dcg.Context):
     # Arrow buttons (with different directions)
     with dcg.HorizontalLayout(C):
         dcg.Text(C, value="Arrow buttons:")
-        dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.LEFT, callback=button_callback)
-        dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.RIGHT, callback=button_callback)
-        dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.UP, callback=button_callback)
-        dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.DOWN, callback=button_callback)
+        dcg.Button(C, arrow=dcg.ButtonDirection.LEFT, callback=button_callback)
+        dcg.Button(C, arrow=dcg.ButtonDirection.RIGHT, callback=button_callback)
+        dcg.Button(C, arrow=dcg.ButtonDirection.UP, callback=button_callback)
+        dcg.Button(C, arrow=dcg.ButtonDirection.DOWN, callback=button_callback)
     
     # Button with a tooltip
     button_with_tooltip = dcg.Button(C, label="Hover me", callback=button_callback)
@@ -971,13 +971,13 @@ def _image_display(C: dcg.Context):
     """
     # Create some sample image data (a gradient)
     width, height = 200, 100
-    gradient = np.zeros((height, width, 3), dtype=np.uint8)
+    gradient = np.zeros((height, width, 4), dtype=np.uint8)
     
     # Create a horizontal gradient (red to blue)
     for x in range(width):
         red = int(255 * (1 - x / width))
         blue = int(255 * (x / width))
-        gradient[:, x] = [red, 0, blue]
+        gradient[:, x] = [red, 0, blue, 200]
     
     # Create a texture from the gradient
     gradient_texture = dcg.Texture(C, gradient)
@@ -987,10 +987,10 @@ def _image_display(C: dcg.Context):
     dcg.Image(C, texture=gradient_texture)
     
     # Image with border
-    dcg.Text(C, value="Image with Border:")
+    dcg.Text(C, value="Image with Background:")
     dcg.Image(C, 
              texture=gradient_texture,
-             border_color=(255, 255, 255, 255))
+             background_color=(255, 0, 255, 255))
     
     # Image with tinting
     dcg.Text(C, value="Image with Tinting (Cyan):")
@@ -1912,7 +1912,7 @@ def _shared_values(C: dcg.Context):
     color_value = dcg.SharedColor(C, value=(100, 150, 200, 255))
     
     # Create a section for text value demonstration
-    with dcg.ChildWindow(C, width=500, height=150, border=True, label="Shared Text Value"):
+    with dcg.ChildWindow(C, width=500, height=150, border=True, label="Shared Text Value") as cw:
         # Multiple widgets connected to the same text value
         dcg.Text(C, value="Shared text value demonstration:")
         

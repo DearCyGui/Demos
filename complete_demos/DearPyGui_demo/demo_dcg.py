@@ -133,9 +133,9 @@ def show_demo(C : dcg.Context):
                 with dcg.HorizontalLayout(C):
                     dcg.Button(C, label="Button", callback=_log)
                     dcg.Button(C, label="Small Button", callback=_log, small=True)
-                    dcg.Button(C, label="Arrow Button", callback=_log, arrow=True)
+                    dcg.Button(C, label="Arrow Button", callback=_log, arrow=dcg.ButtonDirection.UP)
                     for direction in [dcg.ButtonDirection.LEFT, dcg.ButtonDirection.RIGHT, dcg.ButtonDirection.DOWN]:
-                        dcg.Button(C, callback=_log, arrow=True, direction=direction)
+                        dcg.Button(C, callback=_log, arrow=direction)
 
                 dcg.Button(C, label="Repeat Button", callback=_log, repeat=True)
                 dcg.Checkbox(C, label="checkbox", callback=_log)
@@ -157,9 +157,9 @@ def show_demo(C : dcg.Context):
                 with dcg.HorizontalLayout(C):
                     dcg.Text(C, value="Counter: ")
                     counter = dcg.Text(C, value="0")
-                    dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.LEFT, 
+                    dcg.Button(C, arrow=dcg.ButtonDirection.LEFT, 
                              callback=lambda: counter.configure(value=str(int(counter.value)-1)))
-                    dcg.Button(C, arrow=True, direction=dcg.ButtonDirection.RIGHT,
+                    dcg.Button(C, arrow=dcg.ButtonDirection.RIGHT,
                              callback=lambda: counter.configure(value=str(int(counter.value)+1)))
 
                 dcg.Separator(C)
@@ -439,7 +439,7 @@ def show_demo(C : dcg.Context):
 
                     text_input = dcg.InputText(C, label="input text", multiline=True, value=paragraph, 
                                              height=300, callback=_log, tab_input=True)
-                    ConfigureOptions(C, text_input, 1, "readonly", "on_enter")
+                    ConfigureOptions(C, text_input, 1, "readonly", "callback_on_enter")
 
                 with dcg.TreeNode(C, label="Filtered Text Input"):
                     dcg.InputText(C, callback=_log, label="default")
@@ -2558,7 +2558,7 @@ def show_demo(C : dcg.Context):
                                     plot.X1.no_tick_labels = True
                                     plot.Y1.no_tick_labels = True
                                     dcg.PlotLine(C, X=sindatax, Y=sindatay, label="data" + str(i))
-                        ConfigureOptions(C, subplot, 2, "no_align", "share_legends", "share_rows", "share_cols", "share_x_all", "share_y_all", before=subplot)
+                        ConfigureOptions(C, subplot, 2, "no_align", "share_legends", before=subplot)
 
                 with dcg.Tab(C, label="Axes"):
                     with dcg.TreeNode(C, label="Time Axes"):

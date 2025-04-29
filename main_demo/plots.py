@@ -1840,7 +1840,7 @@ def _axes_overview(C: dcg.Context):
     - `labels`: Custom tick labels (text)
     - `labels_coord`: Positions for custom labels
     - `keep_default_ticks`: Keep default ticks when using custom labels
-    - `format`: Format string for axis values
+    - `tick_format`: Format string for axis values
 
     ### Supported Axis Types
     
@@ -2326,7 +2326,7 @@ def _axis_custom_ticks_labels(C: dcg.Context):
         
         # Configure Y axis
         plot.Y1.label = "Temp (°C)"
-        plot.Y1.format = "%.0f °C"  # Custom format for Y values
+        plot.Y1.tick_format = "%.0f °C"  # Custom format for Y values
     
     # Controls for custom label options
     keep_default_ticks = dcg.Checkbox(C, label="Keep Default Ticks", value=False)
@@ -2378,15 +2378,15 @@ def _axis_custom_ticks_labels(C: dcg.Context):
     # Connect format selection
     def update_format(sender, target, selected_format):
         if selected_format == "Default":
-            format_plot.Y1.format = ""
+            format_plot.Y1.tick_format = ""
         elif selected_format == r"Scientific: %.1e":
-            format_plot.Y1.format = "%.1e"
+            format_plot.Y1.tick_format = "%.1e"
         elif selected_format == r"Thousands: %.1fK":
-            format_plot.Y1.format = "%.1fK"
+            format_plot.Y1.tick_format = "%.1fK"
         elif selected_format == r"Fixed: %.2f":
-            format_plot.Y1.format = "%.2f"
+            format_plot.Y1.tick_format = "%.2f"
         elif selected_format == r"Percentage: %.1f%%":
-            format_plot.Y1.format = "%.1f%%"
+            format_plot.Y1.tick_format = "%.1f%%"
     
     format_options.callbacks = update_format
     
@@ -2610,6 +2610,12 @@ def _subplot_layout(C: dcg.Context):
                 data = np.sin(t + i/2) * (i+1)/6
                 dcg.PlotLine(C, label=f"Series {i+1}", X=t, Y=data)
 
+"""
+    - `share_rows`: Link X1/Y1-axis limits by rows
+    - `share_cols`: Link X1/Y1-axis limits by columns
+    - `share_x_all`: Link X1-axis limits across all plots
+    - `share_y_all`: Link Y1-axis limits across all plots
+"""
 @demosection(dcg.Subplots, dcg.Plot, dcg.PlotAxisConfig)
 @documented
 @democode
@@ -2622,10 +2628,6 @@ def _sharing_axes_legends(C: dcg.Context):
     
     #### Sharing options:
     - `share_legends`: Share legend items across all subplots
-    - `share_rows`: Link X1/Y1-axis limits by rows
-    - `share_cols`: Link X1/Y1-axis limits by columns
-    - `share_x_all`: Link X1-axis limits across all plots
-    - `share_y_all`: Link Y1-axis limits across all plots
     
     > **Note:** Unfortunately as of now the the built-in axes sharing features
     > do not work yet with the way we implement axes.

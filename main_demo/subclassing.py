@@ -145,45 +145,46 @@ def _python_naming_conventions(C: dcg.Context):
             # Protected method - internal implementation detail
             self._last_update_time = time.time()
             self.current_temperature = 70 + 5 * math.sin(time.time() / 10)
-            self.refresh_ui()
+            self.refresh_ui(self.current_temperature)
         
-        def refresh_ui(self):
+        def refresh_ui(self, temperature):
             # Public method - part of the widget's interface
-            self.children[0].value = f"Temperature: {self.current_temperature}°F"
+            self.children[0].value = f"Temperature: {temperature}°F"
             
     # Create an instance of our custom widget
     temp_widget = TemperatureWidget(C, label="Temperature Monitor", width=300, height=100)
     
     # Explanation of naming conventions
     dcg.Text(C, value="\nNaming Convention Examples:")
-    dcg.Text(C, arrow=True, value="Public: temp_widget.current_temperature - intended for external use")
-    dcg.Text(C, arrow=True, value="Protected: temp_widget._last_update_time - intended for internal/subclass use")
-    dcg.Text(C, arrow=True, value="Private: temp_widget.__temperature_offset - intended for use only within the class")
+    dcg.Text(C, bullet=True, value="Public: temp_widget.current_temperature - intended for external use")
+    dcg.Text(C, bullet=True, value="Protected: temp_widget._last_update_time - intended for internal/subclass use")
+    dcg.Text(C, bullet=True, value="Private: temp_widget.__temperature_offset - intended for use only within the class")
     
     # Demonstrate accessing the attributes
     def check_temps():
-        # We can access public attributes normally
-        public_val = temp_widget.current_temperature
-        dcg.Text(C, value=f"Reading public attribute: current_temperature = {public_val}")
+        with temp_widget:
+            # We can access public attributes normally
+            public_val = temp_widget.current_temperature
+            dcg.Text(C, value=f"Reading public attribute: current_temperature = {public_val}")
+            
+            # We can technically access protected attributes, but convention says we shouldn't
+            protected_val = temp_widget._last_update_time
+            dcg.Text(C, value=f"Reading protected attribute: _last_update_time = {protected_val:.2f} (not recommended)")
+            
+            # Private attributes are name-mangled and harder to access externally
+            try:
+                private_val = temp_widget.__temperature_offset
+                dcg.Text(C, value=f"Private attribute: {private_val}")
+            except AttributeError:
+                dcg.Text(C, value="Cannot access private attribute __temperature_offset directly")
+                # It's still possible to access it if you know the mangling scheme
+                mangled_val = getattr(temp_widget, "_TemperatureWidget__temperature_offset", "Not found")
+                dcg.Text(C, value=f"Access via name mangling: _TemperatureWidget__temperature_offset = {mangled_val}")
         
-        # We can technically access protected attributes, but convention says we shouldn't
-        protected_val = temp_widget._last_update_time
-        dcg.Text(C, value=f"Reading protected attribute: _last_update_time = {protected_val:.2f} (not recommended)")
-        
-        # Private attributes are name-mangled and harder to access externally
-        try:
-            private_val = temp_widget.__temperature_offset
-            dcg.Text(C, value=f"Private attribute: {private_val}")
-        except AttributeError:
-            dcg.Text(C, value="Cannot access private attribute __temperature_offset directly")
-            # It's still possible to access it if you know the mangling scheme
-            mangled_val = getattr(temp_widget, "_TemperatureWidget__temperature_offset", "Not found")
-            dcg.Text(C, value=f"Access via name mangling: _TemperatureWidget__temperature_offset = {mangled_val}")
-    
-    dcg.Button(C, label="Check Attributes", callback=lambda s, t, d: check_temps())
+    dcg.Button(C, label="Check Attributes", callback=check_temps)
     
     # Call a public method
-    dcg.Button(C, label="Refresh Temperature", callback=lambda s, t, d: temp_widget.refresh_ui())
+    dcg.Button(C, label="Set Temperature", callback=lambda: temp_widget.refresh_ui(50))
 
 @demosection
 @documented

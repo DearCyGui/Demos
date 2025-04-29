@@ -1,4 +1,4 @@
-import dearcygui.dearpygui as dpg
+import dearpygui_on_dearcygui as dpg
 import dearcygui as dcg
 import math
 from math import sin, cos, log10
@@ -13,7 +13,6 @@ def _help(message):
     last_item = dpg.last_item()
     group = dpg.add_group(horizontal=True)
     dpg.move_item(last_item, parent=group)
-    dpg.capture_next_item(lambda s: dpg.move_item(s, parent=group))
     t = dpg.add_text("(?)", color=[0, 255, 0])
     with dpg.tooltip(t):
         dpg.add_text(message)
@@ -209,14 +208,13 @@ def _on_demo_close(sender, app_data, user_data):
 def show_demo():
 
     dpg.add_texture_registry(label="Demo Texture Container", tag="__demo_texture_container")
-    dpg.add_colormap_registry(label="Demo Colormap Registry", tag="__demo_colormap_registry")
+    #dpg.add_colormap_registry(label="Demo Colormap Registry", tag="__demo_colormap_registry")
 
     with dpg.theme(tag="__demo_hyperlinkTheme"):
-        with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 0, 0, 0])
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, [0, 0, 0, 0])
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, [29, 151, 236, 25])
-            dpg.add_theme_color(dpg.mvThemeCol_Text, [29, 151, 236])
+        dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 0, 0, 0])
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, [0, 0, 0, 0])
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, [29, 151, 236, 25])
+        dpg.add_theme_color(dpg.mvThemeCol_Text, [29, 151, 236])
 
     def _log(sender, app_data, user_data):
         print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
@@ -313,12 +311,11 @@ def show_demo():
 
                     for i in range(7):
                         with dpg.theme(tag="__demo_theme"+str(i)) as th:
-                            with dpg.theme_component(dpg.mvButton) as thc:
-                                dpg.add_theme_color(dpg.mvThemeCol_Button, _hsv_to_rgb(i/7.0, 0.6, 0.6))
-                                dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, _hsv_to_rgb(i/7.0, 0.8, 0.8))
-                                dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, _hsv_to_rgb(i/7.0, 0.7, 0.7))
-                                dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, i*5)
-                                dpg.add_theme_style(dpg.mvStyleVar_FramePadding, i*3, i*3)
+                            dpg.add_theme_color(dpg.mvThemeCol_Button, _hsv_to_rgb(i/7.0, 0.6, 0.6))
+                            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, _hsv_to_rgb(i/7.0, 0.8, 0.8))
+                            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, _hsv_to_rgb(i/7.0, 0.7, 0.7))
+                            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, i*5)
+                            dpg.add_theme_style(dpg.mvStyleVar_FramePadding, i*3, i*3)
                         dpg.add_button(label="Click", callback=_log)
                         dpg.bind_item_theme(dpg.last_item(), "__demo_theme"+str(i))
 
@@ -661,8 +658,7 @@ def show_demo():
                     dpg.add_progress_bar(label="Progress Bar", default_value=0.78, overlay="78%")
                     dpg.add_text("Progress Bar")
                 with dpg.theme(tag="__demo_theme_progressbar"):
-                    with dpg.theme_component(dpg.mvProgressBar):
-                        dpg.add_theme_color(dpg.mvThemeCol_PlotHistogram, (255,0,0, 255))
+                    dpg.add_theme_color(dpg.mvThemeCol_PlotHistogram, (255,0,0, 255))
                 dpg.add_progress_bar(default_value=0.78, overlay="1367/1753")
                 dpg.bind_item_theme(dpg.last_item(), "__demo_theme_progressbar")
 
@@ -703,11 +699,10 @@ def show_demo():
                             for i in range(7):
 
                                 with dpg.theme(tag="__demo_theme2_"+str(i)) as t:
-                                    with dpg.theme_component(0):
-                                        dpg.add_theme_color(dpg.mvThemeCol_FrameBg, _hsv_to_rgb(i/7.0, 0.5, 0.5))
-                                        dpg.add_theme_color(dpg.mvThemeCol_SliderGrab, _hsv_to_rgb(i/7.0, 0.9, 0.9))
-                                        dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive, _hsv_to_rgb(i/7.0, 0.7, 0.5))
-                                        dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered, _hsv_to_rgb(i/7.0, 0.6, 0.5))
+                                    dpg.add_theme_color(dpg.mvThemeCol_FrameBg, _hsv_to_rgb(i/7.0, 0.5, 0.5))
+                                    dpg.add_theme_color(dpg.mvThemeCol_SliderGrab, _hsv_to_rgb(i/7.0, 0.9, 0.9))
+                                    dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive, _hsv_to_rgb(i/7.0, 0.7, 0.5))
+                                    dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered, _hsv_to_rgb(i/7.0, 0.6, 0.5))
 
                                 dpg.add_slider_float(label=" ", default_value=values[i], vertical=True, max_value=1.0, height=160)
                                 dpg.bind_item_theme(dpg.last_item(), "__demo_theme2_"+str(i))
@@ -3429,13 +3424,12 @@ def show_demo():
                 dpg.configure_item(b1, user_data=dpg.last_item(), callback=_callback_auto_mutex)
                 dpg.configure_item(b2, user_data=dpg.last_item(), callback=_callback_manual_mutex)
                 dpg.configure_item(b3, user_data=dpg.last_item())
-            if dpg.get_platform() == dpg.mvPlatform_Windows or dpg.get_platform() == dpg.mvPlatform_Linux:
-                with dpg.tree_node(label="Output Framebuffer"):
-                    def _framebuffer_callback(sender, app_data):
-                        dpg.show_item("__demo_texture_container")
-                        dpg.add_dynamic_texture(app_data.get_width(), app_data.get_height(), app_data, parent="__demo_texture_container")
-                    dpg.add_text("Outputs frame buffer an mvBuffer object, creates a dynamic texture, and shows the texture registry (check final item)")
-                    dpg.add_button(label="Output Framebuffer", callback=lambda:dpg.output_frame_buffer(callback=_framebuffer_callback))
+            with dpg.tree_node(label="Output Framebuffer"):
+                def _framebuffer_callback(sender, app_data):
+                    dpg.show_item("__demo_texture_container")
+                    dpg.add_dynamic_texture(app_data.get_width(), app_data.get_height(), app_data, parent="__demo_texture_container")
+                dpg.add_text("Outputs frame buffer an mvBuffer object, creates a dynamic texture, and shows the texture registry (check final item)")
+                dpg.add_button(label="Output Framebuffer", callback=lambda:dpg.output_frame_buffer(callback=_framebuffer_callback))
 import os
 
 def launch_demo():

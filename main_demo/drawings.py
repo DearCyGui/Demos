@@ -474,7 +474,7 @@ def _regular_shapes(C: dcg.Context):
                         color=(255, 150, 0), 
                         fill=(255, 200, 100, 100), 
                         thickness=-2)
-            dcg.DrawText(C, pos=(x, 420), text=f"{dir:.1f}π", 
+            dcg.DrawText(C, pos=(x, 420), text=f"{dir:.1f}pi", 
                         color=(255, 255, 255), size=-14)
 
 
