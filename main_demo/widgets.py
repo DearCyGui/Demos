@@ -954,7 +954,7 @@ def _color_pickers(C: dcg.Context):
                      shareable_value=color_value,
                      print_format="RGB: %f, %f, %f, %f")
 
-@demosection(dcg.Image, dcg.ImageButton)
+@demosection(dcg.Image)
 @documented
 @democode
 def _image_display(C: dcg.Context):
@@ -964,20 +964,20 @@ def _image_display(C: dcg.Context):
     DearCyGui can display images and image-based controls:
     
     - `Image`: Simple display of image data
-    - `ImageButton`: Clickable image that works like a button
+    - `Image` with `button=True`: Clickable image that works like a button
     - Control scaling, tinting, and borders
     
     Images can be loaded from textures and customized with various display options.
     """
     # Create some sample image data (a gradient)
     width, height = 200, 100
-    gradient = np.zeros((height, width, 4), dtype=np.uint8)
+    gradient = np.zeros((height, width, 3), dtype=np.uint8)
     
     # Create a horizontal gradient (red to blue)
     for x in range(width):
         red = int(255 * (1 - x / width))
         blue = int(255 * (x / width))
-        gradient[:, x] = [red, 0, blue, 200]
+        gradient[:, x] = [red, 0, blue]
     
     # Create a texture from the gradient
     gradient_texture = dcg.Texture(C, gradient)
@@ -986,17 +986,24 @@ def _image_display(C: dcg.Context):
     dcg.Text(C, value="Basic Image Display:")
     dcg.Image(C, texture=gradient_texture)
     
-    # Image with border
-    dcg.Text(C, value="Image with Background:")
-    dcg.Image(C, 
-             texture=gradient_texture,
-             background_color=(255, 0, 255, 255))
-    
     # Image with tinting
     dcg.Text(C, value="Image with Tinting (Cyan):")
     dcg.Image(C, 
              texture=gradient_texture,
              color_multiplier=(0, 255, 255, 150))
+
+    # Image with border
+    dcg.Text(C, value="Image with Tinting, Background and Border:")
+    theme_border = dcg.ThemeList(C)
+    with theme_border:
+        dcg.ThemeColorImGui(C, Border=(255, 0, 0, 255))
+        dcg.ThemeStyleImGui(C, FrameBorderSize=1)
+
+    dcg.Image(C, 
+             texture=gradient_texture,
+             background_color=(255, 0, 255, 255),
+             color_multiplier=(0, 255, 255, 150),
+             theme=theme_border)
     
     # Image with custom size
     dcg.Text(C, value="Image with Custom Size:")
@@ -1021,30 +1028,36 @@ def _image_display(C: dcg.Context):
     def image_button_callback(sender, target, data):
         print("Image button clicked!")
     
-    dcg.ImageButton(C, 
-                   texture=checker_texture,
-                   callback=image_button_callback)
+    dcg.Image(C,
+              button=True,
+              texture=checker_texture,
+              callback=image_button_callback)
     
     # Image Button with frame padding
     dcg.Text(C, value="Image Button with Frame Padding:")
-    dcg.ImageButton(C, 
-                   texture=checker_texture,
-                   frame_padding=10,
-                   callback=image_button_callback)
-    
-    # Image Button with background color
-    dcg.Text(C, value="Image Button with Background Color:")
-    dcg.ImageButton(C, 
-                   texture=checker_texture,
-                   background_color=(100, 100, 100, 255),
-                   callback=image_button_callback)
+    dcg.Image(C,
+              button=True,
+              texture=checker_texture,
+              theme=dcg.ThemeStyleImGui(C, FramePadding=(10, 10)),
+              callback=image_button_callback)
     
     # Image Button with tinting
     dcg.Text(C, value="Image Button with Tinting:")
-    dcg.ImageButton(C, 
-                   texture=checker_texture,
-                   color_multiplier=(255, 255, 255, 150),
-                   callback=image_button_callback)
+    dcg.Image(C, 
+              button=True,
+              texture=checker_texture,
+              color_multiplier=(255, 255, 255, 150),
+              callback=image_button_callback)
+
+    # Image Button with background color
+    dcg.Text(C, value="Image Button with Tinting, Background and Border:")
+    dcg.Image(C,
+              button=True,
+              texture=checker_texture,
+              background_color=(100, 100, 100, 255),
+              color_multiplier=(255, 255, 255, 150),
+              theme=theme_border,
+              callback=image_button_callback)
 
 @demosection(dcg.ProgressBar, dcg.SimplePlot)
 @documented

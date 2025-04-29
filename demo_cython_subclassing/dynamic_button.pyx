@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from cpython.time cimport time
 cimport dearcygui as dcg
 
-cdef class GifButton(dcg.ImageButton):
+cdef class GifButton(dcg.Image):
     cdef list _frames        # List of texture objects for each frame
     cdef vector[double] _frame_delays  # List of delays between frames
     cdef double _start_time  # Start time of animation
@@ -13,6 +13,7 @@ cdef class GifButton(dcg.ImageButton):
     
     def __init__(self, context, str gif_path, **kwargs):
         super().__init__(context, **kwargs)
+        self._button = True # dcg.Image attribute
         self._frames = []
         self._current_frame = 0
         self._total_duration = 0
@@ -73,4 +74,4 @@ cdef class GifButton(dcg.ImageButton):
         # a better implementation.
         self.context.viewport.ask_refresh_after(0)
         
-        return dcg.ImageButton.draw_item(self)
+        return dcg.Image.draw_item(self)

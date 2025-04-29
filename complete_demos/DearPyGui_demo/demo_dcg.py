@@ -919,7 +919,6 @@ def show_demo(C : dcg.Context):
                 dcg.Text(C, value="Textures are buffers of RGBA data.", bullet=True, indent=20)
                 dcg.Text(C, value="Textures are used by 'image based' widgets:", bullet=True, indent=20) 
                 dcg.Text(C, value="Image", bullet=True, indent=50)
-                dcg.Text(C, value="ImageButton", bullet=True, indent=50)
                 dcg.Text(C, value="DrawImage", bullet=True, indent=50)
                 dcg.Text(C, value="Textures can be assigned a dynamic hint", bullet=True, indent=20)
                 dcg.Text(C, value="The dynamic hint helps GPU placement to optimize \n"
@@ -964,7 +963,7 @@ def show_demo(C : dcg.Context):
 
                     with dcg.VerticalLayout(C):
                         dcg.Text(C, value="Image Button")
-                        dcg.ImageButton(C, texture=__demo_static_texture_1)
+                        dcg.Image(C, button=True, texture=__demo_static_texture_1)
 
                     with dcg.VerticalLayout(C):
                         dcg.Text(C, value="Image")
