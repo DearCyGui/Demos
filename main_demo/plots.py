@@ -2610,12 +2610,7 @@ def _subplot_layout(C: dcg.Context):
                 data = np.sin(t + i/2) * (i+1)/6
                 dcg.PlotLine(C, label=f"Series {i+1}", X=t, Y=data)
 
-"""
-    - `share_rows`: Link X1/Y1-axis limits by rows
-    - `share_cols`: Link X1/Y1-axis limits by columns
-    - `share_x_all`: Link X1-axis limits across all plots
-    - `share_y_all`: Link Y1-axis limits across all plots
-"""
+
 @demosection(dcg.Subplots, dcg.Plot, dcg.PlotAxisConfig)
 @documented
 @democode

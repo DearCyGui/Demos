@@ -170,7 +170,6 @@ def show_demo(C : dcg.Context):
 
                 dcg.Separator(C, label="This is a separator with text")
 
-                dcg.Text(C, value="With Label", show_label=True, label="Label")
                 combo = dcg.Combo(C, items=["AAAA", "BBBB", "CCCC", "DDDD"], 
                                 label="combo", value="AAAA", callback=_log)
                 input_text_hello = dcg.InputText(C, label="input text", value="Hello, world!", callback=_log)

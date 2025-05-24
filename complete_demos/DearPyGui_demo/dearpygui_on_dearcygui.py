@@ -131,11 +131,17 @@ class DPGWrapper:
             init_args["parent"] = configure_args.pop("parent")
                 
         # Call parent init
-        super().__init__(*args, **init_args)
+        if not isinstance(self, dcg.Texture):
+            super().__init__(*args, **init_args)
+        else:
+            super().__init__(args[0], **init_args)
                 
         # Configure remaining args
         if configure_args:
             self.configure(**configure_args)
+
+        if isinstance(self, dcg.Texture) and len(args) > 1:
+            self.set_value(args[1])
 
     def configure(self, **kwargs):
         # Clean kwargs
@@ -1229,10 +1235,10 @@ def set_viewport_clear_color(color: List[int]):
     CONTEXT.viewport.clear_color = color
 
 def set_viewport_small_icon(icon: str):
-    CONTEXT.viewport.small_icon=icon
+    return
 
 def set_viewport_large_icon(icon: str):
-    CONTEXT.viewport.large_icon=icon
+    return
 
 def set_viewport_pos(pos: List[float]):
     CONTEXT.viewport.x_pos=pos[0]
@@ -1347,7 +1353,8 @@ def bool_value(*, label: str =None, user_data: Any =None, default_value: bool =F
     return dcg.SharedBool(CONTEXT, default_value)
 
 def button(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, small: bool =False, repeat: bool =False, direction=None, arrow=None, **kwargs) -> Union[int, str]:
-    return dcg.Button(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, small=small, arrow=direction, repeat=repeat, **kwargs)
+    arrow_value = direction if arrow is True else None
+    return dcg.Button(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, small=small, arrow=arrow_value, repeat=repeat, **kwargs)
 
 def checkbox(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: bool =False, **kwargs) -> Union[int, str]:
     return dcg.Checkbox(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, **kwargs)
@@ -1785,7 +1792,7 @@ def string_value(*, label: str =None, user_data: Any =None, default_value: str =
     return dcg.SharedStr(CONTEXT, label=label, user_data=user_data, value=default_value, **kwargs)
 
 def subplots(rows : int, columns : int, *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, row_ratios: Union[List[float], Tuple[float, ...]] =[], column_ratios: Union[List[float], Tuple[float, ...]] =[], no_title: bool =False, no_menus: bool =False, no_resize: bool =False, no_align: bool =False, share_series: bool =False, link_rows: bool =False, link_columns: bool =False, link_all_x: bool =False, link_all_y: bool =False, column_major: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Subplots(CONTEXT, rows=rows, cols=columns, label=label, user_data=user_data, width=width, height=height, indent=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, row_ratios=row_ratios, column_ratios=column_ratios, no_title=no_title, no_menus=no_menus, no_resize=no_resize, no_align=no_align, share_legends=share_series, share_rows=link_rows, share_cols=link_columns, share_x_all=link_all_x, share_y_all=link_all_y, col_major=column_major, **kwargs)
+    return dcg.Subplots(CONTEXT, rows=rows, cols=columns, label=label, user_data=user_data, width=width, height=height, indent=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, row_ratios=row_ratios, column_ratios=column_ratios, no_title=no_title, no_menus=no_menus, no_resize=no_resize, no_align=no_align, share_legends=share_series, col_major=column_major, **kwargs)
 
 def tab(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drop_callback: Callable =None, show: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, closable: bool =False, no_tooltip: bool =False, order_mode: int =0, **kwargs) -> Union[int, str]:
     return dcg.Tab(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, closable=closable, no_tooltip=no_tooltip, order_mode=order_mode, **kwargs)
@@ -1916,7 +1923,11 @@ def table_row(*, label: str =None, user_data: Any =None, height: int =0, show: b
     #return table_row(label=label, user_data=user_data, height=height, show=show, filter_key=filter_key, **kwargs)
 
 def text(default_value : str ='', *, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, wrap: int =-1, bullet: bool =False, show_label: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Text(CONTEXT, value=default_value, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, bullet=bullet, show_label=show_label, **kwargs)
+    if show_label:
+        value = default_value + " " + label if label else default_value
+    else:
+        value = default_value
+    return dcg.Text(CONTEXT, value=value, user_data=user_data, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, bullet=bullet, **kwargs)
 
 def texture_registry(*, label: str =None, user_data: Any =None, show: bool =False, **kwargs) -> Union[int, str]:
     return dcg.PlaceHolderParent(CONTEXT)
@@ -2007,7 +2018,7 @@ def create_context(**kwargs) -> None:
     return CONTEXT
 
 def create_viewport(*, title: str ='Dear PyGui', small_icon: str ='', large_icon: str ='', width: int =1280, height: int =800, x_pos: int =100, y_pos: int =100, min_width: int =250, max_width: int =10000, min_height: int =250, max_height: int =10000, resizable: bool =True, vsync: bool =True, always_on_top: bool =False, decorated: bool =True, clear_color: Union[List[float], Tuple[float, ...]] =(0, 0, 0, 255), disable_close: bool =False, **kwargs) -> None:
-    CONTEXT.viewport.configure(title=title, small_icon=small_icon, large_icon=large_icon, width=width, height=height, x_pos=x_pos, y_pos=y_pos, min_width=min_width, max_width=max_width, min_height=min_height, max_height=max_height, resizable=resizable, vsync=vsync, always_on_top=always_on_top, decorated=decorated, clear_color=clear_color, disable_close=disable_close, **kwargs)
+    CONTEXT.viewport.configure(title=title, width=width, height=height, x_pos=x_pos, y_pos=y_pos, min_width=min_width, max_width=max_width, min_height=min_height, max_height=max_height, resizable=resizable, vsync=vsync, always_on_top=always_on_top, decorated=decorated, clear_color=clear_color, disable_close=disable_close, **kwargs)
 
 def delete_item(item : Union[int, str], *, children_only: bool =False, slot: int =-1, **kwargs) -> None:
     if not(children_only):
@@ -2281,7 +2292,7 @@ def get_values(items : Union[List[int], Tuple[int, ...]], **kwargs) -> Any:
     return [CONTEXT.get(item).value for item in items]
 
 def get_viewport_configuration(item : Union[int, str], **kwargs) -> dict:
-    keys = ["clear_color", "small_icon", "larg_icon",
+    keys = ["clear_color",
              "x_pos", "y_pos", "width", "height",
             "client_width", "client_height",
             "resizable", "vsync",

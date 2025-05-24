@@ -842,6 +842,7 @@ def _draw_images(C: dcg.Context):
 
 @demosection(dcg.Texture)
 @documented
+@democode
 def _draw_texture(C: dcg.Context):
     """
     Textures are a representation of an image content in GPU memory.
@@ -871,8 +872,336 @@ def _draw_texture(C: dcg.Context):
         indicates that the texture may be very frequently updated (e.g. every frame).
     - nearest_neighbor_upsampling: If set, when the texture is zoomed in, it will
         use nearest neighbor interpolation instead of bilinear interpolation.
-
     """
+    image = [
+        [[i, j, 0, 255] for i in range(256)]
+        for j in range(256)
+    ]
+    texture = dcg.Texture(C, image)
+    with dcg.DrawInWindow(C, width=256, height=256):
+        # Draw the texture at the center of the window
+        dcg.DrawImage(C, texture=texture, pmin=(0, 0), pmax=(256, 256))
+        # Draw a rectangle around the image
+        dcg.DrawRect(C, pmin=(0, 0), pmax=(256, 256), color=(255, 255, 255), thickness=-2)
+        # Draw text below the image
+        dcg.DrawText(C, pos=(128, 270), text="Texture Example", color=(255, 255, 255), size=-16)
+
+
+@demosection(dcg.Pattern, dcg.DrawRegularPolygon, dcg.DrawCircle, dcg.DrawLine, dcg.Texture)
+@documented
+@democode
+def _draw_pattern(C: dcg.Context):
+    """
+    ### Drawing with Patterns
+    
+    Patterns allow you to customize the outline of shapes with repeating textures like 
+    dashes or dots. This is useful for creating technical diagrams, decorative elements,
+    or distinguishing between different types of lines.
+    
+    The `dcg.Pattern` class provides:
+    - Built-in factory methods for common patterns (`solid`, `dashed`, `dotted`)
+    - Custom pattern creation capabilities using textures
+    - Control over pattern repetition and scaling
+    
+    Patterns work by sampling a texture along the outline path, where:
+    - X-coordinate is sampled along the path (controlled by `x_mode`)
+    - Y-coordinate is sampled across the width of the outline
+    
+    Key properties:
+    - `x_mode`: How to sample the texture ('points' or 'length')
+    - `scale_factor`: How many repetitions of the pattern to apply
+    - `screen_space`: Whether to scale with zoom level
+    """
+    # Create shared pattern settings
+    shape_type = dcg.SharedStr(C, value="circle")
+    x_mode = dcg.SharedStr(C, value="length")
+    screen_space = dcg.SharedBool(C, value=False)
+    use_screen_space_thickness = dcg.SharedBool(C, value=True)
+    scale_factor = dcg.SharedFloat(C, value=0.05)
+    
+    # Dictionary to store all patterns and their colors
+    patterns_dict = {}
+    pattern_shapes = {}
+    
+    # Create UI controls for pattern settings
+    dcg.Text(C, value="Pattern Settings:")
+    
+    with dcg.HorizontalLayout(C):
+        # Shape type selection
+        shape_type_button = \
+            dcg.RadioButton(C, items=["circle", "polygon", "star"], 
+                            label="Shape Type", horizontal=True,
+                            shareable_value=shape_type)
+        dcg.Spacer(C, width=10)
+        # X-mode selection
+        x_mode_button = \
+            dcg.RadioButton(C, items=["points", "length"], 
+                            label="X-Mode", horizontal=True,
+                            shareable_value=x_mode)
+    
+    with dcg.HorizontalLayout(C):
+        # Screen space checkbox
+        screen_space_box = \
+            dcg.Checkbox(C, label="Screen Space Length", 
+                         shareable_value=screen_space)
+        dcg.Spacer(C, width=10)
+        # Thickness type checkbox
+        thickness_box = \
+            dcg.Checkbox(C, label="Screen Space Thickness", 
+                         shareable_value=use_screen_space_thickness)
+    
+    # Create scale factor slider with dynamic bounds
+    scale_slider = dcg.Slider(C, label="Scale Factor", format="float",
+                            print_format="%.3f", shareable_value=scale_factor,
+                            min_value=0.01, max_value=0.2, width=-1)
+    
+    # Function to update slider bounds based on x_mode
+    def update_scale_factor_bounds():
+        if x_mode.value == "points":
+            scale_slider.min_value = 0.5
+            scale_slider.max_value = 5.0
+            # Adjust value to fit within new bounds
+            if scale_factor.value < 0.5:
+                scale_factor.value = 0.5
+            elif scale_factor.value > 5.0:
+                scale_factor.value = 5.0
+        else:  # "length"
+            scale_slider.min_value = 0.01
+            scale_slider.max_value = 0.2
+            # Adjust value to fit within new bounds
+            if scale_factor.value < 0.01:
+                scale_factor.value = 0.01
+            elif scale_factor.value > 0.2:
+                scale_factor.value = 0.2
+
+    # Function to draw a shape with a pattern based on current settings
+    def draw_pattern_shape(pattern_name, center, name, color):
+        pattern = patterns_dict[pattern_name]
+        
+        # Apply pattern settings
+        pattern.x_mode = x_mode.value
+        pattern.screen_space = screen_space.value
+        pattern.scale_factor = scale_factor.value
+        
+        # Get thickness based on thickness type
+        thickness = -5 if use_screen_space_thickness.value else 1.
+        
+        # Update existing shape or create a new one
+        if pattern_name in pattern_shapes:
+            shape = pattern_shapes[pattern_name]
+            parent = shape.parent
+            
+            # Update shape properties based on shape type
+            if shape_type.value == "circle":
+                if not isinstance(shape, dcg.DrawCircle):
+                    # Replace with circle
+                    shape.delete_item()
+                    shape = dcg.DrawCircle(C, center=center, radius=40, 
+                                           color=color, thickness=thickness,
+                                           pattern=pattern, parent=parent)
+                else:
+                    # Update existing circle
+                    shape.center = center
+                    shape.color = color
+                    shape.thickness = thickness
+                    shape.pattern = pattern
+            
+            elif shape_type.value == "polygon":
+                if not isinstance(shape, dcg.DrawRegularPolygon):
+                    # Replace with polygon
+                    shape.delete_item()
+                    shape = dcg.DrawRegularPolygon(C, center=center, radius=40, 
+                                                   num_points=6, color=color, 
+                                                   thickness=thickness, pattern=pattern,
+                                                   parent=parent)
+                else:
+                    # Update existing polygon
+                    shape.center = center
+                    shape.color = color
+                    shape.thickness = thickness
+                    shape.pattern = pattern
+            
+            elif shape_type.value == "star":
+                if not isinstance(shape, dcg.DrawStar):
+                    # Replace with star
+                    shape.delete_item()
+                    shape = dcg.DrawStar(C, center=center, radius=40, 
+                                         num_points=5, inner_radius=20,
+                                         color=color, thickness=thickness, 
+                                         pattern=pattern, parent=parent)
+                else:
+                    # Update existing star
+                    shape.center = center
+                    shape.color = color
+                    shape.thickness = thickness
+                    shape.pattern = pattern
+        else:
+            # Create new shape based on shape type
+            if shape_type.value == "circle":
+                shape = dcg.DrawCircle(C, center=center, radius=40, 
+                                       color=color, thickness=thickness,
+                                       pattern=pattern)
+            elif shape_type.value == "polygon":
+                shape = dcg.DrawRegularPolygon(C, center=center, radius=40, 
+                                               num_points=6, color=color, 
+                                               thickness=thickness, pattern=pattern)
+            elif shape_type.value == "star":
+                shape = dcg.DrawStar(C, center=center, radius=40, 
+                                     num_points=5, inner_radius=20,
+                                     color=color, thickness=thickness, 
+                                     pattern=pattern)
+        
+        # Store shape for future updates
+        pattern_shapes[pattern_name] = shape
+        
+    # Common callback to update all patterns and shapes
+    def update_all_patterns():
+        # Update scale factor bounds if needed
+        update_scale_factor_bounds()
+        
+        # Draw all the pattern shapes
+        for name, (center, label, color) in pattern_centers.items():
+            draw_pattern_shape(name, center, label, color)
+    
+    # Connect callbacks to UI controls
+    shape_type_button.callback = update_all_patterns
+    x_mode_button.callback = update_all_patterns
+    screen_space_box.callback = update_all_patterns
+    thickness_box.callback = update_all_patterns
+    scale_slider.callback = update_all_patterns
+    
+    # Draw patterns in a plot
+    dcg.Text(C, value="Pattern Examples:")
+    with dcg.Plot(C, width=-1, height=600, equal_aspects=True) as plot:
+        with dcg.DrawInPlot(C):
+            # Define pattern positions and colors
+            pattern_centers = {
+                # Basic patterns
+                "solid": ((100, 100), "Solid", (255, 0, 0)),
+                "dashed": ((225, 100), "Dashed", (0, 255, 0)),
+                "dotted": ((350, 100), "Dotted", (0, 0, 255)),
+                "dash_dot": ((475, 100), "Dash-Dot", (255, 255, 0)),
+                
+                # Technical patterns
+                "dash_dot_dot": ((100, 250), "Dash-Dot-Dot", (255, 0, 255)),
+                "zigzag": ((225, 250), "ZigZag", (0, 255, 255)),
+                "railroad": ((350, 250), "Railroad", (255, 150, 50)),
+                "double_dash": ((475, 250), "Double Dash", (150, 200, 255)),
+                
+                # Special patterns
+                "checkerboard": ((225, 400), "Checkerboard", (200, 200, 200)),
+                "custom": ((375, 400), "Custom", (255, 255, 255)),
+            }
+            
+            # Create all patterns
+            # 1. Solid pattern
+            patterns_dict["solid"] = dcg.Pattern.solid(C)
+            
+            # 2. Dashed pattern
+            patterns_dict["dashed"] = dcg.Pattern.dashed(C)
+            
+            # 3. Dotted pattern
+            patterns_dict["dotted"] = dcg.Pattern.dotted(C)
+            
+            # 4. Dash-dot pattern
+            patterns_dict["dash_dot"] = dcg.Pattern.dash_dot(C)
+            
+            # 5. Dash-dot-dot pattern
+            patterns_dict["dash_dot_dot"] = dcg.Pattern.dash_dot_dot(C)
+            
+            # 6. ZigZag pattern
+            patterns_dict["zigzag"] = dcg.Pattern.zigzag(C)
+            
+            # 7. Railroad pattern
+            patterns_dict["railroad"] = dcg.Pattern.railroad(C)
+            
+            # 8. Double dash pattern
+            patterns_dict["double_dash"] = dcg.Pattern.double_dash(C)
+            
+            # 9. Checkerboard pattern
+            patterns_dict["checkerboard"] = dcg.Pattern.checkerboard(C)
+            
+            # 10. Custom pattern
+            custom_pattern = dcg.Pattern(C)
+            width = 20
+            texture = dcg.Texture(C)
+            texture_data = np.zeros((1, width, 4), dtype="float32")
+            # First half red
+            texture_data[0, :width//2, 0] = 1.0  # Red channel
+            texture_data[0, :width//2, 3] = 1.0  # Alpha channel
+            # Second half yellow
+            texture_data[0, width//2:, 0] = 1.0  # Red channel
+            texture_data[0, width//2:, 1] = 1.0  # Green channel
+            texture_data[0, width//2:, 3] = 1.0  # Alpha channel
+            texture.wrap_x = True
+            texture.set_value(texture_data)
+            custom_pattern.texture = texture
+            patterns_dict["custom"] = custom_pattern
+            
+            # Section headers
+            dcg.DrawText(C, pos=(300, 50), text="Basic Patterns", 
+                       color=(255, 255, 255), size=-20)
+            
+            dcg.DrawText(C, pos=(300, 200), text="Technical Patterns", 
+                       color=(255, 255, 255), size=-20)
+            
+            dcg.DrawText(C, pos=(300, 350), text="Special Patterns", 
+                       color=(255, 255, 255), size=-20)
+            
+            # Initial draw of all pattern shapes (will be updated by UI controls)
+            update_all_patterns()
+            
+            # Draw pattern labels
+            for name, (center, label, _) in pattern_centers.items():
+                pos = (center[0], center[1] + 50)
+                dcg.DrawText(C, pos=pos, text=label, 
+                           color=(255, 255, 255), size=-16)
+
+    # Display pattern textures
+    dcg.Separator(C)
+    dcg.Text(C, value="Pattern Textures:")
+    
+    with dcg.DrawInWindow(C, width=600, height=300):
+        dcg.DrawText(C, pos=(300, 20), text="Pattern Texture Examples", 
+                     color=(255, 255, 255), size=-20)
+        
+        # All patterns in a compact grid
+        patterns_list = [
+            ("solid", "Solid"),
+            ("dashed", "Dashed"),
+            ("dotted", "Dotted"),
+            ("dash_dot", "Dash-Dot"),
+            ("dash_dot_dot", "Dash-Dot-Dot"),
+            ("zigzag", "ZigZag"),
+            ("railroad", "Railroad"),
+            ("double_dash", "Double Dash"),
+            ("checkerboard", "Checkerboard"),
+            ("custom", "Custom")
+        ]
+        
+        # Draw in a grid (2 rows x 5 columns)
+        for i, (pattern_name, label) in enumerate(patterns_list):
+            row = i // 5
+            col = i % 5
+            x_pos = 70 + col * 120
+            y_pos = 80 + row * 80
+            
+            # Draw the texture magnified
+            pattern = patterns_dict[pattern_name]
+            dcg.DrawImage(C, texture=pattern.texture, 
+                         pmin=(x_pos - 40, y_pos), 
+                         pmax=(x_pos + 40, y_pos + 30), 
+                         uv_max=(10, 1))
+            dcg.DrawText(C, pos=(x_pos, y_pos + 45), text=label,
+                         color=(255, 255, 255), size=-14)
+
+    # Add notes about pattern usage
+    dcg.Text(C, value="Notes on Patterns:")
+    dcg.Text(C, bullet=True, value="Patterns control the outline appearance, not the fill.")
+    dcg.Text(C, bullet=True, value="The 'screen_space' property determines if pattern scaling changes with zoom.")
+    dcg.Text(C, bullet=True, value="For complex shapes, 'points' mode creates patterns between vertices.")
+    dcg.Text(C, bullet=True, value="For smooth curves, 'length' mode gives more consistent results.")
+    dcg.Text(C, bullet=True, value="Different scale_factor ranges work best for 'points' vs 'length' modes.")
 
 
 @demosection(dcg.DrawInWindow, dcg.utils.DrawStream)
