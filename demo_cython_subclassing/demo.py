@@ -123,7 +123,7 @@ def launch_demo():
     create_demo_window(C)
 
     while C.running:
-        C.viewport.render_frame(can_skip_presenting=False)
+        C.viewport.render_frame()
 
 if __name__ == '__main__':
     launch_demo()

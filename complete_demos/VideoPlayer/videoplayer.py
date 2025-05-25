@@ -986,8 +986,7 @@ def main():
     player = VideoPlayer(C, args.infile, primary=True, no_bring_to_front_on_focus=True)
     try:
         while C.running:
-            # can_skip_presenting: no GPU re-rendering on input that has no impact (such as mouse motion) 
-            if C.viewport.render_frame(can_skip_presenting=True):
+            if C.viewport.render_frame():
                 player.update_fps()
                 # One some platforms (at least X11), when vsync is ON,
                 # the CPU seems to busy wait before the next frame.

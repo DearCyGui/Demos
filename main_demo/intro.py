@@ -231,6 +231,7 @@ def _how_to_use_this_demo(C: dcg.Context):
         if len(text) > 0:
             text = text[1:] + text[0]
             target.label = text
+        C.viewport.wake()
 
     # Create a button
     dcg.Button(C, label="Click me",

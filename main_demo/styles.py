@@ -266,6 +266,7 @@ def _theme_color_imgui(C: dcg.Context):
                 with popup:
                     dcg.Text(C, value="Popup background")
                     dcg.Button(C, label="Close", callback=popup.delete_item)
+                C.viewport.wake()
             popup_bg_btn.callback = show_popup_bg
             
             # Demonstrate child background
@@ -672,6 +673,7 @@ def _theme_management(C: dcg.Context):
         theme_mgr.set_current_theme(selected_theme)
         # Update the window title to reflect the current theme
         demo_window.label = f"{selected_theme} Theme Demo"
+        C.viewport.wake()
     
     theme_selector.callback = on_theme_change
 

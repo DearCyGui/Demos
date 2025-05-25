@@ -472,6 +472,7 @@ def _headers(C: dcg.Context):
     
     def toggle_header(sender, table=table):
         table.header = sender.value
+        C.viewport.wake()
         
     def toggle_flag(sender, table=table):
         flag = sender.user_data
@@ -479,6 +480,7 @@ def _headers(C: dcg.Context):
             table.flags |= flag
         else:
             table.flags &= ~flag
+        C.viewport.wake()
     
     with dcg.HorizontalLayout(C):
         dcg.Checkbox(C, label="Show Headers", value=True, callback=toggle_header)
@@ -637,6 +639,7 @@ def _column_resizing(C: dcg.Context):
             table.flags |= dcg.TableFlag.RESIZABLE
         else:
             table.flags &= ~dcg.TableFlag.RESIZABLE
+        C.viewport.wake()
 
     
     dcg.Checkbox(C, label="Resizable Columns", value=True, callback=toggle_resizable)
@@ -714,6 +717,7 @@ def _outer_size_scrolling(C: dcg.Context):
     
     def set_frozen_rows(sender, table=table):
         table.num_rows_frozen = int(sender.value)
+        C.viewport.wake()
     
     dcg.Slider(C, label="", 
                  min_value=0, 
@@ -846,6 +850,7 @@ def _padding_options(C: dcg.Context):
             table.flags |= flag
         else:
             table.flags &= ~flag
+        C.viewport.wake()
     
     dcg.Text(C, value="Padding controls:")
     with dcg.HorizontalLayout(C):
@@ -1052,6 +1057,7 @@ def _filtering(C: dcg.Context):
         
         # Update filter status message
         filter_status.value = f"Showing {visible_count} of {table.num_rows} rows"
+        C.viewport.wake()  # Refresh the viewport to show changes
     
     # Status text to show how many rows are filtered
     filter_status = dcg.Text(C, value=f"Showing {table.num_rows} of {table.num_rows} rows")
@@ -1149,6 +1155,7 @@ def _sorting(C: dcg.Context):
                 table.flags |= dcg.TableFlag.SORTABLE
             else:
                 table.flags &= ~dcg.TableFlag.SORTABLE
+            C.viewport.wake()
             
         dcg.Checkbox(C, label="Sortable", value=True, callback=toggle_sortable)
         
@@ -1158,6 +1165,7 @@ def _sorting(C: dcg.Context):
                 table.flags |= dcg.TableFlag.SORT_MULTI
             else:
                 table.flags &= ~dcg.TableFlag.SORT_MULTI
+            C.viewport.wake()
             
         dcg.Checkbox(C, label="Multi-Sort (Shift)", value=True, callback=toggle_multi_sort)
         
@@ -1167,6 +1175,7 @@ def _sorting(C: dcg.Context):
                 table.flags |= dcg.TableFlag.SORT_TRISTATE
             else:
                 table.flags &= ~dcg.TableFlag.SORT_TRISTATE
+            C.viewport.wake()
             
         dcg.Checkbox(C, label="Tri-State Sorting", value=False, callback=toggle_tristate)
     
@@ -1261,11 +1270,13 @@ def _selection(C: dcg.Context):
         # Row selection callback
         def on_row_select(sender):
             selected_row.value = f"Row {sender.user_data}"
+            C.viewport.wake()
             
         # Cell selection callback
         def on_cell_select(sender):
             row, col = sender.user_data
             selected_cell.value = f"Row {row}, Column {col}"
+            C.viewport.wake()
         
         # Add rows with selectables
         for i, (id, name, value) in enumerate(data):
@@ -1363,6 +1374,7 @@ def _column_handlers(C: dcg.Context):
             cell = table[i, 0]
             cell.bg_color = (255, 255, 0, 100)  # Yellow highlight
             table[i, 0] = cell  # Need to update the cell after changing it
+        C.viewport.wake()
     
     def on_unhover_col(sender, status=status):
         status.value = "Interact with columns to see events"
@@ -1371,6 +1383,7 @@ def _column_handlers(C: dcg.Context):
             cell = table[i, 0]
             cell.bg_color = 0  # Reset background color
             table[i, 0] = cell
+        C.viewport.wake()
     
     # Add hover handlers to first column
     table.col_config[0].handlers += [
@@ -1388,6 +1401,7 @@ def _column_handlers(C: dcg.Context):
             new_text = dcg.Text(C, value=cell.content.value, color=(255, 0, 0))
             # Replace old content
             table[i, 1] = new_text
+        C.viewport.wake()
     
     # Add click handler to second column
     table.col_config[1].handlers += [
@@ -1397,9 +1411,11 @@ def _column_handlers(C: dcg.Context):
     # Column 2: Visibility handlers
     def on_col_hidden(sender, status=status):
         status.value = "Column 2 was hidden (right-click header and uncheck to show)"
+        C.viewport.wake()
         
     def on_col_shown(sender, status=status):
         status.value = "Column 2 was shown"
+        C.viewport.wake()
     
     # Add visibility handlers to third column
     table.col_config[2].handlers += [
@@ -1458,18 +1474,22 @@ def _table_handlers(C: dcg.Context):
     def on_table_hover(sender):
         status.value = "Table is being hovered"
         # You could highlight the table or update UI elements
+        C.viewport.wake()
         
     def on_table_unhover(sender):
         if status.value == "Table is being hovered": # do not hide clicks
             status.value = "Interact with the table to see events"
+            C.viewport.wake()
     
     def on_table_clicked(sender):
         status.value = "Table was clicked"
         # This could be used to show additional controls or reset sorting
+        C.viewport.wake()
     
     # Add table content resize handler
     def on_table_resize(sender, target, data):
         status.value = f"Table was resized ({target.rect_size})"
+        C.viewport.wake()
     
     # Attach the handlers to the table
     table.handlers += [
@@ -1489,10 +1509,12 @@ def _table_handlers(C: dcg.Context):
             dcg.Text(C, value=str(new_idx+1))
             dcg.Text(C, value=f"Item {new_idx+1}")
             dcg.Text(C, value=str(new_idx*10 + 5))
+        C.viewport.wake()
         
     def remove_row(table=table):
         if table.num_rows > 0:
             table.remove_row(table.num_rows-1)
+        C.viewport.wake()
     
     with dcg.HorizontalLayout(C):
         dcg.Button(C, label="Add Row", callback=add_row)
@@ -1551,6 +1573,7 @@ def _table_borders(C: dcg.Context):
             table.flags |= flag
         else:
             table.flags &= ~flag
+        C.viewport.wake()
     
     with dcg.HorizontalLayout(C):
         with dcg.VerticalLayout(C):
@@ -1601,6 +1624,7 @@ def _table_row_background(C: dcg.Context):
             table.flags |= dcg.TableFlag.ROW_BG
         else:
             table.flags &= ~dcg.TableFlag.ROW_BG
+        C.viewport.wake()
     
     dcg.Checkbox(C, label="Alternating Row Backgrounds", 
                  value=True,
@@ -1804,6 +1828,7 @@ def _table_theme_attributes(C: dcg.Context):
         # Create checkbox to toggle the theme component
         def toggle_theme(sender, component=theme_component):
             component.enabled = sender.value
+            C.viewport.wake()
         
         return dcg.Checkbox(C, label=name, value=True, callback=toggle_theme, **kwargs)
     

@@ -2,6 +2,7 @@ import ast
 from collections import OrderedDict
 import colorsys
 import dearcygui as dcg
+from dearcygui.utils.asyncio_helpers import AsyncThreadPoolExecutor
 import functools
 import inspect
 import re
@@ -872,10 +873,12 @@ def launch_demo(title="DearCyGui Demo"):
     """
     # Main function to run the demo
     context = dcg.Context()
+    context.viewport.wait_for_input = False # TODO: fix repeat button presses
+    context.queue = AsyncThreadPoolExecutor()
     context.viewport.initialize(title=title, width=950, height=750, vsync=True)
     window = DemoWindow(context)
-    
+
     while context.running:
-        context.viewport.render_frame(can_skip_presenting=False)
+        context.viewport.render_frame()
     
 

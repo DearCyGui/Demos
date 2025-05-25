@@ -188,7 +188,7 @@ def _thickness_considerations(C: dcg.Context):
             dcg.DrawText(C, pos=(0.75, 0.7), text="Default (1)", 
                         color=(255, 255, 255), size=-12)
 
-@demosection(dcg.DrawingList, dcg.DrawingClip, dcg.DrawSplitBatch)
+@demosection(dcg.DrawingList, dcg.DrawingClip)
 @documented
 def _drawing_trivia(C: dcg.Context):
     """
@@ -209,11 +209,7 @@ def _drawing_trivia(C: dcg.Context):
         Everything is rendering using OpenGL. The overhead of OpenGL is negligible for
         that few draw calls. The main CPU overhead is the conversion of the items. In
         particular ImGui renders all items in such a way they appear antialiased.
-    - If you need to prevent two items to be in same draw calls (to force ordering),
-        you can use the `dcg.DrawSplitBatch` item which will force the creation
-        of a new draw calls for items rendered after it. Note that this is only needed
-        in seldom cases as ImGui already splits the draw calls in many needed cases,
-        such as when drawing an image.
+    - Items are rendered in the order they are in the rendering tree.
     - In order to compact draw calls, ImGui uses a font texture atlas. It attemps
         for all items to read from the same texture atlas. Even when the items
         just has a single color, it will read from the texture (a white pixel).
@@ -585,18 +581,22 @@ def _interactive_elements(C: dcg.Context):
             def on_hover_enter():
                 button_rect.color = (255, 120, 0)  # Change outline color when hovered
                 info_text.value = "Button is hovered!"
+                C.viewport.wake()
             
             def on_hover_exit():
                 button_rect.color = (0, 120, 255)  # Reset color
                 info_text.value = "Hover, click, and drag in the area below"
+                C.viewport.wake()
             
             def on_clicked():
                 nonlocal start_pos
                 start_pos = [button_rect.pmin[0], button_rect.pmin[1]]
                 info_text.value = "Button clicked! Drag to move."
+                C.viewport.wake()
             
             def on_released():
                 info_text.value = f"Button released at: ({button_rect.pmin[0]:.1f}, {button_rect.pmin[1]:.1f})"
+                C.viewport.wake()
             
             def on_dragging(_, __, delta):
                 nonlocal current_pos
@@ -614,6 +614,7 @@ def _interactive_elements(C: dcg.Context):
                     
                 current_pos = new_pmin
                 info_text.value = f"Dragging to: ({current_pos[0]:.1f}, {current_pos[1]:.1f})"
+                C.viewport.wake()
             
             # Connect event handlers
             invisible_btn.handlers = [
@@ -796,6 +797,7 @@ def _advanced_combinations(C: dcg.Context):
         # Update gauge when slider changes
         def update_gauge(sender, target, value):
             gauge.value = value
+            C.viewport.wake()
 
         gauge_value.callback = update_gauge
 
@@ -1062,6 +1064,7 @@ def _draw_pattern(C: dcg.Context):
         # Draw all the pattern shapes
         for name, (center, label, color) in pattern_centers.items():
             draw_pattern_shape(name, center, label, color)
+        C.viewport.wake()
     
     # Connect callbacks to UI controls
     shape_type_button.callback = update_all_patterns
@@ -1084,7 +1087,6 @@ def _draw_pattern(C: dcg.Context):
                 
                 # Technical patterns
                 "dash_dot_dot": ((100, 250), "Dash-Dot-Dot", (255, 0, 255)),
-                "zigzag": ((225, 250), "ZigZag", (0, 255, 255)),
                 "railroad": ((350, 250), "Railroad", (255, 150, 50)),
                 "double_dash": ((475, 250), "Double Dash", (150, 200, 255)),
                 
@@ -1110,7 +1112,7 @@ def _draw_pattern(C: dcg.Context):
             patterns_dict["dash_dot_dot"] = dcg.Pattern.dash_dot_dot(C)
             
             # 6. ZigZag pattern
-            patterns_dict["zigzag"] = dcg.Pattern.zigzag(C)
+            #patterns_dict["zigzag"] = dcg.Pattern.zigzag(C)
             
             # 7. Railroad pattern
             patterns_dict["railroad"] = dcg.Pattern.railroad(C)
@@ -1172,7 +1174,6 @@ def _draw_pattern(C: dcg.Context):
             ("dotted", "Dotted"),
             ("dash_dot", "Dash-Dot"),
             ("dash_dot_dot", "Dash-Dot-Dot"),
-            ("zigzag", "ZigZag"),
             ("railroad", "Railroad"),
             ("double_dash", "Double Dash"),
             ("checkerboard", "Checkerboard"),
@@ -1422,6 +1423,7 @@ def _draw_animation(C: dcg.Context):
                 dcg.Text(C,
                          previous_sibling=click_animation,
                          value=f"Button clicked at {time.strftime('%H:%M:%S')}")
+                C.viewport.wake()
             
             gif_button.callback = on_button_click
         except Exception as e:
@@ -1712,6 +1714,8 @@ def _draw_texture_advanced_example(C: dcg.Context):
         def render(self, invisible_context):
             # Get the DearCyGui framebuffer from invisible context
             ui_texture = invisible_context.viewport.framebuffer
+            if ui_texture is None:
+                return
             
             # Make our OpenGL context current
             self.shared_context.make_current()

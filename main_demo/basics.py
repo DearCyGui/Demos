@@ -1,5 +1,8 @@
+import asyncio
 from demo_utils import documented, democode, push_group, pop_group, launch_demo, demosection
 import dearcygui as dcg
+import dearcygui.utils.asyncio_helpers
+import random
 
 
 
@@ -480,6 +483,97 @@ def _handlers(C: dcg.Context):
         complex_button.show = not complex_button.show
     
     toggle_button.callback = toggle_visibility
+
+
+@demosection(dcg.Viewport, dcg.Context, \
+             dearcygui.utils.asyncio_helpers.run_viewport_loop, \
+             dearcygui.utils.asyncio_helpers.AsyncPoolExecutor, \
+             dearcygui.utils.asyncio_helpers.AsyncThreadPoolExecutor, dcg.DrawArrow)
+@documented
+@democode
+def _asyncio(C: dcg.Context):
+    """
+    ## Asyncio Integration
+
+    The `dearcygui.utils.asyncio_helpers` module provides tools to integrate
+    DearCyGui with asyncio, allowing you to run background tasks without blocking the UI.
+
+    If you want to run DearCyGui entirely in an asyncio event loop, two components are provided:
+    - `run_viewport_loop`: A coroutine that runs the DearCyGui's `render_frame` loop asynchronously.
+        This allows you to run the DearCyGui event and rendering loop alongside your asyncio tasks.
+    - `AsyncPoolExecutor`: A replacement for the Context queue that runs tasks in the target (or current) event loop.
+        Setting this executor in the `Context` allows you to run the callbacks and the handlers
+        into your asyncio event loop, instead of in a separate thread.
+
+    When using `run_viewport_loop`, you probably want to set the `Context.queue`
+    to an `AsyncPoolExecutor` instance, in order to have all DearCyGui callbacks
+    and handlers run in the same event loop as your other asyncio tasks.
+
+    Example usage:
+    
+    ```python
+    ctx = dcg.Context()
+    ctx.queue = AsyncPoolExecutor()
+    viewport = ctx.viewport
+    [...] # setup your UI items here
+    viewport.initialize(width=800, height=600, title="Asyncio Demo")
+    asyncio.run(run_viewport_loop(viewport))
+    ```
+
+    One noticeable advantage of `AsyncPoolExecutor` is that the callbacks and handlers
+    are run in the main thread, which allows to run callbacks code that has to
+    run into the main thread. For instance creating and running another context, or
+    calling dcg.os functions that require the main thread.
+
+    The module also provides `AsyncThreadPoolExecutor`: A
+    thread pool executor that runs tasks in a separate thread. This executor can
+    be used as a drop-in replacement for the standard Context queue and does not
+    require using asyncio to run the viewport render loop.
+
+    The main interest of `AsyncThreadPoolExecutor` is it allows running
+    `async def` callbacks, which can be useful for callbacks that need to
+    perform asynchronous operations without blocking the UI. `AsyncPoolExecutor` also
+    supports `async def` callbacks, running them in the main thread rather than in a separate thread.
+
+    This demo is run using `AsyncThreadPoolExecutor`, and thus we can demonstrate
+    below the interest of async callbacks.
+    """
+
+    async def create_and_move_arrow(target: dcg.uiItem):
+        """
+        An async callback that creates an temporary moving arrow below the target item.
+
+        A similar code not using async would need to submit
+        a new function to a thread queue, and resubmitting
+        every time a new function when the arrow needs to be moved.
+        """
+        C = target.context
+        pos = target.pos_to_viewport
+        pos.x += random.randint(0, int(target.rect_size.x))
+        pos.y += target.rect_size.y + 2  # Position it below the item
+        with dcg.ViewportDrawList(C):
+            arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-4.)
+        # move the arrow downward then upward three times, then delete it
+        for _ in range(3):
+            # Move the arrow down
+            for i in range(20):
+                arrow.p1 = pos + (0, i)
+                arrow.p2 = pos + (0, i+20)
+                C.viewport.wake()
+                await asyncio.sleep(0.01) # never use sleep in a non-async callback.
+            # Move the arrow up
+            for i in range(20):
+                arrow.p1 = pos + (0, 20-i)
+                arrow.p2 = pos + (0, 40-i)
+                C.viewport.wake()
+                await asyncio.sleep(0.01)
+        arrow.delete_item()  # Remove the arrow after the animation
+        C.viewport.wake()
+
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+        dcg.Button(C, label="Click me to create temporary arrows",
+                   callback=create_and_move_arrow, repeat=True)
+    dcg.Spacer(C, height=50) 
 
 
 @demosection(dcg.ChildWindow, dcg.Button, dcg.Text, dcg.Spacer, dcg.HorizontalLayout, dcg.VerticalLayout, dcg.Alignment)

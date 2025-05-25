@@ -593,6 +593,7 @@ def _line_large_data(C: dcg.Context):
             plot_line.Y = y[i_left:i_right]
             # Update the label with the number of points
             stats.value = f"Showing {len(plot_line.X)} points using subsampling {4**level}"
+            C.viewport.wake()
 
         # Register the zoom callback
         plot.handlers += [
@@ -1351,6 +1352,7 @@ def _histogram(C: dcg.Context):
             plot.Y1.label = "Density" if density_cb.value else "Frequency"
             if cumulative_cb.value:
                 plot.Y1.label += " (Cumulative)"
+            C.viewport.wake()
         
         density_cb.callbacks = update_histogram
         cumulative_cb.callbacks = update_histogram
@@ -1410,6 +1412,7 @@ def _histogram_2d(C: dcg.Context):
         def update_bins(sender, target, data):
             hist_2d.x_bins = data
             hist_2d.y_bins = data
+            C.viewport.wake()
         
         bin_slider.callbacks = update_bins
         
@@ -1536,6 +1539,7 @@ def _heatmaps(C: dcg.Context):
         # Callback to toggle column-major layout
         def toggle_col_major(sender, target, data):
             heatmap.col_major = data
+            C.viewport.wake()
             
         col_major_cb.callbacks = toggle_col_major
         
@@ -1694,6 +1698,7 @@ def _digital_plots(C: dcg.Context):
             
             # Update stored time
             plot.user_data = t
+            C.viewport.wake()
         
         # Register render handler to update plot
         plot.handlers = [dcg.RenderHandler(C, callback=update_plot)]
@@ -1934,6 +1939,7 @@ def _basic_axes_customization(C: dcg.Context):
         x_max_slider.value = x_max
         y_min_slider.value = y_min
         y_max_slider.value = y_max
+        C.viewport.wake()
     plot.handlers = [dcg.AxesResizeHandler(C, callback=on_plot_interaction)]
 
 @demosection(dcg.Plot, dcg.PlotAxisConfig, dcg.AxisScale, dcg.AxisTag, dcg.PlotLine)
@@ -2006,6 +2012,7 @@ def _axis_scales(C: dcg.Context):
                 plot.X1.max = 100
                 plot.Y1.min = -3
                 plot.Y1.max = 3
+            C.viewport.wake()
                 
         # Connect the callback
         scale_options.callbacks = update_scale
@@ -2075,6 +2082,7 @@ def _time_axis_formatting(C: dcg.Context):
             elif range_option == "Last 7 Days":
                 plot.X1.min = now - 86400 * 7
                 plot.X1.max = now
+            C.viewport.wake()
         
         # Connect controls to plot properties
         use_local.callbacks = lambda s, t, d: plot.configure(use_local_time=d)
@@ -2351,6 +2359,7 @@ def _axis_custom_ticks_labels(C: dcg.Context):
             plot.X1.labels_coord = x_positions
         
         plot.X1.keep_default_ticks = keep_default_ticks.value
+        C.viewport.wake()
     
     # Connect controls
     keep_default_ticks.callbacks = lambda s, t, d: update_labels()
@@ -2387,6 +2396,7 @@ def _axis_custom_ticks_labels(C: dcg.Context):
             format_plot.Y1.tick_format = "%.2f"
         elif selected_format == r"Percentage: %.1f%%":
             format_plot.Y1.tick_format = "%.1f%%"
+        C.viewport.wake()
     
     format_options.callbacks = update_format
     
@@ -2922,6 +2932,7 @@ def _legend_position(C: dcg.Context):
             plot.legend_config.location = location_map[location_combo.value]
             plot.legend_config.outside = outside_cb.value
             plot.legend_config.horizontal = horizontal_cb.value
+            C.viewport.wake()
         
         # Connect controls to update function
         location_combo.callbacks = update_legend_pos
@@ -3054,6 +3065,7 @@ def _legend_popup_menus(C: dcg.Context):
         # Create callback functions for the interactive controls
         def update_sine_wave(sender=None, target=None, data=None):
             sine_series.configure(Y=amplitude_slider.value * np.sin(frequency_slider.value * x))
+            C.viewport.wake()
         
         frequency_slider.callbacks = update_sine_wave
         amplitude_slider.callbacks = update_sine_wave

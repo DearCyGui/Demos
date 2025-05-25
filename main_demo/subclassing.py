@@ -150,6 +150,7 @@ def _python_naming_conventions(C: dcg.Context):
         def refresh_ui(self, temperature):
             # Public method - part of the widget's interface
             self.children[0].value = f"Temperature: {temperature}°F"
+            self.context.viewport.wake()
             
     # Create an instance of our custom widget
     temp_widget = TemperatureWidget(C, label="Temperature Monitor", width=300, height=100)
@@ -180,6 +181,7 @@ def _python_naming_conventions(C: dcg.Context):
                 # It's still possible to access it if you know the mangling scheme
                 mangled_val = getattr(temp_widget, "_TemperatureWidget__temperature_offset", "Not found")
                 dcg.Text(C, value=f"Access via name mangling: _TemperatureWidget__temperature_offset = {mangled_val}")
+        C.viewport.wake()
         
     dcg.Button(C, label="Check Attributes", callback=check_temps)
     
@@ -368,6 +370,7 @@ def _memory_management(C: dcg.Context):
         window = CleanupExample(C, label="Cleanup Demo", width=300, height=100)
         dcg.Text(C, value=f"Window created with ID: {window._resource_id}")
         dcg.Text(C, value="Check console output when window is closed")
+        C.viewport.wake()
     
     dcg.Button(C, label="Create Window with Cleanup", callback=lambda s, t, d: create_cleanup_window())
     
@@ -452,6 +455,7 @@ def _class_method_callbacks(C: dcg.Context):
             """Called when the color editor value changes."""
             self._current_color = color
             self._preview.value = color
+            self.context.viewport.wake()
         
         def _on_add_to_history(self, sender, target, data):
             """Adds the current color to history."""
@@ -471,6 +475,7 @@ def _class_method_callbacks(C: dcg.Context):
                 
                 # Using a method as callback and passing the color as data
                 new_color_btn.callback = self._on_history_color_selected
+            self.context.viewport.wake()
         
         def _on_history_color_selected(self, sender, target, data):
             """Called when a color from history is selected."""
@@ -480,6 +485,7 @@ def _class_method_callbacks(C: dcg.Context):
             # Update the color editor and preview
             self._color_editor.value = selected_color
             self._preview.value = selected_color
+            self.context.viewport.wake()
         
         def _on_clear_history(self, sender, target, data):
             """Clears the color history."""
@@ -488,6 +494,7 @@ def _class_method_callbacks(C: dcg.Context):
             # Remove all children from the history container
             for child in list(self._history_container.children):
                 child.delete_item()
+            self.context.viewport.wake()
         
         # Public methods that form our class interface
         def get_color(self):
@@ -553,6 +560,7 @@ def _closure_pitfalls(C: dcg.Context):
                     # Wrong way: The callback references 'i', which changes with each iteration
                     def problematic_callback(sender, target, data):
                         dcg.Text(context, value=f"You clicked button with index: {i}", next_sibling=self.children[0])
+                        self.context.viewport.wake()
                     dcg.Button(
                         context, 
                         label=f"Button {i}",
@@ -567,6 +575,7 @@ def _closure_pitfalls(C: dcg.Context):
                     # Right way: Pass 'i' as a default parameter to capture its current value
                     def fixed_callback(sender, target, data, i=i):
                         dcg.Text(context, value=f"You clicked button with index: {i}", next_sibling=self.children[0])
+                        self.context.viewport.wake()
                     dcg.Button(
                         context, 
                         label=f"Button {i} (Fix 1)",
@@ -580,6 +589,7 @@ def _closure_pitfalls(C: dcg.Context):
                     # Right way: Use functools.partial to bind the current value of 'i'
                     def fixed_callback_2(sender, target, data, index):
                         dcg.Text(context, value=f"You clicked button with index: {index}", next_sibling=self.children[0])
+                        self.context.viewport.wake()
                     dcg.Button(
                         context, 
                         label=f"Button {i} (Fix 2)",
@@ -760,6 +770,7 @@ def _practical_custom_widget(C: dcg.Context):
                 # No data case
                 self._plot.X1.min = 0
                 self._plot.X1.max = 10
+            self.context.viewport.wake()
         
         # Public methods
         

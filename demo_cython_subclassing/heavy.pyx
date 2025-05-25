@@ -47,7 +47,7 @@ cdef class CircleLinesMonolithic(dcg.drawingItem):
                 dcg.imgui.draw_line(self.context,
                                     draw_list, 
                                     x1, y1,
-                                    x2, y2, 
+                                    x2, y2, None,
                                     self.color, 
                                     thickness)
 

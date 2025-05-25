@@ -69,6 +69,7 @@ def _text_widgets(C: dcg.Context):
     # Button to increment the counter
     def inc_counter():
         counter_value.value += 1
+        C.viewport.wake()  # Display the updated value
     dcg.Button(C, label="Increment Counter", 
                callback=inc_counter)
 
@@ -109,6 +110,7 @@ def _button_widgets(C: dcg.Context):
     repeat_counter = dcg.SharedInt(C, value=0)
     def inc_counter():
         repeat_counter.value += 1
+        C.viewport.wake()  # Display the updated value
     dcg.Button(C, label="Repeat Button (hold down)", repeat=True,
               callback=inc_counter)
     dcg.TextValue(C, shareable_value=repeat_counter, print_format="Repeat count: %d")
@@ -1098,6 +1100,7 @@ def _progress_bars(C: dcg.Context):
         # Calculate progress based on time
         t = time.time() % 3  # Cycle every 3 seconds
         progress_bar.value = (t / 3.0)
+        C.viewport.wake()  # Refresh the viewport to update the progress bar
         
     progress_bar.handlers += [
         dcg.RenderHandler(C, callback=animate_progress)
@@ -1241,7 +1244,7 @@ def _tooltips(C: dcg.Context):
                  shareable_value=shared_tooltip_text,
                  width=300)
 
-@demosection(dcg.Window, dcg.show_open_file_dialog, dcg.show_open_folder_dialog, dcg.show_save_file_dialog)
+@demosection(dcg.Window, dcg.os.show_open_file_dialog, dcg.os.show_open_folder_dialog, dcg.os.show_save_file_dialog)
 @documented
 @democode
 def _popups_and_modals(C: dcg.Context):
@@ -1279,8 +1282,10 @@ def _popups_and_modals(C: dcg.Context):
             def close_popup():
                 popup.delete_item()
                 status_text.value = "Basic popup was closed with button"
+                C.viewport.wake()
                 
             dcg.Button(C, label="Close Popup", callback=close_popup)
+        C.viewport.wake()
     
     dcg.Button(C, label="Show Basic Popup", callback=show_basic_popup)
     
@@ -1304,6 +1309,7 @@ def _popups_and_modals(C: dcg.Context):
             def close_modal():
                 modal.delete_item()
                 status_text.value = "Modal dialog was closed"
+                C.viewport.wake()
                 
             with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
                 dcg.Button(C, label="OK", width=100, callback=close_modal)
@@ -1328,10 +1334,12 @@ def _popups_and_modals(C: dcg.Context):
             def on_confirm():
                 confirm_modal.delete_item()
                 status_text.value = "Action confirmed!"
+                C.viewport.wake()
                 
             def on_cancel():
                 confirm_modal.delete_item()
                 status_text.value = "Action cancelled"
+                C.viewport.wake()
                 
             with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT):
                 dcg.Button(C, label="Cancel", width=100, callback=on_cancel)
@@ -1367,6 +1375,7 @@ def _popups_and_modals(C: dcg.Context):
             def menu_action(action):
                 menu.delete_item()
                 status_text.value = f"Selected: {action}"
+                C.viewport.wake()
                 
             dcg.Button(C, label="Cut", callback=lambda: menu_action("Cut"))
             dcg.Button(C, label="Copy", callback=lambda: menu_action("Copy"))
@@ -1409,14 +1418,17 @@ def _popups_and_modals(C: dcg.Context):
             def submit_form():
                 form_popup.delete_item()
                 status_text.value = f"Form submitted: {name.value}, {email.value}, {age.value}, {subscribe.value}"
+                C.viewport.wake()
                 
             def cancel_form():
                 form_popup.delete_item()
                 status_text.value = "Form cancelled"
+                C.viewport.wake()
                 
             with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT):
                 dcg.Button(C, label="Cancel", width=100, callback=cancel_form)
                 dcg.Button(C, label="Submit", width=100, callback=submit_form)
+        C.viewport.wake()
     
     dcg.Button(C, label="Show Form Popup", callback=show_form_popup)
     
@@ -1443,10 +1455,12 @@ def _popups_and_modals(C: dcg.Context):
         def close_notification():
             if time.monotonic() - notif.user_data > 3.0:
                 notif.delete_item()
+                C.viewport.wake()
         notif.handlers = [
             dcg.GotRenderHandler(C, callback=start_timer),
             dcg.RenderHandler(C, callback=close_notification)
         ]
+        C.viewport.wake()
     
     dcg.Button(C, label="Show Notification", callback=show_notification)
 
@@ -1460,6 +1474,7 @@ def _popups_and_modals(C: dcg.Context):
             status_text.value = f"Selected file(s): {', '.join(file_paths)}"
         else:
             status_text.value = "File selection cancelled or no files selected"
+        C.viewport.wake()
     
     def show_open_file():
         # Define filter types
@@ -1470,7 +1485,7 @@ def _popups_and_modals(C: dcg.Context):
         ]
         
         # Show the open file dialog
-        dcg.show_open_file_dialog(
+        dcg.os.show_open_file_dialog(
             C,
             callback=open_file_callback,
             default_location="~/Documents",
@@ -1487,6 +1502,7 @@ def _popups_and_modals(C: dcg.Context):
             status_text.value = f"File will be saved to: {file_paths[0]}"
         else:
             status_text.value = "Save operation cancelled"
+        C.viewport.wake()
     
     def show_save_file():
         # Define filter types
@@ -1497,7 +1513,7 @@ def _popups_and_modals(C: dcg.Context):
         ]
         
         # Show the save file dialog
-        dcg.show_save_file_dialog(
+        dcg.os.show_save_file_dialog(
             C,
             callback=save_file_callback,
             default_location="~/Documents/myfile.txt",
@@ -1513,10 +1529,11 @@ def _popups_and_modals(C: dcg.Context):
             status_text.value = f"Selected folder(s): {', '.join(folder_paths)}"
         else:
             status_text.value = "Folder selection cancelled or no folder selected"
+        C.viewport.wake()
     
     def show_folder_dialog():
         # Show the folder selection dialog
-        dcg.show_open_folder_dialog(
+        dcg.os.show_open_folder_dialog(
             C,
             callback=folder_callback,
             default_location="~/Documents",
@@ -1534,7 +1551,7 @@ def _popups_and_modals(C: dcg.Context):
         ]
         
         # Show the open file dialog with custom button labels
-        dcg.show_open_file_dialog(
+        dcg.os.show_open_file_dialog(
             C,
             callback=open_file_callback,
             default_location="~/Pictures",
@@ -1933,12 +1950,13 @@ def _shared_values(C: dcg.Context):
         dcg.InputText(C, label="Edit Text", shareable_value=text_value)
         
         # Displays that show the same value
-        dcg.Text(C, shareable_value=text_value, label="Display 1:")
-        dcg.Text(C, shareable_value=text_value, label="Display 2:")
+        dcg.Text(C, shareable_value=text_value)
+        dcg.Text(C, shareable_value=text_value)
         
         # Button that modifies the shared value
         def change_text():
             text_value.value = "Text changed by button!"
+            C.viewport.wake()
             
         dcg.Button(C, label="Change Text", callback=change_text)
     
