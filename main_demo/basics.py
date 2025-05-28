@@ -5,6 +5,7 @@ from dearcygui.utils.asyncio_helpers import run_viewport_loop, AsyncPoolExecutor
 import gc
 import psutil
 import random
+import sys
 
 
 
@@ -616,9 +617,39 @@ def _timed_updates(C: dcg.Context):
             # from the queue itself
             pass
 
-    dcg.RadioButton(C, items=["AsyncPoolExecutor", "AsyncThreadPoolExecutor"],
-                    value="AsyncPoolExecutor",
-                    callback=select_executor)
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
+        dcg.RadioButton(C, items=["AsyncPoolExecutor", "AsyncThreadPoolExecutor"],
+                        value="AsyncPoolExecutor",
+                        callback=select_executor)
+        with dcg.VerticalLayout(C):
+            def toggle_gc(sender, target, value: bool):
+                if value:
+                    gc.disable()
+                else:
+                    gc.enable()
+            dcg.Checkbox(C, label="Disable GC", callback=toggle_gc, value=False)
+            with dcg.Tooltip(C):
+                dcg.Text(C, value=\
+                    "Disabling GC can help with performance and stutter when creating/deleting many items\n"
+                    "but can lead to memory leaks if not managed properly.\n"
+                    "A compeling alternative is to use gc.collect() when you detect\n"
+                    "the program is idle")
+
+
+            def toggle_switchinterval(sender, target, value: bool):
+                if value:
+                    sys.setswitchinterval(0.001)  # Set to 1ms
+                else:
+                    sys.setswitchinterval(0.05)  # Set to 50ms (default)
+
+            dcg.Checkbox(C, label="Mitigate GIL", callback=toggle_switchinterval, value=False)
+            with dcg.Tooltip(C):
+                dcg.Text(C, value=\
+                    "Setting a lower switch interval can help mitigate GIL contention\n"
+                    "but can reduce performance for certain tasks.\n"
+                    "For a responsive UI, it is recommended to reduce the switch interval\n"
+                    "Note for the free-threaded build, this is not needed,\n"
+                    "as the GIL is not a problem in that case.\n")
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
         cpu_usage = dcg.ProgressBar(C, value=0.0, overlay="0% CPU Usage", width="0.3*fullx")
