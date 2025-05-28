@@ -1,7 +1,9 @@
 import asyncio
 from demo_utils import documented, democode, push_group, pop_group, launch_demo, demosection
 import dearcygui as dcg
-import dearcygui.utils.asyncio_helpers
+from dearcygui.utils.asyncio_helpers import run_viewport_loop, AsyncPoolExecutor, AsyncThreadPoolExecutor
+import gc
+import psutil
 import random
 
 
@@ -484,14 +486,14 @@ def _handlers(C: dcg.Context):
     
     toggle_button.callback = toggle_visibility
 
+push_group("Asyncio")
 
 @demosection(dcg.Viewport, dcg.Context, \
-             dearcygui.utils.asyncio_helpers.run_viewport_loop, \
-             dearcygui.utils.asyncio_helpers.AsyncPoolExecutor, \
-             dearcygui.utils.asyncio_helpers.AsyncThreadPoolExecutor, dcg.DrawArrow)
+             run_viewport_loop, \
+             AsyncPoolExecutor, \
+             AsyncThreadPoolExecutor)
 @documented
-@democode
-def _asyncio(C: dcg.Context):
+def _asyncio_introduction(C: dcg.Context):
     """
     ## Asyncio Integration
 
@@ -509,35 +511,123 @@ def _asyncio(C: dcg.Context):
     to an `AsyncPoolExecutor` instance, in order to have all DearCyGui callbacks
     and handlers run in the same event loop as your other asyncio tasks.
 
-    Example usage:
-    
-    ```python
-    ctx = dcg.Context()
-    ctx.queue = AsyncPoolExecutor()
-    viewport = ctx.viewport
-    [...] # setup your UI items here
-    viewport.initialize(width=800, height=600, title="Asyncio Demo")
-    asyncio.run(run_viewport_loop(viewport))
-    ```
-
     One noticeable advantage of `AsyncPoolExecutor` is that the callbacks and handlers
-    are run in the main thread, which allows to run callbacks code that has to
-    run into the main thread. For instance creating and running another context, or
-    calling dcg.os functions that require the main thread.
+    are run in the same thread as the rendering. This is important for some operations
+    that require the execution to occur in the thread the context was created in.
+
+    Operations that require running in the thread that created the context:
+    - Creating a new context (to have multiple viewports)
+    - Running rendering
+    - Some `dcg.os` functions
+    - Some viewport attributes and methods
+
+    `AsyncPoolExecutor` is not the default executor because while it can be
+    advantageous to run the main thread for the above reasons, it is more
+    sensitive to the heaviness of the tasks submitted to it. Indeed with the default
+    executor if a callback takes too long to run, the UI rendering is not blocked. Only
+    the callback processing is delayed. Meanwhile with `AsyncPoolExecutor`, if a callback
+    takes too long to run (heavy computations such as numpy operations), the UI rendering
+    is blocked until the callback finishes. Be careful ! Besides that, there is not a huge
+    performance difference as the rendering itself is very lightweight.
 
     The module also provides `AsyncThreadPoolExecutor`: A
-    thread pool executor that runs tasks in a separate thread. This executor can
-    be used as a drop-in replacement for the standard Context queue and does not
-    require using asyncio to run the viewport render loop.
+    thread pool executor that runs tasks in a separate thread. The main difference
+    with the default executor (which also runs tasks in a separate thread) is that
+    `AsyncThreadPoolExecutor` is designed to work with asyncio and can run `async def`
+    callbacks. It can be used as a drop-in replacement for the standard Context queue
+    and adds only a small overhead compared to the default executor.
 
     The main interest of `AsyncThreadPoolExecutor` is it allows running
     `async def` callbacks, which can be useful for callbacks that need to
     perform asynchronous operations without blocking the UI. `AsyncPoolExecutor` also
     supports `async def` callbacks, running them in the main thread rather than in a separate thread.
 
-    This demo is run using `AsyncThreadPoolExecutor`, and thus we can demonstrate
-    below the interest of async callbacks.
+    This demo runs using `run_viewport_loop` and `AsyncPoolExecutor`, and thus we can demonstrate
+    in this section the interest of async callbacks and running callbacks in the main thread.
     """
+
+@demosection(dcg.DrawArrow)
+@documented
+@democode
+def _timed_updates(C: dcg.Context):
+    """
+    ## Timed Updates with Async Callbacks
+
+    Any heavy computation in callbacks should be prohibited, as it
+    will block callback processing, and in the worst case
+    block the UI rendering (when using `AsyncPoolExecutor`).
+    Such heavy computations should be run in a separate thread.
+
+    That said, spawning threads for lightweight, but long-running
+    operations is not ideal. That's where asyncio comes in handy.
+
+    This section demonstrates how to use async callbacks to
+    create many objects with timed updates without blocking the UI.
+
+    Notice how with a huge number of arrows, the UI becomes less
+    responsible with `AsyncPoolExecutor`, while it remains
+    responsive with `AsyncThreadPoolExecutor`. This is because
+    `AsyncPoolExecutor` runs the callbacks in the same thread
+    as the rendering.
+
+    Note due to the GIL, on non-freethreaded builds,
+    `AsyncThreadPoolExecutor` will have trouble executing
+    many arrows due to GIL conflicts with the rendering thread.
+    """
+    number_of_arrows = 0
+    def number_of_arrows_callback(sender, target: dcg.Text):
+        nonlocal number_of_arrows
+        target.value = f"Number of arrows: {number_of_arrows}"
+    dcg.Text(C, value="Number of arrows: 0",
+             handlers=dcg.RenderHandler(C, callback=number_of_arrows_callback))
+
+    async def update_cpu_usage(sender, target: dcg.ProgressBar):
+        process = psutil.Process()
+        while target.visible:
+            # Update CPU usage
+            cpu_percent = process.cpu_percent()
+            target.value = cpu_percent / 100.
+            target.overlay = f"{cpu_percent:.2f}% CPU Usage"
+            C.viewport.wake()
+            await asyncio.sleep(0.5)  # Update every half-second
+
+    async def update_fps_usage(sender, target: dcg.ProgressBar):
+        last_frame_count = C.viewport.metrics["frame_count"]
+        while target.visible:
+            # Update FPS
+            current_frame_count = C.viewport.metrics["frame_count"]
+            fps = current_frame_count - last_frame_count  
+            target.value = min(fps / 100., 1.0)  # Normalize to 100fps max
+            target.overlay = f"{fps} FPS"
+            last_frame_count = current_frame_count
+            C.viewport.wake()
+            await asyncio.sleep(1.)  # Update every second
+
+    main_loop = asyncio.get_event_loop()
+    async def select_executor(sender: dcg.RadioButton, target, value: str):
+        try:
+            if value == "AsyncPoolExecutor":
+                C.queue = AsyncPoolExecutor(loop=main_loop)
+            else:
+                C.queue = AsyncThreadPoolExecutor()
+        except RuntimeError:
+            # Ignore queue shutdown error, as
+            # we are shutting down the queue
+            # from the queue itself
+            pass
+
+    dcg.RadioButton(C, items=["AsyncPoolExecutor", "AsyncThreadPoolExecutor"],
+                    value="AsyncPoolExecutor",
+                    callback=select_executor)
+
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
+        cpu_usage = dcg.ProgressBar(C, value=0.0, overlay="0% CPU Usage", width="0.3*fullx")
+        dcg.Spacer(C, width="0.1*fullx")
+        fps_bar = dcg.ProgressBar(C, value=0.0, overlay="0 FPS", width="0.3*fullx")
+        cpu_usage.handlers += [dcg.GotRenderHandler(C, callback=update_cpu_usage)]
+        fps_bar.handlers += [dcg.GotRenderHandler(C, callback=update_fps_usage)]
+
+    dcg.Spacer(C, height=50)
 
     async def create_and_move_arrow(target: dcg.uiItem):
         """
@@ -547,12 +637,14 @@ def _asyncio(C: dcg.Context):
         a new function to a thread queue, and resubmitting
         every time a new function when the arrow needs to be moved.
         """
+        nonlocal number_of_arrows
         C = target.context
         pos = target.pos_to_viewport
         pos.x += random.randint(0, int(target.rect_size.x))
         pos.y += target.rect_size.y + 2  # Position it below the item
-        with dcg.ViewportDrawList(C):
-            arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-4.)
+        with dcg.ViewportDrawList(C) as arrow_parent:
+            arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-1.)
+        number_of_arrows += 1
         # move the arrow downward then upward three times, then delete it
         for _ in range(3):
             # Move the arrow down
@@ -567,14 +659,90 @@ def _asyncio(C: dcg.Context):
                 arrow.p2 = pos + (0, 40-i)
                 C.viewport.wake()
                 await asyncio.sleep(0.01)
-        arrow.delete_item()  # Remove the arrow after the animation
+        number_of_arrows -= 1
+        arrow_parent.delete_item()  # Remove the arrow after the animation
         C.viewport.wake()
+
+    async def create_and_move_many_arrows(target: dcg.uiItem):
+        """
+        An async callback that creates many temporary arrows below the target item.
+        """
+        async with asyncio.TaskGroup() as tg:
+            for _ in range(40):
+                tg.create_task(create_and_move_arrow(target))
+
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
         dcg.Button(C, label="Click me to create temporary arrows",
-                   callback=create_and_move_arrow, repeat=True)
+                   callback=create_and_move_many_arrows, repeat=True)
     dcg.Spacer(C, height=50) 
 
+@demosection(dcg.Context, dcg.Viewport)
+@documented
+@democode
+def _multiviewport(C: dcg.Context):
+    """
+    ## Multiple Viewports
+    DearCyGui supports multiple viewports, allowing you to create separate UI contexts
+    that can run independently. Each viewport has its own context, allowing you to
+    create isolated UI elements that do not interfere with each other.
+
+    Constraints:
+    - Objects cannot be moved between contexts. Each base item contains a
+       `copy` method which takes a `target_context` parameter to copy between contexts.
+    - The `Context` items must all be created in the same thread.
+    - Rendering must be done in the same thread as the `Context` was created in.
+
+    Here we demonstrate creating multiple viewports using `AsyncPoolExecutor`.
+    """
+
+    async def create_viewport():
+        # Create a new viewport context
+        new_context = dcg.Context()
+        new_context.viewport.initialize(width=400, height=300, title="New Viewport")
+        
+        # Add some items to the new viewport
+        with dcg.Window(new_context, primary=True):
+            dcg.Text(new_context, value="This is a new viewport!", pos_to_default=(10, 10))
+
+            with dcg.DrawInWindow(new_context, width="fillx", height="filly"):
+                stars = []
+                for i in range(20):
+                    for j in range(10):
+                        star = dcg.DrawStar(new_context,
+                                            center=(50+100*i, 50+100*j),
+                                            direction=(i + j) * 0.1,  # Rotate based on position
+                                            radius=50,
+                                            inner_radius=20,
+                                            color=(0, 255, 0),
+                                            thickness=2.0)
+                        stars.append(star)
+
+        async def star_loop(new_context, stars):
+            """
+            An async loop that updates the star position in the new viewport.
+            This demonstrates how to run a separate loop for each viewport.
+            """
+            while new_context.running:
+                # Update the star position randomly
+                for star in stars:
+                    star.direction += 0.01  # Rotate the star
+                new_context.viewport.wake()
+                await asyncio.sleep(0.01)  # Sleep to allow other tasks to run
+
+        await asyncio.gather(
+            run_viewport_loop(new_context.viewport),  # Run the viewport loop
+            star_loop(new_context, stars)  # Run the star animation
+        )
+        # Hide the viewport right away rather than wait garbage collection
+        new_context.viewport.visible = False
+        new_context.viewport.wait_events(0.) # process the visibility change
+
+    # Create a button to trigger the creation of a new viewport
+    dcg.Button(C, label="Create New Viewport", callback=lambda: create_viewport())
+
+
+pop_group()  # End of the asyncio group
 
 @demosection(dcg.ChildWindow, dcg.Button, dcg.Text, dcg.Spacer, dcg.HorizontalLayout, dcg.VerticalLayout, dcg.Alignment)
 @documented

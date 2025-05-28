@@ -1,10 +1,11 @@
-import ast
+import asyncio
 from collections import OrderedDict
 import colorsys
 import dearcygui as dcg
-from dearcygui.utils.asyncio_helpers import AsyncThreadPoolExecutor
+from dearcygui.utils.asyncio_helpers import AsyncPoolExecutor, AsyncThreadPoolExecutor, run_viewport_loop
 import functools
 import inspect
+import psutil
 import re
 import traceback
 import textwrap
@@ -380,7 +381,7 @@ class DemoWindow(dcg.Window):
         super().__init__(context, label=title, primary=True, **kwargs)
         
         # Create the main controls bar
-        self._setup_controls()
+        self._setup_controls_and_status()
         
         # Create main tab bar
         self.main_tab_bar = dcg.TabBar(context, parent=self)
@@ -395,11 +396,89 @@ class DemoWindow(dcg.Window):
                 self._code_sections
             )
     
-    def _setup_controls(self):
+    def _setup_controls_and_status(self):
         """Set up the controls bar for visual parameters, etc"""
-        with dcg.MenuBar(self.context, parent=self) as self.doc_bar:
-            # These will be implemented later
-            pass
+        C = self.context
+        with dcg.MenuBar(C, parent=self) as bar:
+            self.doc_bar = dcg.Layout(C) # This will hold the documentation links
+            # status widgets
+            with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT):
+                async def update_cpu_usage(target: dcg.ProgressBar):
+                    process = psutil.Process()
+                    while C.running:
+                        # Update CPU usage
+                        cpu_percent = process.cpu_percent()
+                        target.value = cpu_percent / 100.
+                        prev_overlay = target.overlay
+                        target.overlay = f"{int(cpu_percent)}%"
+                        if prev_overlay != target.overlay:
+                            C.viewport.wake()
+                        await asyncio.sleep(5.)  # Update every five seconds
+
+                async def update_fps_usage(target: dcg.ProgressBar):
+                    last_frame_count = C.viewport.metrics["frame_count"]
+                    last_frame_time = C.viewport.metrics["last_time_after_swapping"] * 1e-9
+                    while C.running:
+                        # Update FPS
+                        current_frame_count = C.viewport.metrics["frame_count"]
+                        current_frame_time = C.viewport.metrics["last_time_after_swapping"] * 1e-9
+                        fps = (current_frame_count - last_frame_count) / max(0.0001, (current_frame_time - last_frame_time))
+                        target.value = min(fps / 120., 1.0)  # Normalize to 120fps max
+                        target.overlay = f"{int(fps)}"
+                        last_frame_count = current_frame_count
+                        last_frame_time = current_frame_time
+                        if current_frame_count <= last_frame_count + 5:
+                            # Do not cause rendering when it is not needed
+                            C.viewport.wake()
+                        await asyncio.sleep(0.5)  # Update every half-second
+
+                async def update_max_fps(target: dcg.ProgressBar):
+                    last_frame_count = C.viewport.metrics["frame_count"]
+                    while C.running:
+                        acc_deltas = 0.
+                        acc_count = 0
+                        while acc_count < 30 and C.running:
+                            current_frame_count = C.viewport.metrics["frame_count"]
+                            if last_frame_count == current_frame_count:
+                                # No new frames rendered, skip this iteration
+                                await asyncio.sleep(0.05)
+                                continue
+                            last_frame_count = current_frame_count
+                            metrics = C.viewport.metrics
+                            current_start_frame_time = metrics["last_time_before_event_handling"] * 1e-9
+                            current_end_frame_time = metrics["last_time_after_swapping"] * 1e-9
+                            acc_deltas += current_end_frame_time - current_start_frame_time
+                            acc_count += 1
+                            await asyncio.sleep(0.05)  # Wait for a short time to get a good average
+                        avg_delta = acc_deltas / max(1, acc_count)
+                        max_fps = 1.0 / max(0.0001, avg_delta)
+                        target.value = min(max_fps / 120., 1.0)  # Normalize to 120fps max
+                        target.overlay = f"{int(max_fps)}"
+
+
+                cpu_stat = dcg.ProgressBar(C, value=0.0, overlay="0%", width="0.05*bar.width")
+                with dcg.Tooltip(C):
+                    dcg.Text(C, value="CPU Usage")
+                    dcg.Text(C, value="This shows the CPU usage of the current process.")
+                dcg.Spacer(C, width="0.01*bar.width")
+                fps_stat = dcg.ProgressBar(C, value=0.0, overlay="0", width="0.05*bar.width")
+                with dcg.Tooltip(C):
+                    dcg.Text(C, value="Actual FPS")
+                    dcg.Text(C, value="This shows the current frames per second (FPS) of the viewport.")
+                    dcg.Text(C, value="A small value indicates frame rendering was skipped to save CPU/GPU time,")
+                    dcg.Text(C, value="or that other tasks are using a lot of CPU/GPU time.")
+                dcg.Spacer(C, width="0.01*bar.width")
+                max_fps_stat = dcg.ProgressBar(C, value=0.0, overlay="0", width="0.05*bar.width")
+                with dcg.Tooltip(C):
+                    dcg.Text(C, value="Max FPS")
+                    dcg.Text(C, value="This shows the maximum frames per second (FPS) that can be achieved (window rendering only).")
+                    dcg.Text(C, value="It is calculated based on the time taken to render recent frames.")
+                    dcg.Text(C, value="It is higher than the actual FPS if the viewport is not rendering frames at full speed.")
+                    dcg.Text(C, value="The value can appear lower temporarily if the CPU is an idle state.")
+                C.queue.submit(update_cpu_usage, cpu_stat)
+                C.queue.submit(update_fps_usage, fps_stat)
+                C.queue.submit(update_max_fps, max_fps_stat)
+
 
     def _build_item_tree(self, section_tree: OrderedDict):
         """Run the demo sections and put them in containers"""
@@ -866,19 +945,33 @@ class ItemDocumentation(dcg.Window):
         with self:
             display_item_documentation(self.context, self._object_class, show_inherited=value)
 
+"""
+Version without asyncio:
+"""
+def launch_demo_noasyncio(title="DearCyGui Demo"):
+    # Main function to run the demo
+    context = dcg.Context()
+    context.viewport.wait_for_input = True
+    context.viewport.initialize(title=title, width=950, height=750, vsync=True)
+    DemoWindow(context)
 
+    while context.running:
+        context.viewport.render_frame()
+
+
+        
 def launch_demo(title="DearCyGui Demo"):
     """
     Create a window displaying all the defined sections.
     """
     # Main function to run the demo
     context = dcg.Context()
-    context.viewport.wait_for_input = False # TODO: fix repeat button presses
-    context.queue = AsyncThreadPoolExecutor()
-    context.viewport.initialize(title=title, width=950, height=750, vsync=True)
-    window = DemoWindow(context)
+    loop = asyncio.get_event_loop()
+    context.queue = AsyncPoolExecutor()
+    context.viewport.wait_for_input = True
+    context.viewport.initialize(title=title, width=950, height=750)
+    DemoWindow(context)
 
-    while context.running:
-        context.viewport.render_frame()
+    loop.run_until_complete(run_viewport_loop(context.viewport))
     
 
