@@ -523,7 +523,7 @@ def _asyncio_introduction(C: dcg.Context):
     - Some viewport attributes and methods
 
     `AsyncPoolExecutor` is not the default executor because while it can be
-    advantageous to run the main thread for the above reasons, it is more
+    advantageous to run in the main thread for the above reasons, it is more
     sensitive to the heaviness of the tasks submitted to it. Indeed with the default
     executor if a callback takes too long to run, the UI rendering is not blocked. Only
     the callback processing is delayed. Meanwhile with `AsyncPoolExecutor`, if a callback
@@ -729,8 +729,13 @@ def _multiviewport(C: dcg.Context):
 
     async def create_viewport():
         # Create a new viewport context
-        new_context = dcg.Context()
-        new_context.viewport.initialize(width=400, height=300, title="New Viewport")
+        try:
+            new_context = dcg.Context()
+            new_context.viewport.initialize(width=400, height=300, title="New Viewport")
+        except Exception as e:
+            with dcg.Window(C, modal=True):
+                dcg.Text(C, value=f"Error creating new viewport: {e}")
+            return
         
         # Add some items to the new viewport
         with dcg.Window(new_context, primary=True):
