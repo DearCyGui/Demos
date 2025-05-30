@@ -3,8 +3,11 @@ from demo_utils import documented, democode, push_group, pop_group, launch_demo,
 import dearcygui as dcg
 from dearcygui.utils.asyncio_helpers import run_viewport_loop, AsyncPoolExecutor, AsyncThreadPoolExecutor
 import gc
+import math
 import psutil
 import random
+import threading
+import time
 import sys
 
 
@@ -501,6 +504,11 @@ def _asyncio_introduction(C: dcg.Context):
     The `dearcygui.utils.asyncio_helpers` module provides tools to integrate
     DearCyGui with asyncio, allowing you to run background tasks without blocking the UI.
 
+    The interest of using asyncio with DearCyGui are:
+    - Integrate with existing asyncio applications and libraries
+    - Running one or several light background tasks with time dependencies.
+    - Simplifying the management of applications that could spawn multiple viewports.
+
     If you want to run DearCyGui entirely in an asyncio event loop, two components are provided:
     - `run_viewport_loop`: A coroutine that runs the DearCyGui's `render_frame` loop asynchronously.
         This allows you to run the DearCyGui event and rendering loop alongside your asyncio tasks.
@@ -536,7 +544,7 @@ def _asyncio_introduction(C: dcg.Context):
     with the default executor (which also runs tasks in a separate thread) is that
     `AsyncThreadPoolExecutor` is designed to work with asyncio and can run `async def`
     callbacks. It can be used as a drop-in replacement for the standard Context queue
-    and adds only a small overhead compared to the default executor.
+    and adds only a minor overhead compared to the default executor.
 
     The main interest of `AsyncThreadPoolExecutor` is it allows running
     `async def` callbacks, which can be useful for callbacks that need to
@@ -605,17 +613,13 @@ def _timed_updates(C: dcg.Context):
             await asyncio.sleep(1.)  # Update every second
 
     main_loop = asyncio.get_event_loop()
-    async def select_executor(sender: dcg.RadioButton, target, value: str):
-        try:
-            if value == "AsyncPoolExecutor":
-                C.queue = AsyncPoolExecutor(loop=main_loop)
-            else:
-                C.queue = AsyncThreadPoolExecutor()
-        except RuntimeError:
-            # Ignore queue shutdown error, as
-            # we are shutting down the queue
-            # from the queue itself
-            pass
+    def select_executor(sender, target, value: str):
+        if value == "AsyncPoolExecutor":
+            C.queue = AsyncPoolExecutor(loop=main_loop)
+        else:
+            C.queue = AsyncThreadPoolExecutor()
+
+    use_threads = False
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
         dcg.RadioButton(C, items=["AsyncPoolExecutor", "AsyncThreadPoolExecutor"],
@@ -650,6 +654,17 @@ def _timed_updates(C: dcg.Context):
                     "For a responsive UI, it is recommended to reduce the switch interval\n"
                     "Note for the free-threaded build, this is not needed,\n"
                     "as the GIL is not a problem in that case.\n")
+
+            def toggle_threads(sender, target, value: bool):
+                nonlocal use_threads
+                use_threads = value
+
+            dcg.Checkbox(C, label="Use threads", callback=toggle_threads, value=False)
+            with dcg.Tooltip(C):
+                dcg.Text(C, value=\
+                    "Using one thread per arrow is suboptimal here, due to the\n"
+                    " overhead of thread management. Toggle this option to see\n"
+                    " the difference.")
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
         cpu_usage = dcg.ProgressBar(C, value=0.0, overlay="0% CPU Usage", width="0.3*fullx")
@@ -694,10 +709,60 @@ def _timed_updates(C: dcg.Context):
         arrow_parent.delete_item()  # Remove the arrow after the animation
         C.viewport.wake()
 
+    def own_thread(func):
+        """
+        Decorator to spawn a function in a separate thread
+        """
+        def wrapper(*args, **kwargs):
+            thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+            thread.start()
+        return wrapper
+
+    @own_thread
+    def create_and_move_arrow_threaded(target: dcg.uiItem):
+        """
+        An async callback that creates an temporary moving arrow below the target item.
+
+        A similar code not using async would need to submit
+        a new function to a thread queue, and resubmitting
+        every time a new function when the arrow needs to be moved.
+        """
+        nonlocal number_of_arrows
+        C = target.context
+        pos = target.pos_to_viewport
+        pos.x += random.randint(0, int(target.rect_size.x))
+        pos.y += target.rect_size.y + 2  # Position it below the item
+        with dcg.ViewportDrawList(C) as arrow_parent:
+            arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-1.)
+        number_of_arrows += 1
+        # move the arrow downward then upward three times, then delete it
+        for _ in range(3):
+            # Move the arrow down
+            for i in range(20):
+                arrow.p1 = pos + (0, i)
+                arrow.p2 = pos + (0, i+20)
+                C.viewport.wake()
+                time.sleep(0.01)
+            # Move the arrow up
+            for i in range(20):
+                arrow.p1 = pos + (0, 20-i)
+                arrow.p2 = pos + (0, 40-i)
+                C.viewport.wake()
+                time.sleep(0.01)
+        number_of_arrows -= 1
+        arrow_parent.delete_item()  # Remove the arrow after the animation
+        C.viewport.wake()
+
     async def create_and_move_many_arrows(target: dcg.uiItem):
         """
         An async callback that creates many temporary arrows below the target item.
         """
+        nonlocal use_threads
+        if use_threads:
+            for _ in range(40):
+                create_and_move_arrow_threaded(target)
+            return
+        # Use asyncio.TaskGroup to run multiple tasks concurrently
         async with asyncio.TaskGroup() as tg:
             for _ in range(40):
                 tg.create_task(create_and_move_arrow(target))
@@ -725,6 +790,9 @@ def _multiviewport(C: dcg.Context):
     - Rendering must be done in the same thread as the `Context` was created in.
 
     Here we demonstrate creating multiple viewports using `AsyncPoolExecutor`.
+
+    Note: You do not **need** to use `AsyncPoolExecutor` or asyncio for multiple viewports, you can
+    have a custom loop rendering all your open viewports for instance, and append to them.
     """
 
     async def create_viewport():
@@ -777,6 +845,236 @@ def _multiviewport(C: dcg.Context):
     # Create a button to trigger the creation of a new viewport
     dcg.Button(C, label="Create New Viewport", callback=lambda: create_viewport())
 
+
+@demosection(dcg.Context, dcg.Viewport)
+@documented
+@democode
+def Programing(C: dcg.Context):
+    """
+    ## Programing Style
+    
+    Using asyncio versus normal callbacks for timed animations and updates
+    are a matter of preference. It can lead to various code styles.
+
+    Below we demonstrate various styles to achieve the same result:
+    - Animation loop using asyncio in a callback
+    - Animation loop using a normal callback to start a thread
+    - Animation loop using a normal callback and class-based item
+    - Animation loop using asyncio not in a callback
+    """
+    # Make font with huge digits only
+    glyphset = dcg.make_extended_latin_font(200)
+    reduced_glyphset = dcg.GlyphSet(glyphset.height, glyphset.origin_y)
+    for i in range(10):
+        reduced_glyphset.add_glyph(ord(str(i)), *glyphset[ord(str(i))])
+    font_texture = dcg.FontTexture(C)
+    font_texture.add_custom_font(reduced_glyphset)
+    font_texture.build()
+    font = font_texture[0]
+
+    # 1. Animation loop using asyncio in a callback
+    def create_asyncio_callback_clock(width=200, running=threading.Event()):
+        with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
+            # Create the railroad pattern
+            railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)
+            
+            # Create the visual elements
+            arc = dcg.DrawArc(C, center=(0.5, 0.5), radius=(0.4, 0.4), 
+                              start_angle=0, end_angle=2*math.pi,
+                              color=(255, 255, 255), thickness=0.05,
+                              pattern=railroad_pattern,
+                              fill=(100, 100, 255, 100))
+            
+            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
+                                     text="00", font=font,
+                                     size=0.7, color=(255, 255, 255))
+            
+        # Attach the async callback as a handler
+        async def async_animation_handler(sender, target: dcg.DrawInWindow):
+            # Animation loop
+            while target.visible:
+                # Get current time and calculate rotation
+                now = time.time()
+                seconds = int(now % 60)
+                minute_progress = (now % 60) / 60.0
+                rotation = minute_progress * 2 * math.pi
+                
+                # Update the arc rotation
+                arc.rotation = rotation
+                
+                # Update the time text
+                time_text.text = f"{seconds:02d}"
+                
+                # Wake up the viewport to render the changes
+                C.viewport.wake()
+                
+                # Sleep until next update
+                await asyncio.sleep(0.05)  # Update 20 times per second
+            
+        draw_window.handlers += [dcg.GotRenderHandler(C, callback=async_animation_handler)]
+        return draw_window
+
+    # 2. Animation loop using a normal callback to start a thread
+    def create_threaded_clock(width=200):
+        with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
+            # Create the railroad pattern
+            railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)
+            
+            # Create the visual elements
+            arc = dcg.DrawArc(C, center=(0.5, 0.5), radius=(0.4, 0.4), 
+                              start_angle=0, end_angle=2*math.pi,
+                              color=(255, 255, 255), thickness=0.05,
+                              pattern=railroad_pattern,
+                              fill=(100, 100, 255, 100))
+            
+            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
+                                     text="00", font=font,
+                                     size=0.7, color=(255, 255, 255))
+            
+            # Define the update function that will run in a thread
+            def update_thread():
+                while draw_window.visible:
+                    # Get current time and calculate rotation
+                    now = time.time()
+                    seconds = int(now % 60)
+                    minute_progress = (now % 60) / 60.0
+                    rotation = minute_progress * 2 * math.pi
+
+                    # Update the arc rotation
+                    arc.rotation = rotation
+  
+                    # Update the time text
+                    time_text.text = f"{seconds:02d}"
+
+                    # Wake up the viewport to render the changes
+                    C.viewport.wake()
+
+                    # Sleep until next update
+                    time.sleep(0.05)  # Update 20 times per second
+
+            def start_thread():
+                # Start the update thread
+                thread = threading.Thread(target=update_thread, daemon=True)
+                thread.start()
+            # Attach the callback to start the thread when the draw window is created
+            draw_window.handlers += [dcg.GotRenderHandler(C, callback=start_thread)]
+        
+        return draw_window
+    
+    # 3. Animation loop using a normal callback and class-based item
+    class ClockWidget(dcg.DrawInWindow):
+        def __init__(self, context, width=200, height="self.width", **kwargs):
+            super().__init__(context, width=width, height=height, relative=True, **kwargs)
+            
+            # Create the railroad pattern
+            railroad_pattern = dcg.Pattern.railroad(context, scale_factor=5)
+            
+            # Create the visual elements
+            with self:
+                self._arc = dcg.DrawArc(C, center=(0.5, 0.5), radius=(0.4, 0.4), 
+                                       start_angle=0, end_angle=2*math.pi,
+                                       color=(255, 255, 255), thickness=0.05,
+                                       pattern=railroad_pattern,
+                                       fill=(100, 100, 255, 100))
+            
+                self._time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
+                                              text="00", font=font,
+                                              size=0.7, color=(255, 255, 255))
+            # Attach the render handler
+            self.handlers += [dcg.RenderHandler(context, callback=self._update_clock)]
+
+        # Add a render handler to update the clock
+        def _update_clock(self):
+            # Get current time and calculate rotation
+            now = time.time()
+            seconds = int(now % 60)
+            minute_progress = (now % 60) / 60.0
+            rotation = minute_progress * 2 * math.pi
+            
+            # Update the arc rotation
+            self._arc.rotation = rotation
+            
+            # Update the time text
+            self._time_text.text = f"{seconds:02d}"
+            
+            # Wake up the viewport to render the changes
+            self.context.viewport.wake()
+
+    # 4. Animation loop using asyncio not in a callback
+    def create_async_generator_clock(width=200):
+        with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
+            # Create the railroad pattern
+            railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)
+            
+            # Create the visual elements
+            arc = dcg.DrawArc(C, center=(0.5, 0.5), radius=(0.4, 0.4), 
+                              start_angle=0, end_angle=2*math.pi,
+                              color=(255, 255, 255), thickness=0.05,
+                              pattern=railroad_pattern,
+                              fill=(100, 100, 255, 100))
+            
+            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
+                                     text="00", font=font,
+                                     size=0.7, color=(255, 255, 255))
+            
+            # Create a render handler to use with the async generator
+            render_handler = dcg.RenderHandler(C)
+            draw_window.handlers += [render_handler]
+            
+            # Define the async animation function
+            async def run_animation():
+                # Using async generator from handlers attached to the DrawInWindow
+                async for _ in dcg.utils.handler.async_generator_from_handlers(render_handler):
+                    # Get current time and calculate rotation
+                    now = time.time()
+                    seconds = int(now % 60)
+                    minute_progress = (now % 60) / 60.0
+                    rotation = minute_progress * 2 * math.pi
+                    
+                    # Update the arc rotation
+                    arc.rotation = rotation
+                    
+                    # Update the time text
+                    time_text.text = f"{seconds:02d}"
+                    
+                    # Wake up the viewport to render the changes
+                    C.viewport.wake()
+            
+            # Submit the async animation task
+            C.queue.submit(run_animation())
+        
+        return draw_window
+
+    # Display all clocks side by side in a horizontal layout
+    with dcg.HorizontalLayout(C) as hl:
+        parent_window = hl.parent
+        target_width = dcg.parse_size("parent_window.width/4.2")
+        # 1. Async callback version
+        with dcg.TreeNode(C, label="20 fps refresh rate animations",
+                          span_text_width=True, value=True):
+            with dcg.HorizontalLayout(C, width=2*target_width, no_wrap=True):
+                with dcg.VerticalLayout(C):
+                    dcg.Text(C, value="Asyncio in Callback")
+                    create_asyncio_callback_clock(width=target_width)
+
+        # 2. Threaded version
+                with dcg.VerticalLayout(C):
+                    dcg.Text(C, value="Thread-based")
+                    create_threaded_clock(width=target_width)
+
+        with dcg.TreeNode(C, label="Full fps animations (watch cpu usage when enabling)",
+                          span_text_width=True):
+        # 3. Class-based version
+            with dcg.HorizontalLayout(C, no_wrap=True):
+                with dcg.VerticalLayout(C):
+                    dcg.Text(C, value="Class-based")
+                    ClockWidget(C, width=target_width)
+        
+        # 4. Async generator version
+                with dcg.VerticalLayout(C):
+                    dcg.Text(C, value="Asyncio Generator")
+                    create_async_generator_clock(width=target_width)
+    
 
 pop_group()  # End of the asyncio group
 
