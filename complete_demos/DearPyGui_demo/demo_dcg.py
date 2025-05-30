@@ -1075,11 +1075,11 @@ def show_demo(C : dcg.Context):
                     print(f"Selected paths: {paths}")
 
                 dcg.Button(C, label="Show File Open Dialog", 
-                             callback=lambda: dcg.show_open_file_dialog(C, _log_paths))
+                             callback=lambda: dcg.os.show_open_file_dialog(C, _log_paths))
                 dcg.Button(C, label="Show File Open Dialog (multiple files selectable)", 
-                             callback=lambda: dcg.show_open_file_dialog(C, _log_paths, allow_multiple_files=True))
+                             callback=lambda: dcg.os.show_open_file_dialog(C, _log_paths, allow_multiple_files=True))
                 dcg.Button(C, label="Show File Open Dialog (with filters, etc)", 
-                             callback=lambda: dcg.show_open_file_dialog(C,
+                             callback=lambda: dcg.os.show_open_file_dialog(C,
                                                                         _log_paths,
                                                                         allow_multiple_files=True,
                                                                         filters=[("Python", "py;pyw"), ("All Files", "*")],
@@ -1088,11 +1088,11 @@ def show_demo(C : dcg.Context):
                                                                         accept="Yes",
                                                                         cancel="No"))
                 dcg.Button(C, label="Show File Save Dialog",
-                             callback=lambda: dcg.show_save_file_dialog(C, _log_paths))
+                             callback=lambda: dcg.os.show_save_file_dialog(C, _log_paths))
                 dcg.Button(C, label="Show Folder Dialog",
-                             callback=lambda: dcg.show_open_folder_dialog(C, _log_paths))
+                             callback=lambda: dcg.os.show_open_folder_dialog(C, _log_paths))
                 dcg.Button(C, label="Show Folder Dialog (multiple directories selectable)",
-                             callback=lambda: dcg.show_open_folder_dialog(C, _log_paths, allow_multiple_files=True))
+                             callback=lambda: dcg.os.show_open_folder_dialog(C, _log_paths, allow_multiple_files=True))
 
         with dcg.CollapsingHeader(C, label="Tooltips"):
             dcg.Text(C, value="Tooltips are floating windows that appear on hovering. Tooltips can be \n"

@@ -1581,13 +1581,13 @@ def item_visible_handler(*, label: str =None, user_data: Any =None, callback: Ca
 
 def key_down_handler(key : int =mvKey_None, *, label: str =None, user_data: Any =None, callback: Callable =None, show: bool =True, parent: Union[int, str] =mvReservedUUID_1, **kwargs) -> Union[int, str]:
     if key is mvKey_None:
-        return dcg.utils.AnyKeyDownHandler(CONTEXT, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
+        return dcg.AnyKeyDownHandler(CONTEXT, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
     else:
         return dcg.KeyDownHandler(CONTEXT, key=key, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
 
 def key_press_handler(key : int =mvKey_None, *, label: str =None, user_data: Any =None, callback: Callable =None, show: bool =True, parent: Union[int, str] =mvReservedUUID_1, **kwargs) -> Union[int, str]:
     if key is mvKey_None:
-        return dcg.utils.AnyKeyPressHandler(CONTEXT, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
+        return dcg.AnyKeyPressHandler(CONTEXT, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
     else:
         return dcg.KeyPressHandler(CONTEXT, key=key, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
 

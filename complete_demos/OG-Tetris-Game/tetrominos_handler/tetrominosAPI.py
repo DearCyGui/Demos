@@ -35,7 +35,7 @@ def create_blocksDispatcher(sender):
     C = typing.cast(TetrisContext, sender.context)
     # Function creates a new thread that controls the continuous movement of the new blocks
     C.viewport.handlers += [
-        dcg.utils.AnyKeyPressHandler(C, callback=tetrominos_handler.key_press_handler)
+        dcg.AnyKeyPressHandler(C, callback=tetrominos_handler.keys_press_handler)
     ]
     C.play_button.enabled = False
     C.play_button.theme = C.play_button_theme
@@ -223,3 +223,6 @@ def key_press_handler(sender, target, key):
     current_block_lock.release()
     C.viewport.wake() # Trigger draw (wait_for_input)
 
+def keys_press_handler(sender, target, keys):
+    for key in keys:
+        key_press_handler(sender, target, key)
