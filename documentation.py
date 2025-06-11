@@ -695,7 +695,7 @@ def launch_documentation():
     while C.running:
         # can_skip_presenting: no GPU re-rendering on input that has no impact (such as mouse motion) 
         C.viewport.render_frame()
-        
+
 
 if __name__ == '__main__':
     launch_documentation()

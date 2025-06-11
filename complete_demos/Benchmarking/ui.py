@@ -178,7 +178,7 @@ async def start_benchmark(sender):
         else:
             # Reuse the previous plot window
             plot_window.show = True
-            plot_window.focused = True
+            plot_window.focus()
         with dcg.ChildWindow(C, width="fillx", height="0.8*fully", parent=plot_window) as window:
             with dcg.HorizontalLayout(C):
                 dcg.Text(C, value=benchmark.short_description + ": ")
@@ -295,7 +295,7 @@ async def start_benchmark(sender):
                 else:
                     # Append to previous results
                     summary_window.show = True
-                    summary_window.focused = True
+                    summary_window.focus()
 
                 with summary_window:
                     dcg.Text(C, value=f"Summary for: {benchmark.short_description}")

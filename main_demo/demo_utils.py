@@ -402,7 +402,7 @@ class DemoWindow(dcg.Window):
         with dcg.MenuBar(C, parent=self) as bar:
             self.doc_bar = dcg.Layout(C) # This will hold the documentation links
             # status widgets
-            with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT):
+            with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT, no_wrap=True):
                 async def update_cpu_usage(target: dcg.ProgressBar):
                     process = psutil.Process()
                     while C.running:

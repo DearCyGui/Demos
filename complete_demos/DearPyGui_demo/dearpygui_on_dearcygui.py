@@ -100,10 +100,8 @@ class DPGWrapper:
         if "pos" in kwargs:
             pos = kwargs.pop("pos")
             if pos is not None and len(pos) == 2:
-                if isinstance(self, dcg_base.Window):
-                    kwargs["pos_to_viewport"] = pos
-                else:
-                    kwargs["pos_to_window"] = pos
+                kwargs["x"] = "parent.x1" + pos[0]
+                kwargs["y"] = "parent.y1" + pos[1]
 
         # Handle callback
         if "callback" in kwargs:
@@ -1101,7 +1099,8 @@ def set_item_source(item: Union[int, str], source: Union[int, str]):
 def set_item_pos(item: Union[int, str], pos: List[float]):
     # Contrary to the description, DPG does it against
     # the window, not the parent.
-    CONTEXT.get(item).pos_to_window = pos
+    CONTEXT.get(item).x = "parent.x1" + pos[0]
+    CONTEXT.get(item).y = "parent.y1" + pos[1]
 
 def set_item_width(item: Union[int, str], width: int):
     CONTEXT.get(item).width = width
@@ -1164,40 +1163,40 @@ def get_item_source(item: Union[int, str]) -> Union[str, None]:
 ########################################################################################################################
 
 def is_item_hovered(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).hovered
+    return CONTEXT.get(item).state.hovered
 
 def is_item_active(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).active
+    return CONTEXT.get(item).state.active
 
 def is_item_focused(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).focused
+    return CONTEXT.get(item).state.focused
 
 def is_item_clicked(item: Union[int, str]) -> Union[bool, None]:
     return max(CONTEXT.get(item).clicked)
 
 def is_item_left_clicked(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).clicked[0]
+    return CONTEXT.get(item).state.clicked[0]
 
 def is_item_right_clicked(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).clicked[1]
+    return CONTEXT.get(item).state.clicked[1]
 
 def is_item_middle_clicked(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).clicked[2]
+    return CONTEXT.get(item).state.clicked[2]
 
 def is_item_visible(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).visible
+    return CONTEXT.get(item).state.visible
 
 def is_item_edited(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).edited
+    return CONTEXT.get(item).state.edited
 
 def is_item_activated(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).activated
+    return CONTEXT.get(item).state.activated
 
 def is_item_deactivated(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).deactivated
+    return CONTEXT.get(item).state.deactivated
 
 def is_item_deactivated_after_edit(item: Union[int, str]) -> Union[bool, None]:
-    return CONTEXT.get(item).deactivated_after_edited
+    return CONTEXT.get(item).state.deactivated_after_edited
 
 def is_item_ok(item: Union[int, str]) -> Union[bool, None]:
     return True
@@ -1213,19 +1212,19 @@ def is_item_enabled(item: Union[int, str]) -> Union[bool, None]:
         return True
 
 def get_item_pos(item: Union[int, str]) -> List[int]:
-    return CONTEXT.get(item).pos
+    return CONTEXT.get(item).state.pos_to_window
 
 def get_available_content_region(item: Union[int, str]) -> List[int]:
-    return CONTEXT.get(item).content_region_avail
+    return CONTEXT.get(item).state.content_region_avail
 
 def get_item_rect_size(item: Union[int, str]) -> List[int]:
-    return CONTEXT.get(item).rect_size
+    return CONTEXT.get(item).state.rect_size
 
 def get_item_rect_min(item: Union[int, str]) -> List[int]:
-    return CONTEXT.get(item).rect_min
+    raise NotImplementedError()
 
 def get_item_rect_max(item: Union[int, str]) -> List[int]:
-    return CONTEXT.get(item).rect_max
+    raise NotImplementedError()
 
 ########################################################################################################################
 # Viewport Setter Commands
@@ -2104,7 +2103,7 @@ def fit_axis_data(axis : Union[int, str], **kwargs) -> None:
     return CONTEXT.get(axis).fit()
 
 def focus_item(item : Union[int, str], **kwargs) -> None:
-    CONTEXT.get(item).focused = True
+    CONTEXT.get(item).focus()
 
 def generate_uuid(**kwargs) -> Union[int, str]:
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -2242,7 +2241,7 @@ def get_item_info(item : Union[int, str], **kwargs) -> dict:
     return result
 
 def get_item_state(item : Union[int, str], **kwargs) -> dict:
-    item = CONTEXT.get(item)
+    item = CONTEXT.get(item).state
     result = {}
     keys = ["hovered", "active", "activated", "deactivated",
             "edited", "focused", "edited", "rect_size",
@@ -2420,7 +2419,8 @@ def reset_axis_zoom_constraints(axis : Union[int, str], **kwargs) -> None:
     item.zoom_max = math.inf
 
 def reset_pos(item : Union[int, str], **kwargs) -> None:
-    CONTEXT.get(item).pos_to_default = (0, 0)
+    CONTEXT.get(item).x = 0
+    CONTEXT.get(item).y = 0
 
 def set_axis_limits(axis : Union[int, str], ymin : float, ymax : float, **kwargs) -> None:
     item = CONTEXT.get(axis)

@@ -261,8 +261,8 @@ def _theme_color_imgui(C: dcg.Context):
             popup_bg_btn = dcg.Button(C, label="Show PopupBg")
             def show_popup_bg():
                 popup = dcg.Window(C, label="PopupBg Demo", width=150, height=80, popup=True,
-                                 pos_to_viewport=(400, 300),
-                                 theme=dcg.ThemeColorImGui(C, PopupBg=(80, 60, 60)))
+                                   x=400, y=300,
+                                   theme=dcg.ThemeColorImGui(C, PopupBg=(80, 60, 60)))
                 with popup:
                     dcg.Text(C, value="Popup background")
                     dcg.Button(C, label="Close", callback=popup.delete_item)

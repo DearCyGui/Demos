@@ -132,7 +132,7 @@ def _configuring_items(C: dcg.Context):
     button2.label = "Configured after creation"
     
     # You can also read properties at any time
-    dcg.Text(C, value=f"Button2 width: {button2.width}")
+    dcg.Text(C, value=f"Button2 width: {float(button2.width)}")
     
     # Some properties can affect appearance and behavior
     dcg.Button(C, 
@@ -288,7 +288,7 @@ def _menu_bars(C: dcg.Context):
                     label="Child Window with Menu Bar",
                     width=500, 
                     height=300,
-                    pos_to_default=(100, 100)):
+                    x=100, y=100):
         
         # Create the menu bar
         with dcg.MenuBar(C):
@@ -592,7 +592,7 @@ def _timed_updates(C: dcg.Context):
 
     async def update_cpu_usage(sender, target: dcg.ProgressBar):
         process = psutil.Process()
-        while target.visible:
+        while target.state.visible:
             # Update CPU usage
             cpu_percent = process.cpu_percent()
             target.value = cpu_percent / 100.
@@ -602,7 +602,7 @@ def _timed_updates(C: dcg.Context):
 
     async def update_fps_usage(sender, target: dcg.ProgressBar):
         last_frame_count = C.viewport.metrics["frame_count"]
-        while target.visible:
+        while target.state.visible:
             # Update FPS
             current_frame_count = C.viewport.metrics["frame_count"]
             fps = current_frame_count - last_frame_count  
@@ -685,9 +685,9 @@ def _timed_updates(C: dcg.Context):
         """
         nonlocal number_of_arrows
         C = target.context
-        pos = target.pos_to_viewport
-        pos.x += random.randint(0, int(target.rect_size.x))
-        pos.y += target.rect_size.y + 2  # Position it below the item
+        pos = target.state.pos_to_viewport
+        pos.x += random.randint(0, int(target.state.rect_size.x))
+        pos.y += target.state.rect_size.y + 2  # Position it below the item
         with dcg.ViewportDrawList(C) as arrow_parent:
             arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-1.)
         number_of_arrows += 1
@@ -729,9 +729,9 @@ def _timed_updates(C: dcg.Context):
         """
         nonlocal number_of_arrows
         C = target.context
-        pos = target.pos_to_viewport
-        pos.x += random.randint(0, int(target.rect_size.x))
-        pos.y += target.rect_size.y + 2  # Position it below the item
+        pos = target.state.pos_to_viewport
+        pos.x += random.randint(0, int(target.state.rect_size.x))
+        pos.y += target.state.rect_size.y + 2  # Position it below the item
         with dcg.ViewportDrawList(C) as arrow_parent:
             arrow = dcg.DrawArrow(C, p1=pos, p2=(pos.x, pos.y + 20), color=(255, 0, 0), thickness=-1.)
         number_of_arrows += 1
@@ -807,7 +807,7 @@ def _multiviewport(C: dcg.Context):
         
         # Add some items to the new viewport
         with dcg.Window(new_context, primary=True):
-            dcg.Text(new_context, value="This is a new viewport!", pos_to_default=(10, 10))
+            dcg.Text(new_context, value="This is a new viewport!", x=10, y=10)
 
             with dcg.DrawInWindow(new_context, width="fillx", height="filly"):
                 stars = []
@@ -892,7 +892,7 @@ def Programing(C: dcg.Context):
         # Attach the async callback as a handler
         async def async_animation_handler(sender, target: dcg.DrawInWindow):
             # Animation loop
-            while target.visible:
+            while target.state.visible:
                 # Get current time and calculate rotation
                 now = time.time()
                 seconds = int(now % 60)
@@ -933,7 +933,7 @@ def Programing(C: dcg.Context):
             
             # Define the update function that will run in a thread
             def update_thread():
-                while draw_window.visible:
+                while draw_window.state.visible:
                     # Get current time and calculate rotation
                     now = time.time()
                     seconds = int(now % 60)
@@ -1091,9 +1091,10 @@ def _positioning(C: dcg.Context):
     
     Several approaches are available for controlling position and size:
     
-    - **Default Flow Layout**: Items are placed at the current cursor position
+    - **Default Flow Layout**: Items are placed at the current cursor position. The cursor
+        moves down to the next line after each item, unless `no_newline` is used.
     - **Size Control**: Using `width` and `height` to set dimensions
-    - **Positioning Attributes**: `pos_to_parent`, `pos_to_window`, and `pos_to_viewport`
+    - **Positioning Attributes**: `x` and `y` for manual positioning
     - **Flow Control**: `no_newline` to place items horizontally
     - **Layout Helpers**: Spacers, Separators, and Layout containers
     
@@ -1105,13 +1106,23 @@ def _positioning(C: dcg.Context):
         This is useful for instance if you want some items to be a percentage of the
         size of a target item.
 
-    ### Supported size string formulas:
+    Position values can be:
+    - **Positive**: Exact pixel offset from the current cursor position (scaled by global scale)
+    - **Zero**: Default position (current cursor position)
+    - A string describing a formula to update the position every time the item is rendered,
+        in viewport coordinates.
+
+    ### Supported size and position string formulas:
 
     The following keywords are supported:
     - `fillx`: Fill available width
     - `filly`: Fill available height
-    - `fullx`: Full parent width (no position offset)
-    - `fully`: Full parent height (no position offset)
+    - `fullx`: Full parent content width (no position offset)
+    - `fully`: Full parent content height (no position offset)
+    - `parent.width`: Width of the parent item (larger than fullx as contains parent borders)
+    - `parent.height`: Height of the parent item (larger than fully as contains parent borders)
+    - `viewport.width`: Width of the viewport (application window)
+    - `viewport.height`: Height of the viewport (application window)
     - `min`: Take minimum of two size values
     - `max`: Take maximum of two size values
     - `mean`: Calculate the mean (average) of two or more size values
@@ -1119,6 +1130,7 @@ def _positioning(C: dcg.Context):
     - `self.width`: Reference to the width of the current item
     - `self.height`: Reference to the height of the current item
     - `item.width`/`item.height`: Reference to another item's size (item must be in globals()/locals())
+    - `{self, parent, item}.{x1, x2, xc, y1, y2, yc}`: Reference to left/center/right/top/bottom of the current, parent, or a target item.
     - `+`, `-`, `*`, `/`, `//`, `%`, `**`: Arithmetic operators. Parentheses can be used for grouping.
     - `abs()`: Absolute value function
     - Numbers: Fixed size in pixels (NOT dpi scaled. Use dpi keyword for that)
@@ -1153,16 +1165,19 @@ def _positioning(C: dcg.Context):
     # Different positioning methods
     dcg.Text(C, value="Positioning Methods:")
     
-    # Create a container to demonstrate positions
+    # Create a container to demonstrate positions (here applied only on x)
     with dcg.ChildWindow(C, width=400, height=200, border=True, label="Positioning Demo"):
-        # Position relative to window
-        dcg.Button(C, label="pos_to_window", width=120, pos_to_window=(50, 30))
-        
-        # Position relative to parent (same as window in this case)
-        dcg.Button(C, label="pos_to_parent", width=120, pos_to_parent=(50, 80))
+        # Position relative to cursor
+        dcg.Button(C, label="Relative to cursor", x=10, y=10)
+
+        # Position relative to parent
+        b2 = dcg.Button(C, label="Relative to parent", x="parent.x1 + 50")
+
+        # Position relative to another item (using globals)
+        dcg.Button(C, label="Relative to a sibling", x="b2.xc - self.width/2")
         
         # Position relative to viewport (application window)
-        dcg.Button(C, label="pos_to_viewport", width=120, pos_to_viewport=(500, 30))
+        dcg.Button(C, label="Relative to viewport", x="100")
     
     dcg.Spacer(C, height=20)
     

@@ -82,7 +82,7 @@ def add_help_symbol(target, message):
 def show_demo(C : dcg.Context):
     with dcg.Window(C, label="DearCyGui Demo",
                     width=800, height=800,
-                    pos_to_viewport=(100, 100)) as __demo_id:
+                    x=100, y=100) as __demo_id:
         with dcg.MenuBar(C):
             with dcg.Menu(C, label="Menu"):
                 dcg.Text(C, value="This menu is just for show!")
@@ -700,11 +700,14 @@ def show_demo(C : dcg.Context):
                 dcg.Button(C, label="Button 3")
 
             with dcg.TreeNode(C, label="Absolute Position Placement"):
+                window = __demo_id
                 dcg.Button(C, label="Set Button 2 Pos", 
-                          callback=lambda: B2.configure(pos_to_window=(50, 125)))
+                           callback=lambda: B2.configure(x=window.x + "50 * dpi",
+                                                         y=window.y + "125 * dpi"))
                 dcg.Button(C, label="Reset Button 2 Pos",
-                          callback=lambda: B2.configure(pos_to_window=None))
-                dcg.Button(C, label="Button 1", pos_to_window=(50,50), width=75, height=75)
+                           callback=lambda: B2.configure(x=0, y=0))
+                dcg.Button(C, label="Button 1", x="window.x1 + 50 * dpi",
+                           y="window.y1 + 50 * dpi", width=75, height=75)
                 B2 = dcg.Button(C, label="Button 2", width=75, height=75)
                 dcg.Button(C, label="Button 3")
 

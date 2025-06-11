@@ -760,7 +760,7 @@ def _tabs_and_tabbar(C: dcg.Context):
     
 
 @demosection(dcg.Spacer, dcg.Separator, dcg.baseSizing, dcg.parse_size, dcg.HorizontalLayout,
-             dcg.VerticalLayout, dcg.WindowHorizontalLayout, dcg.WindowVerticalLayout)
+             dcg.VerticalLayout)
 @documented
 @democode
 def _positioning_and_sizing(C: dcg.Context):
@@ -834,11 +834,11 @@ def _positioning_and_sizing(C: dcg.Context):
     # Container for positioned items
     with dcg.ChildWindow(C, width=300, height=200, border=True):
         # Anchored to specific positions
-        dcg.Button(C, label="Top Left", pos_to_parent=(10, 10), width=100)
-        dcg.Button(C, label="Top Right", pos_to_parent=(190, 10), width=100)
-        dcg.Button(C, label="Bottom Left", pos_to_parent=(10, 160), width=100)
-        dcg.Button(C, label="Bottom Right", pos_to_parent=(190, 160), width=100)
-        dcg.Button(C, label="Center", pos_to_parent=(100, 85), width=100)
+        dcg.Button(C, label="Top Left", x="parent.x1+10 * dpi", y="parent.y1+10*dpi", width=100)
+        dcg.Button(C, label="Top Right", x="parent.x2-self.width-10*dpi", y="parent.y1+10*dpi", width=100)
+        dcg.Button(C, label="Bottom Left", x="parent.x1+10 * dpi", y="parent.y2-self.height-10*dpi", width=100)
+        dcg.Button(C, label="Bottom Right", x="parent.x2-self.width-10*dpi", y="parent.y2-self.height-10*dpi", width=100)
+        dcg.Button(C, label="Center", x="parent.xc-self.width/2", y="parent.yc-self.height/2", width=100)
     
     dcg.Spacer(C, height=20)
     
@@ -1273,7 +1273,7 @@ def _popups_and_modals(C: dcg.Context):
                           popup=True,
                           width=300,
                           height=200,
-                          pos_to_viewport=(400, 300))
+                          x=400, y=300)
         
         with popup:
             dcg.Text(C, value="This is a basic popup window")
@@ -1300,7 +1300,7 @@ def _popups_and_modals(C: dcg.Context):
                           no_resize=True,
                           width=350,
                           height=200,
-                          pos_to_viewport=(400, 300))
+                          x=400, y=300)
         
         with modal:
             dcg.Text(C, value="This is a modal dialog")
@@ -1326,7 +1326,7 @@ def _popups_and_modals(C: dcg.Context):
                                   no_resize=True,
                                   width=350,
                                   height=150,
-                                  pos_to_viewport=(400, 300))
+                                  x=400, y=300)
         
         with confirm_modal:
             dcg.Text(C, value="Are you sure you want to proceed?")
@@ -1366,7 +1366,8 @@ def _popups_and_modals(C: dcg.Context):
                          popup=True, 
                          no_title_bar=True,
                          no_resize=True,
-                         pos_to_viewport=C.get_mouse_position())
+                         x=C.get_mouse_position()[0],
+                         y=C.get_mouse_position()[1])
         
         with menu:
             dcg.Text(C, value="Context Menu")
@@ -1399,7 +1400,7 @@ def _popups_and_modals(C: dcg.Context):
                                popup=True,
                                width=400,
                                height=300,
-                               pos_to_viewport=(400, 250))
+                               x=400, y=250)
         
         # Form data
         name = dcg.SharedStr(C, value="")
@@ -1443,7 +1444,7 @@ def _popups_and_modals(C: dcg.Context):
                           no_resize=True,
                           width=250,
                           height=80,
-                          pos_to_viewport=(C.viewport.width - 260, C.viewport.height - 90))
+                          x=float(C.viewport.width) - 260, y=float(C.viewport.height) - 90)
         
         with notif:
             dcg.Text(C, value="Notification", color=(255, 255, 0))

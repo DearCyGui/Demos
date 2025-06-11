@@ -1488,7 +1488,7 @@ def _table_handlers(C: dcg.Context):
     
     # Add table content resize handler
     def on_table_resize(sender, target, data):
-        status.value = f"Table was resized ({target.rect_size})"
+        status.value = f"Table was resized ({target.state.rect_size})"
         C.viewport.wake()
     
     # Attach the handlers to the table

@@ -275,7 +275,8 @@ def demo_moderngl_sharing():
         frame_time = current_time - last_time
         frame_times.append(frame_time)
         last_time = current_time
-        C.viewport.render_frame()
+        while not C.viewport.render_frame():
+            pass
         rendering_type_value = rendering_type.value
         if rendering_type_value == "glFinish":
             cube.render_finish(angle1.value, angle2.value, angle3.value)

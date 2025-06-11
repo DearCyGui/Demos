@@ -352,7 +352,7 @@ async def item_creation_methods(C: dcg.Context):
             return dcg.Button.__init__(self, context, **kwargs)
     
     params = {
-        "width": 4, "height": 8, "no_scaling": True, "focused": True,
+        "width": 4, "height": 8, "x": 0, "y": 0,
         "arrow": dcg.ButtonDirection.UP, "show": True, "context": C,
         "enabled": True, "no_newline": True, "indent": 1, "scaling_factor": 2.
     }
