@@ -189,8 +189,8 @@ def show_demo(C : dcg.Context):
                 dcg.InputValue(C, label="input scientific", format="float", print_format="%e", callback=_log)
 
                 dcg.InputValue(C, label="input floatx", format="float", size=4, callback=_log, value=[1,2,3,4])
-                dcg.InputValue(C, label="input double", format="double", print_format="%.14f", callback=_log)
-                dcg.InputValue(C, label="input doublex", format="double", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
+                dcg.InputValue(C, label="input double", format="float", print_format="%.14f", callback=_log)
+                dcg.InputValue(C, label="input doublex", format="float", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
 
                 drag_int = dcg.Slider(C, label="drag int", format="int", drag=True, callback=_log)
                 add_help_symbol(drag_int, 
@@ -207,7 +207,7 @@ def show_demo(C : dcg.Context):
                 add_help_symbol(slider_int, "CTRL+click to enter value.")
                 
                 dcg.Slider(C, label="slider float", format="float", print_format="ratio = %.3f", max_value=1.0, callback=_log)
-                dcg.Slider(C, label="slider double", format="double", print_format="ratio = %.14f", max_value=1.0, callback=_log)
+                dcg.Slider(C, label="slider double", format="float", print_format="ratio = %.14f", max_value=1.0, callback=_log)
                 dcg.Slider(C, label="slider angle", format="int", print_format="%d deg", min_value=-360, max_value=360, callback=_log)
 
                 add_help_symbol(dcg.ColorEdit(C, label="color edit 4", value=(102, 179, 0, 128), callback=_log),
@@ -486,15 +486,6 @@ def show_demo(C : dcg.Context):
                                    format="float", size=i, drag=True)
                         dcg.Slider(C, label=f"slider float {i}", shareable_value=float_source.shareable_value,
                                    format="float", size=i)
-
-                    with dcg.VerticalLayout(C):
-                        double_source = dcg.InputValue(C, label=f"input double {i}",
-                                                       min_value=0.0, max_value=100.0,
-                                                       format="double", size=i)
-                        dcg.Slider(C, label=f"drag double {i}", shareable_value=double_source.shareable_value,
-                                   format="double", size=i, drag=True)
-                        dcg.Slider(C, label=f"slider double {i}", shareable_value=double_source.shareable_value,
-                                   format="double", size=i)
 
                     with dcg.VerticalLayout(C):
                         int_source = dcg.InputValue(C, label=f"input int {i}",

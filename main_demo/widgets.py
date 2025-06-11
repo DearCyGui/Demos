@@ -268,7 +268,7 @@ def _sliders(C: dcg.Context):
                 logarithmic=True, callback=slider_callback)
 
     # Multi-component slider (vector). Max 4 components
-    dcg.Slider(C, label="Position", format="double", size=2,
+    dcg.Slider(C, label="Position", format="float", size=2,
                 min_value=-10.0, max_value=10.0,
                 value=[3.0, 0.0], callback=slider_callback)
 
