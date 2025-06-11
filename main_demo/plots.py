@@ -122,14 +122,14 @@ def _scatter_markers(C: dcg.Context):
 
     #### Color customization:
     `ThemeColorImPlot` has various properties available to affect scatter plots:
-    - `Line`: This attribute affects the default color of many plot items,
+    - `line`: This attribute affects the default color of many plot items,
         including scatter plots.
-    - `MarkerFill`: This attribute affects the fill color of markers.
-    - `MarkerOutline`: This attribute affects the outline color of markers.
+    - `marker_fill`: This attribute affects the fill color of markers.
+    - `marker_outline`: This attribute affects the outline color of markers.
 
     #### Marker customization:
     `ThemeStyleImPlot` has various properties available to affect scatter plots:
-    - `Marker`: This attribute affects the shape of the markers and must a valid `dcg.PlotMarker` value:
+    - `marker`: This attribute affects the shape of the markers and must a valid `dcg.PlotMarker` value:
         - `dcg.PlotMarker.CIRCLE`: A circular marker
         - `dcg.PlotMarker.SQUARE`: A square marker
         - `dcg.PlotMarker.DIAMOND`: A diamond marker
@@ -140,8 +140,8 @@ def _scatter_markers(C: dcg.Context):
         - `dcg.PlotMarker.CROSS`: A cross marker
         - `dcg.PlotMarker.PLUS`: A plus marker
         - `dcg.PlotMarker.ASTERISK`: An asterisk marker
-    - `MarkerSize`: This attribute affects the radius of the markers.
-    - `MarkerWeight`: This attribute affects the outline weight of markers in pixels.
+    - `marker_size`: This attribute affects the radius of the markers.
+    - `marker_weight`: This attribute affects the outline weight of markers in pixels.
 
     Below are some examples.
     """
@@ -158,18 +158,18 @@ def _scatter_markers(C: dcg.Context):
         # Different marker types
         dcg.PlotScatter(C, label="Circles", X=x1, Y=y1, 
                         theme=dcg.ThemeStyleImPlot(C,
-                                                   Marker=dcg.PlotMarker.CIRCLE,
-                                                   MarkerSize=5))
+                                                   marker=dcg.PlotMarker.CIRCLE,
+                                                   marker_size=5))
         
         dcg.PlotScatter(C, label="Squares", X=x2, Y=y2, 
                         theme=dcg.ThemeStyleImPlot(C,
-                                                   Marker=dcg.PlotMarker.SQUARE,
-                                                   MarkerSize=6))
+                                                   marker=dcg.PlotMarker.SQUARE,
+                                                   marker_size=6))
 
         # Composed style
         with dcg.ThemeList(C) as theme:
-            dcg.ThemeColorImPlot(C, MarkerFill=(0, 255, 0), MarkerOutline=(0, 0, 255))
-            dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.DIAMOND, MarkerSize=7)
+            dcg.ThemeColorImPlot(C, marker_fill=(0, 255, 0), marker_outline=(0, 0, 255))
+            dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.DIAMOND, marker_size=7)
         
         dcg.PlotScatter(C, label="Diamonds", X=x3, Y=y3, 
                         theme=theme)
@@ -217,10 +217,10 @@ def _scatter_example(C: dcg.Context):
                 with dcg.ThemeList(C) as theme:
                     dcg.ThemeStyleImPlot(
                         C,
-                        Marker=dcg.PlotMarker.CIRCLE,
-                        MarkerSize=8
+                        marker=dcg.PlotMarker.CIRCLE,
+                        marker_size=8
                     )
-                    dcg.ThemeColorImPlot(C, MarkerFill=color, MarkerOutline=color)
+                    dcg.ThemeColorImPlot(C, marker_fill=color, marker_outline=color)
                 dcg.PlotScatter(C,
                                 label=s, 
                                 X=x_vals,
@@ -402,8 +402,8 @@ def _line_styling(C: dcg.Context):
         
         # Line with custom color, width and no markers
         with dcg.ThemeList(C) as theme1:
-            dcg.ThemeColorImPlot(C, Line=(255, 0, 0))  # Red line
-            dcg.ThemeStyleImPlot(C, LineWeight=3.0)     # Thicker line
+            dcg.ThemeColorImPlot(C, line=(255, 0, 0))  # Red line
+            dcg.ThemeStyleImPlot(C, line_weight=3.0)     # Thicker line
         dcg.PlotLine(C, label="Custom Line", X=x, Y=y2, theme=theme1)
         
         # Add labels
@@ -441,16 +441,16 @@ def _line_shaded(C: dcg.Context):
         # Line with area filled to axis
         with dcg.ThemeList(C) as theme1:
             dcg.ThemeColorImPlot(C, 
-                               Line=(0, 0, 255),         # Blue line
-                               Fill=(0, 0, 255, 64))     # Transparent blue fill
+                               line=(0, 0, 255),         # Blue line
+                               fill=(0, 0, 255, 64))     # Transparent blue fill
             #dcg.ThemeStyleImPlot(C, FillAlpha=0.2) # Alternative way to set transparency
         dcg.PlotLine(C, label="Filled to Axis", X=x, Y=np.cos(x), theme=theme1, shaded=True)
         
         # Create a confidence interval effect with shaded area between two curves
         with dcg.ThemeList(C) as theme2:
             dcg.ThemeColorImPlot(C, 
-                               Line=(255, 0, 0),         # Red line for bounds
-                               Fill=(255, 0, 0, 40))     # Very transparent red fill
+                               line=(255, 0, 0),         # Red line for bounds
+                               fill=(255, 0, 0, 40))     # Very transparent red fill
         dcg.PlotShadedLine(C, label="Confidence Interval", X=x, Y1=y2, Y2=y3, theme=theme2)
         
         # Add labels
@@ -484,8 +484,8 @@ def _line_segments_steps(C: dcg.Context):
         
         # Line with segments (disconnected segments)
         with dcg.ThemeList(C) as theme1:
-            dcg.ThemeColorImPlot(C, Line=(255, 165, 0))  # Orange line
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(255, 165, 0))  # Orange line
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         segmented_line = dcg.PlotLine(C, label="Segmented Line", 
                                     X=x, Y=y + 0.5, 
                                     theme=theme1, 
@@ -493,15 +493,15 @@ def _line_segments_steps(C: dcg.Context):
         
         # Step line (discrete transitions)
         with dcg.ThemeList(C) as theme2:
-            dcg.ThemeColorImPlot(C, Line=(128, 0, 128))  # Purple line
-            dcg.ThemeStyleImPlot(C, LineWeight=1.5)
+            dcg.ThemeColorImPlot(C, line=(128, 0, 128))  # Purple line
+            dcg.ThemeStyleImPlot(C, line_weight=1.5)
         dcg.PlotStairs(C, label="Step Plot", X=x, Y=y - 0.5, theme=theme2)
         
         # Add shaded step line
         with dcg.ThemeList(C) as theme3:
             dcg.ThemeColorImPlot(C, 
-                               Line=(0, 128, 128),       # Teal line
-                               Fill=(0, 128, 128, 50))   # Transparent teal fill
+                               line=(0, 128, 128),       # Teal line
+                               fill=(0, 128, 128, 50))   # Transparent teal fill
         # PlotStairs accepts a pre_step parameter. Try it !
         dcg.PlotStairs(C, label="Shaded Steps", X=x, Y=y - 1.0, theme=theme3, shaded=True)
         
@@ -555,8 +555,8 @@ def _line_large_data(C: dcg.Context):
 
         # Plot subsampled data initially
         with dcg.ThemeList(C) as theme:
-            dcg.ThemeColorImPlot(C, Line=(0, 0, 255))
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(0, 0, 255))
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
 
         plot_line = dcg.PlotLine(C,label=f"A lot of data", 
             X=pyramid_x[-1], Y=pyramid_y[-1], theme=theme)
@@ -669,8 +669,8 @@ def _line_time_series(C: dcg.Context):
         
         # Plot the moving average
         with dcg.ThemeList(C) as theme:
-            dcg.ThemeColorImPlot(C, Line=(255, 0, 0))  # Red line
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(255, 0, 0))  # Red line
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         dcg.PlotLine(C, label=f"{window_size}-Day Moving Avg", 
                    X=ma_timestamps, Y=moving_avg, 
                    theme=theme)
@@ -746,9 +746,9 @@ def _bar_styling(C: dcg.Context):
         # Create a styled bar chart
         with dcg.ThemeList(C) as theme:
             dcg.ThemeColorImPlot(C, 
-                               Line=(100, 100, 100),  # Dark gray outline
-                               Fill=(65, 105, 225))   # Royal blue fill
-            dcg.ThemeStyleImPlot(C, LineWeight=3.0)   # Outline thickness
+                               line=(100, 100, 100),  # Dark gray outline
+                               fill=(65, 105, 225))   # Royal blue fill
+            dcg.ThemeStyleImPlot(C, line_weight=3.0)   # Outline thickness
             
         dcg.PlotBars(C, 
                    label="Quarterly Sales", 
@@ -800,11 +800,11 @@ def _grouped_bars(C: dcg.Context):
         dcg.PlotBars(C, label="2021", X=x_pos - bar_width, Y=values1, weight=bar_width)
         
         with dcg.ThemeList(C) as theme2:
-            dcg.ThemeColorImPlot(C, Fill=(255, 165, 0))  # Orange
+            dcg.ThemeColorImPlot(C, fill=(255, 165, 0))  # Orange
         dcg.PlotBars(C, label="2022", X=x_pos, Y=values2, weight=bar_width, theme=theme2)
         
         with dcg.ThemeList(C) as theme3:
-            dcg.ThemeColorImPlot(C, Fill=(50, 205, 50))  # Green
+            dcg.ThemeColorImPlot(C, fill=(50, 205, 50))  # Green
         dcg.PlotBars(C, label="2023", X=x_pos + bar_width, Y=values3, weight=bar_width, theme=theme3)
         
         # Configure axis
@@ -1285,8 +1285,8 @@ def _error_bars(C: dcg.Context):
         
         # Line plot with symmetric error bars
         with dcg.ThemeList(C) as theme:
-            dcg.ThemeColorImPlot(C, Line=(220, 20, 60))  # Crimson line
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(220, 20, 60))  # Crimson line
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         dcg.PlotLine(C, label="Trend with Error", X=line_x, Y=line_y, theme=theme)
         
         # For symmetric errors, you can provide the same array to both negatives and positives
@@ -1447,11 +1447,11 @@ def _stem_plots(C: dcg.Context):
         
         # Customize stem appearance
         with dcg.ThemeList(C) as theme:
-            dcg.ThemeColorImPlot(C, Line=(0, 120, 0))  # Dark green
+            dcg.ThemeColorImPlot(C, line=(0, 120, 0))  # Dark green
             dcg.ThemeStyleImPlot(C, 
-                               Marker=dcg.PlotMarker.DIAMOND,
-                               MarkerSize=6,
-                               LineWeight=2.0)
+                               marker=dcg.PlotMarker.DIAMOND,
+                               marker_size=6,
+                               line_weight=2.0)
         dcg.PlotStems(C, label="cos(x)", X=x, Y=y_cos, theme=theme)
         
         # Configure axes
@@ -1574,8 +1574,8 @@ def _infinite_lines(C: dcg.Context):
         # Add vertical infinite lines at specific x positions
         vert_positions = [2, 4, 6, 8]
         with dcg.ThemeList(C) as v_theme:
-            dcg.ThemeColorImPlot(C, Line=(255, 0, 0, 100))  # Transparent red
-            dcg.ThemeStyleImPlot(C, LineWeight=1.0)
+            dcg.ThemeColorImPlot(C, line=(255, 0, 0, 100))  # Transparent red
+            dcg.ThemeStyleImPlot(C, line_weight=1.0)
         dcg.PlotInfLines(C, 
                        label="Vertical Refs", 
                        X=vert_positions, 
@@ -1584,8 +1584,8 @@ def _infinite_lines(C: dcg.Context):
         # Add horizontal infinite lines at specific y positions
         horz_positions = [0, 0.5, -0.5]
         with dcg.ThemeList(C) as h_theme:
-            dcg.ThemeColorImPlot(C, Line=(0, 0, 255, 100))  # Transparent blue
-            dcg.ThemeStyleImPlot(C, LineWeight=1.0)
+            dcg.ThemeColorImPlot(C, line=(0, 0, 255, 100))  # Transparent blue
+            dcg.ThemeStyleImPlot(C, line_weight=1.0)
         dcg.PlotInfLines(C, 
                        label="Horizontal Refs", 
                        X=horz_positions, 
@@ -2150,14 +2150,14 @@ def _multiple_axes(C: dcg.Context):
                      X=x,
                      Y=y2,
                      axes=(dcg.Axis.X1, dcg.Axis.Y2),
-                     theme=dcg.ThemeColorImPlot(C, Line=(255, 0, 0)))
+                     theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0)))
 
         dcg.PlotLine(C,
                      label="exp(x) on Y3",
                      X=x,
                      Y=y3,
                      axes=(dcg.Axis.X1, dcg.Axis.Y3),
-                     theme=dcg.ThemeColorImPlot(C, Line=(0, 200, 0)))
+                     theme=dcg.ThemeColorImPlot(C, line=(0, 200, 0)))
         
     # Create controls to toggle axis visibility
     with dcg.TreeNode(C, label="Axis Controls", value=True):
@@ -2221,7 +2221,7 @@ def _axis_orientation(C: dcg.Context):
     y_invert.callbacks = lambda s, t, d: plot.Y1.configure(invert=d)
     
     # Add reference lines to make the orientation changes more obvious
-    theme = dcg.ThemeColorImPlot(C, Line=(150, 150, 150, 100))
+    theme = dcg.ThemeColorImPlot(C, line=(150, 150, 150, 100))
     dcg.PlotInfLines(C, X=[5], label="X Center", horizontal=False, theme=theme)
     dcg.PlotInfLines(C, X=[0], label="Y Center", horizontal=True, theme=theme)
     
@@ -2727,8 +2727,8 @@ def _practical_dashboard(C: dcg.Context):
             
             # Add time series data
             with dcg.ThemeList(C) as theme:
-                dcg.ThemeColorImPlot(C, Line=(0, 120, 200), Fill=(0, 120, 200, 50))
-                dcg.ThemeStyleImPlot(C, LineWeight=2)
+                dcg.ThemeColorImPlot(C, line=(0, 120, 200), fill=(0, 120, 200, 50))
+                dcg.ThemeStyleImPlot(C, line_weight=2)
             dcg.PlotLine(C, label="Metric Value", X=dates, Y=values, theme=theme, shaded=True)
             
             # Add horizontal reference line at mean value
@@ -2749,7 +2749,7 @@ def _practical_dashboard(C: dcg.Context):
             scatter_plot.Y1.label = "Value(t+1)"
             
             # Add scatter of value vs. next value
-            scatter_theme = dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.CIRCLE, MarkerSize=3)
+            scatter_theme = dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.CIRCLE, marker_size=3)
             dcg.PlotScatter(C, label="Lag 1", X=correlate_x, Y=correlate_y, theme=scatter_theme)
         
         # 4. Bar chart (bottom-right)
@@ -2760,7 +2760,7 @@ def _practical_dashboard(C: dcg.Context):
             bar_plot.Y1.label = "Count"
             
             # Add bar chart
-            bar_theme =  dcg.ThemeColorImPlot(C, Fill=(200, 80, 100))
+            bar_theme =  dcg.ThemeColorImPlot(C, fill=(200, 80, 100))
             dcg.PlotBars(C, label="Categories", X=np.arange(len(categories)), Y=cat_values, weight=0.7, theme=bar_theme)
 
 pop_group()  # End Subplots
@@ -2828,13 +2828,13 @@ def _legend_basic(C: dcg.Context):
         # Create multiple series with labels
         dcg.PlotLine(C, label="sin(x)", X=x, Y=np.sin(x))
         dcg.PlotLine(C, label="cos(x)", X=x, Y=np.cos(x), 
-                     theme=dcg.ThemeColorImPlot(C, Line=(255, 0, 0)))
+                     theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0)))
         dcg.PlotLine(C, label="sin(x/2)", X=x, Y=np.sin(x/2), 
-                     theme=dcg.ThemeColorImPlot(C, Line=(0, 255, 0)))
+                     theme=dcg.ThemeColorImPlot(C, line=(0, 255, 0)))
         
         # Series without a label won't appear in the legend
         dcg.PlotLine(C, label="", X=x, Y=x/10 - 1, 
-                     theme=dcg.ThemeColorImPlot(C, Line=(150, 150, 150)))
+                     theme=dcg.ThemeColorImPlot(C, line=(150, 150, 150)))
         
         # Configure plot
         plot.X1.label = "X Axis"
@@ -2889,19 +2889,19 @@ def _legend_position(C: dcg.Context):
         dcg.PlotLine(C, label="Series A", X=x, Y=np.sin(x))
         
         with dcg.ThemeList(C) as theme_b:
-            dcg.ThemeColorImPlot(C, Line=(255, 0, 0))
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(255, 0, 0))
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         dcg.PlotLine(C, label="Series B", X=x, Y=np.cos(x), theme=theme_b)
         
         with dcg.ThemeList(C) as theme_c:
-            dcg.ThemeColorImPlot(C, Line=(0, 180, 0))
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(0, 180, 0))
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         dcg.PlotLine(C, label="Series C", X=x, Y=np.sin(x) * np.cos(x), theme=theme_c)
         
         # Add a scatter series to demonstrate different marker in legend
         with dcg.ThemeList(C) as theme_d:
-            dcg.ThemeColorImPlot(C, MarkerFill=(100, 100, 255))
-            dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.CIRCLE, MarkerSize=4)
+            dcg.ThemeColorImPlot(C, marker_fill=(100, 100, 255))
+            dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.CIRCLE, marker_size=4)
         dcg.PlotScatter(C, label="Series D", X=x[::5], Y=np.sin(x[::5] + 1), theme=theme_d)
         
         # Configure plot
@@ -2966,9 +2966,9 @@ def _legend_styling(C: dcg.Context):
         # Create multiple series
         dcg.PlotLine(C, label="Sine", X=x, Y=np.sin(x))
         dcg.PlotLine(C, label="Cosine", X=x, Y=np.cos(x), 
-                     theme=dcg.ThemeColorImPlot(C, Line=(220, 20, 60)))  # Crimson
+                     theme=dcg.ThemeColorImPlot(C, line=(220, 20, 60)))  # Crimson
         dcg.PlotScatter(C, label="Points", X=x[::10], Y=np.sin(x[::10] + 0.5),
-                        theme=dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.DIAMOND, MarkerSize=6))
+                        theme=dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.DIAMOND, marker_size=6))
         
         # Configure plot
         plot.X1.label = "X Axis"
@@ -3045,7 +3045,7 @@ def _legend_popup_menus(C: dcg.Context):
         # Series 2 with color controls
         with dcg.PlotLine(C, label="Cosine Wave (Right-click me!)",
                         X=x, Y=np.cos(x),
-                        theme=dcg.ThemeColorImPlot(C, Line=(255, 0, 0))) as cosine_series:
+                        theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0))) as cosine_series:
             # Color selection options in the context menu
             dcg.Text(C, value="Change Line Color:")
             color_red = dcg.Button(C, label="Red", small=True)
@@ -3056,7 +3056,7 @@ def _legend_popup_menus(C: dcg.Context):
         # Series 3 with visibility toggles for other series
         with dcg.PlotScatter(C, label="Points (Right-click me!)",
                           X=x[::5], Y=(np.sin(x[::5]) + np.cos(x[::5])),
-                          theme=dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.CIRCLE, MarkerSize=5)) as scatter_series:
+                          theme=dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.CIRCLE, marker_size=5)) as scatter_series:
             dcg.Text(C, value="Toggle Series Visibility:")
             sine_toggle = dcg.Checkbox(C, label="Show Sine Wave", value=True)
             cosine_toggle = dcg.Checkbox(C, label="Show Cosine Wave", value=True)
@@ -3071,9 +3071,9 @@ def _legend_popup_menus(C: dcg.Context):
         amplitude_slider.callbacks = update_sine_wave
         
         # Color control callbacks
-        color_red.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, Line=(255, 0, 0)))
-        color_green.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, Line=(0, 255, 0)))
-        color_blue.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, Line=(0, 0, 255)))
+        color_red.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0)))
+        color_green.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 255, 0)))
+        color_blue.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 0, 255)))
         
         # Visibility toggle callbacks
         sine_toggle.callbacks = lambda s, t, d: sine_series.configure(show=d)
@@ -3141,34 +3141,34 @@ def _color_customization(C: dcg.Context):
 
     #### Common Color Properties
 
-    - **Line**: Default color for plot lines
-    - **Fill**: Color for filled areas
-    - **FrameBg**: Plot frame background color
-    - **PlotBg**: Plot area background color
-    - **PlotBorder**: Plot area border color
-    - **AxisText**: Color for axis labels and values
-    - **AxisGrid**: Color for grid lines
-    - **Crosshairs**: Crosshairs color
+    - **line**: Default color for plot lines
+    - **fill**: Color for filled areas
+    - **frame_bg**: Plot frame background color
+    - **plot_bg**: Plot area background color
+    - **plot_border**: Plot area border color
+    - **axis_text**: Color for axis labels and values
+    - **axis_grid**: Color for grid lines
+    - **crosshairs**: Crosshairs color
 
     #### Legend Color Properties
 
-    - **LegendBg**: Background color of the legend
-    - **LegendBorder**: Border color of the legend
-    - **LegendText**: Text color in the legend
-    - **TitleText**: Title text color
-    - **InlayText**: Color of text appearing inside plots
+    - **legend_bg**: Background color of the legend
+    - **legend_border**: Border color of the legend
+    - **legend_text**: Text color in the legend
+    - **title_text**: Title text color
+    - **inlay_text**: Color of text appearing inside plots
 
     #### Axis Color Properties
 
-    - **AxisTick**: Color of axis tick marks
-    - **AxisBg**: Background color of axis hover region
-    - **AxisBgHovered**: Background color when hovered
-    - **AxisBgActive**: Background color when clicked
+    - **axis_tick**: Color of axis tick marks
+    - **axis_bg**: Background color of axis hover region
+    - **axis_bg_hovered**: Background color when hovered
+    - **axis_bg_active**: Background color when clicked
 
     In addition there are a few plot element specific colors:
-    - **ErrorBar**: Color for error bars
-    - **MarkerOutline**: Color for marker outlines
-    - **MarkerFill**: Color for marker fills
+    - **error_bar**: Color for error bars
+    - **marker_outline**: Color for marker outlines
+    - **marker_fill**: Color for marker fills
 
     By default the colors are automatically deduced from the
     current ImGui theme and a default colormap. In addition
@@ -3188,47 +3188,47 @@ def _style_parameters(C: dcg.Context):
     
     #### Common Parameters
     
-    - **LineWeight**: Thickness of plot lines in pixels
-    - **FillAlpha**: Alpha multiplier for all plot item fills (transparency)
+    - **line_weight**: Thickness of plot lines in pixels
+    - **fill_alpha**: Alpha multiplier for all plot item fills (transparency)
     
     #### Special Plot Type Parameters
 
-    - **Marker**: Type of marker (e.g., circle, square, diamond)
-    - **MarkerSize**: Size of markers in pixels
-    - **MarkerWeight**: Outline thickness for markers in pixels
-    - **ErrorBarSize**: Width of error bar whiskers in pixels
-    - **ErrorBarWeight**: Thickness of error bar lines in pixels
-    - **DigitalBitHeight**: Height of digital plot bits (at value 1) in pixels
-    - **DigitalBitGap**: Spacing between digital plot channels in pixels
+    - **marker**: Type of marker (e.g., circle, square, diamond)
+    - **marker_size**: Size of markers in pixels
+    - **marker_weight**: Outline thickness for markers in pixels
+    - **error_bar_size**: Width of error bar whiskers in pixels
+    - **error_bar_weight**: Thickness of error bar lines in pixels
+    - **digital_bit_height**: Height of digital plot bits (at value 1) in pixels
+    - **digital_bit_gap**: Spacing between digital plot channels in pixels
     
     #### Plot Area Parameters
     
-    - **PlotBorderSize**: Thickness of the border around the plot area
-    - **PlotDefaultSize**: Default size when no specific size is provided
-    - **PlotMinSize**: Minimum size the plot can shrink to
-    - **PlotPadding**: Padding between the frame and plot area
+    - **plot_border_size**: Thickness of the border around the plot area
+    - **plot_default_size**: Default size when no specific size is provided
+    - **plot_min_size**: Minimum size the plot can shrink to
+    - **plot_padding**: Padding between the frame and plot area
     
     #### Axis Parameters
     
-    - **MajorTickLen**: Length of major tick marks for X and Y axes
-    - **MinorTickLen**: Length of minor tick marks for X and Y axes
-    - **MajorTickSize**: Line thickness of major tick marks
-    - **MinorTickSize**: Line thickness of minor tick marks
-    - **MajorGridSize**: Line thickness of major grid lines
-    - **MinorGridSize**: Line thickness of minor grid lines
-    - **MinorAlpha**: Alpha multiplier for minor grid lines
-    - **FitPadding**: Additional padding as percentage when fitting data
+    - **major_tick_len**: Length of major tick marks for X and Y axes
+    - **minor_tick_len**: Length of minor tick marks for X and Y axes
+    - **major_tick_size**: Line thickness of major tick marks
+    - **minor_tick_size**: Line thickness of minor tick marks
+    - **major_grid_size**: Line thickness of major grid lines
+    - **minor_grid_size**: Line thickness of minor grid lines
+    - **minor_alpha**: Alpha multiplier for minor grid lines
+    - **fit_padding**: Additional padding as percentage when fitting data
         See associated properties `auto_fit`, `no_initial_fit` and
         `restrict_fit_to_range`.
     
     #### Spacing Parameters
     
-    - **LabelPadding**: Spacing between axes labels, tick labels, and plot edge
-    - **LegendPadding**: Padding between the legend and plot edges
-    - **LegendInnerPadding**: Padding within the legend box
-    - **LegendSpacing**: Space between legend entries
-    - **MousePosPadding**: Padding between plot edge and mouse position text
-    - **AnnotationPadding**: Padding around annotation text
+    - **label_padding**: Spacing between axes labels, tick labels, and plot edge
+    - **legend_padding**: Padding between the legend and plot edges
+    - **legend_inner_padding**: Padding within the legend box
+    - **legend_spacing**: Space between legend entries
+    - **mouse_pos_padding**: Padding between plot edge and mouse position text
+    - **annotation_padding**: Padding around annotation text
     
     Unlike ThemeColorImPlot, which accepts different color formats, ThemeStyleImPlot 
     parameters are always either float or tuple of float, depending on the parameter,

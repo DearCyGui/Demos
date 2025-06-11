@@ -384,64 +384,63 @@ def create_benchmark_theme(C: dcg.Context):
         # Base colors
         dcg.ThemeColorImGui(C,
             # Window and background colors
-            WindowBg=(45, 45, 48),           # Dark gray background
-            ChildBg=(40, 40, 43),            # Slightly darker for child windows
-            PopupBg=(50, 50, 53),            # Slightly lighter for popups
-            Border=(60, 60, 70),             # Subtle border
-            ModalWindowDimBg=(30, 30, 35, 100),      # Dim background for modal windows
+            window_bg=(45, 45, 48),           # Dark gray background
+            child_bg=(40, 40, 43),            # Slightly darker for child windows
+            popup_bg=(50, 50, 53),            # Slightly lighter for popups
+            border=(60, 60, 70),             # Subtle border
+            modal_window_dim_bg=(30, 30, 35, 100),      # Dim background for modal windows
             
             # Text colors
-            Text=(220, 220, 225),            # Light gray text
-            TextDisabled=(140, 140, 145),    # Disabled text
+            text=(220, 220, 225),            # Light gray text
+            text_disabled=(140, 140, 145),    # Disabled text
             
             # Interactive element colors
-            Button=(60, 60, 70),             # Dark button
-            ButtonHovered=(80, 85, 95),      # Hover state with slight blue tint
-            ButtonActive=(70, 75, 85),       # Active state
+            button=(60, 60, 70),             # Dark button
+            button_hovered=(80, 85, 95),      # Hover state with slight blue tint
+            button_active=(70, 75, 85),       # Active state
             
             # Frame colors for inputs, etc.
-            FrameBg=(55, 55, 60),            # Input background
-            FrameBgHovered=(65, 65, 75),     # Hovered input
-            FrameBgActive=(75, 75, 85),      # Active input
+            frame_bg=(55, 55, 60),            # Input background
+            frame_bg_hovered=(65, 65, 75),     # Hovered input
+            frame_bg_active=(75, 75, 85),      # Active input
             
             # Headers (for TreeNode, etc.)
-            Header=(60, 65, 80),             # Header with slight blue tint
-            HeaderHovered=(70, 75, 90),      # Hovered header
-            HeaderActive=(80, 85, 100),      # Active header
+            header=(60, 65, 80),             # Header with slight blue tint
+            header_hovered=(70, 75, 90),      # Hovered header
+            header_active=(80, 85, 100),      # Active header
             
             # Title bar
-            TitleBg=(45, 48, 58),            # Title background with blue tint
-            TitleBgActive=(50, 55, 70),      # Active title with stronger blue
-            TitleBgCollapsed=(40, 43, 53),   # Collapsed title
+            title_bg=(45, 48, 58),            # Title background with blue tint
+            title_bg_active=(50, 55, 70),      # Active title with stronger blue
+            title_bg_collapsed=(40, 43, 53),   # Collapsed title
             
             # Tables
-            TableHeaderBg=(55, 60, 75),      # Table header with blue tint
+            table_header_bg=(55, 60, 75),      # Table header with blue tint
         )
         
         # Styles
         dcg.ThemeStyleImGui(C,
             # Rounding
-            WindowRounding=4.0,              # Rounded window corners
-            FrameRounding=4.0,               # Rounded frames
-            PopupRounding=4.0,               # Rounded popups
-            ScrollbarRounding=3.0,           # Rounded scrollbars
-            GrabRounding=3.0,                # Rounded grab handles
-            TabRounding=4.0,                 # Rounded tabs
+            window_rounding=4.0,              # Rounded window corners
+            frame_rounding=4.0,               # Rounded frames
+            popup_rounding=4.0,               # Rounded popups
+            scrollbar_rounding=3.0,           # Rounded scrollbars
+            grab_rounding=3.0,                # Rounded grab handles
+            tab_rounding=4.0,                 # Rounded tabs
             
             # Sizing and spacing
-            WindowPadding=(12, 12),          # More padding for windows
-            FramePadding=(8, 4),             # Padding for frames
-            ItemSpacing=(8, 6),              # Space between items
-            ItemInnerSpacing=(6, 4),         # Inner item spacing
-            CellPadding=(6, 3),              # Cell padding for tables
+            window_padding=(12, 12),          # More padding for windows
+            frame_padding=(8, 4),             # Padding for frames
+            item_spacing=(8, 6),              # Space between items
+            item_inner_spacing=(6, 4),         # Inner item spacing
+            cell_padding=(6, 3),              # Cell padding for tables
             
             # Alignment
-            ButtonTextAlign=(0.5, 0.5),      # Center button text
+            button_text_align=(0.5, 0.5),      # Center button text
             
             # Borders
-            FrameBorderSize=1.0,             # Subtle border for frames
+            frame_border_size=1.0,             # Subtle border for frames
         )
-    
     return theme
 
 

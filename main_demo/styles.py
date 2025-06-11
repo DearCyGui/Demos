@@ -67,14 +67,14 @@ def _applying_themes(C: dcg.Context):
     """
     # Create some themes
     blue_theme = dcg.ThemeColorImGui(C, 
-                                    Button=(100, 130, 230),  # Button color
-                                    ButtonHovered=(130, 160, 255),  # Button hover color
-                                    ButtonActive=(90, 120, 200))  # Button active color
+                                    button=(100, 130, 230),  # Button color
+                                    button_hovered=(130, 160, 255),  # Button hover color
+                                    button_active=(90, 120, 200))  # Button active color
     
     green_theme = dcg.ThemeColorImGui(C,
-                                     Button=(80, 170, 90),  # Button color
-                                     ButtonHovered=(100, 200, 110),  # Button hover color
-                                     ButtonActive=(70, 150, 80))  # Button active color
+                                     button=(80, 170, 90),  # Button color
+                                     button_hovered=(100, 200, 110),  # Button hover color
+                                     button_active=(70, 150, 80))  # Button active color
 
     # Method 1: Apply theme directly to an individual item
     dcg.Text(C, value="1. Theme applied directly to an individual item:")
@@ -110,13 +110,13 @@ def _theme_inheritance(C: dcg.Context):
     """
     # Create parent theme with text and window background color
     parent_theme = dcg.ThemeColorImGui(C,
-                                      Text=(220, 220, 255),  # Light blue text
-                                      WindowBg=(40, 40, 60))  # Dark blue background
+                                      text=(220, 220, 255),  # Light blue text
+                                      window_bg=(40, 40, 60))  # Dark blue background
     
     # Create child theme with just button colors
     button_theme = dcg.ThemeColorImGui(C,
-                                      Button=(200, 100, 100),  # Red buttons
-                                      ButtonHovered=(230, 120, 120))
+                                      button=(200, 100, 100),  # Red buttons
+                                      button_hovered=(230, 120, 120))
     
     # Create a window with the parent theme
     with dcg.ChildWindow(C, width=450, height=300, label="Theme Inheritance Demo", 
@@ -132,7 +132,7 @@ def _theme_inheritance(C: dcg.Context):
             dcg.Button(C, label="This button uses the child theme's color")
             
             # Override specific property
-            override_theme = dcg.ThemeColorImGui(C, Text=(255, 255, 100))  # Yellow text
+            override_theme = dcg.ThemeColorImGui(C, text=(255, 255, 100))  # Yellow text
             dcg.Text(C, value="This text has its own color theme", theme=override_theme)
             
             # Button still uses the button_theme
@@ -162,28 +162,28 @@ def _theme_composition(C: dcg.Context):
     """
     # Create base themes
     base_colors = dcg.ThemeColorImGui(C,
-                                     WindowBg=(35, 35, 45),  # Dark background
-                                     Text=(200, 200, 200),   # Light grey text
-                                     Border=(60, 60, 80))    # Border color
+                                     window_bg=(35, 35, 45),  # Dark background
+                                     text=(200, 200, 200),   # Light grey text
+                                     border=(60, 60, 80))    # Border color
     
     base_styles = dcg.ThemeStyleImGui(C,
-                                     WindowPadding=(10, 10),
-                                     FramePadding=(8, 4),
-                                     ItemSpacing=(10, 8),
-                                     WindowRounding=5.0,
-                                     FrameRounding=4.0,
-                                     ScrollbarSize=14.0)
+                                     window_padding=(10, 10),
+                                     frame_padding=(8, 4),
+                                     item_spacing=(10, 8),
+                                     window_rounding=5.0,
+                                     frame_rounding=4.0,
+                                     scrollbar_size=14.0)
     
     # Create theme variations for buttons
     blue_buttons = dcg.ThemeColorImGui(C,
-                                      Button=(80, 100, 180),
-                                      ButtonHovered=(100, 120, 210),
-                                      ButtonActive=(70, 90, 160))
+                                      button=(80, 100, 180),
+                                      button_hovered=(100, 120, 210),
+                                      button_active=(70, 90, 160))
     
     green_buttons = dcg.ThemeColorImGui(C,
-                                       Button=(80, 170, 90),
-                                       ButtonHovered=(100, 200, 110),
-                                       ButtonActive=(70, 150, 80))
+                                       button=(80, 170, 90),
+                                       button_hovered=(100, 200, 110),
+                                       button_active=(70, 150, 80))
     
     # Combine base themes with button variations
     blue_theme = dcg.ThemeList(C)
@@ -253,16 +253,16 @@ def _theme_color_imgui(C: dcg.Context):
             dcg.Text(C, value="Window themes control backgrounds and borders")
             
             # Demonstrate window background
-            with dcg.ChildWindow(C, width=180, height=80, label="WindowBg", 
-                              theme=dcg.ThemeColorImGui(C, WindowBg=(60, 50, 80))):
+            with dcg.ChildWindow(C, width=180, height=80, label="window_bg", 
+                              theme=dcg.ThemeColorImGui(C, window_bg=(60, 50, 80))):
                 dcg.Text(C, value="Window background")
             
             # Demonstrate popup background
-            popup_bg_btn = dcg.Button(C, label="Show PopupBg")
+            popup_bg_btn = dcg.Button(C, label="Show popup_bg")
             def show_popup_bg():
-                popup = dcg.Window(C, label="PopupBg Demo", width=150, height=80, popup=True,
+                popup = dcg.Window(C, label="popup_bg Demo", width=150, height=80, popup=True,
                                    x=400, y=300,
-                                   theme=dcg.ThemeColorImGui(C, PopupBg=(80, 60, 60)))
+                                   theme=dcg.ThemeColorImGui(C, popup_bg=(80, 60, 60)))
                 with popup:
                     dcg.Text(C, value="Popup background")
                     dcg.Button(C, label="Close", callback=popup.delete_item)
@@ -270,17 +270,17 @@ def _theme_color_imgui(C: dcg.Context):
             popup_bg_btn.callback = show_popup_bg
             
             # Demonstrate child background
-            with dcg.ChildWindow(C, width=180, height=80, label="ChildBg",
-                              theme=dcg.ThemeColorImGui(C, ChildBg=(50, 80, 50))):
+            with dcg.ChildWindow(C, width=180, height=80, label="child_bg",
+                              theme=dcg.ThemeColorImGui(C, child_bg=(50, 80, 50))):
                 dcg.Text(C, value="Child window background")
             
             # Demonstrate frame background
-            dcg.InputText(C, label="FrameBg", hint="Frame background",
-                          theme=dcg.ThemeColorImGui(C, FrameBg=(80, 50, 50)))
+            dcg.InputText(C, label="frame_bg", hint="Frame background",
+                          theme=dcg.ThemeColorImGui(C, frame_bg=(80, 50, 50)))
             
             # Demonstrate border colors
-            with dcg.ChildWindow(C, width=180, height=50, border=True, label="Border",
-                                 theme=dcg.ThemeColorImGui(C, Border=(200, 150, 50))):
+            with dcg.ChildWindow(C, width=180, height=50, border=True, label="border",
+                                 theme=dcg.ThemeColorImGui(C, border=(200, 150, 50))):
                 dcg.Text(C, value="Border color")
         
         # Text colors
@@ -289,29 +289,29 @@ def _theme_color_imgui(C: dcg.Context):
             
             # Standard text
             dcg.Text(C, value="Default text")
-            dcg.Text(C, value="Custom text", theme=dcg.ThemeColorImGui(C, Text=(255, 200, 0)))
+            dcg.Text(C, value="Custom text", theme=dcg.ThemeColorImGui(C, text=(255, 200, 0)))
             
             # Disabled text
-            dcg.Text(C, value="TextDisabled", theme=dcg.ThemeColorImGui(C, TextDisabled=(150, 150, 200)))
+            dcg.Text(C, value="text_disabled", theme=dcg.ThemeColorImGui(C, text_disabled=(150, 150, 200)))
             
             # Button text
             dcg.Button(C, label="Button text color",
-                       theme=dcg.ThemeColorImGui(C, Text=(255, 255, 255), Button=(100, 50, 150)))
+                       theme=dcg.ThemeColorImGui(C, text=(255, 255, 255), button=(100, 50, 150)))
             
             # Text selection
-            dcg.InputText(C, label="TextSelectedBg", 
+            dcg.InputText(C, label="text_selected_bg", 
                           value="Select this text",
                           hint="Selection highlight color",
                           theme=dcg.ThemeColorImGui(C, 
-                                    TextSelectedBg=(100, 150, 200),
-                                    FrameBg=(50, 50, 50)))
+                                    text_selected_bg=(100, 150, 200),
+                                    frame_bg=(50, 50, 50)))
             
             # Header text
             with dcg.TreeNode(C, label="Header text colors",
                               theme=dcg.ThemeColorImGui(C, 
-                                    Header=(100, 100, 170),
-                                    HeaderHovered=(120, 120, 190),
-                                    HeaderActive=(140, 140, 210))):
+                                    header=(100, 100, 170),
+                                    header_hovered=(120, 120, 190),
+                                    header_active=(140, 140, 210))):
                 dcg.Text(C, value="Header text in tree node")
         
         # Interactive elements
@@ -321,32 +321,32 @@ def _theme_color_imgui(C: dcg.Context):
             # Button colors
             dcg.Button(C, label="Button colors",
                        theme=dcg.ThemeColorImGui(C, 
-                                    Button=(100, 150, 200),
-                                    ButtonHovered=(120, 170, 220),
-                                    ButtonActive=(80, 130, 180)))
+                                    button=(100, 150, 200),
+                                    button_hovered=(120, 170, 220),
+                                    button_active=(80, 130, 180)))
             
             # Checkbox colors
-            dcg.Checkbox(C, label="CheckMark color", value=True,
+            dcg.Checkbox(C, label="check_mark color", value=True,
                          theme=dcg.ThemeColorImGui(C, 
-                                    FrameBg=(60, 60, 80),
-                                    CheckMark=(255, 200, 100)))
+                                    frame_bg=(60, 60, 80),
+                                    check_mark=(255, 200, 100)))
             
             # Slider colors
             dcg.Slider(C, label="Slider colors", format="float",
                        theme=dcg.ThemeColorImGui(C, 
-                                    FrameBg=(50, 50, 70),
-                                    SliderGrab=(100, 200, 150),
-                                    SliderGrabActive=(120, 220, 170)),
+                                    frame_bg=(50, 50, 70),
+                                    slider_grab=(100, 200, 150),
+                                    slider_grab_active=(120, 220, 170)),
                        min_value=0, max_value=1, value=0.5)
             
             # Tab colors
             with dcg.TabBar(C, theme=dcg.ThemeColorImGui(C, 
-                                    Tab=(80, 100, 140),
-                                    TabHovered=(100, 120, 160),
-                                    TabSelected=(140, 160, 200),
-                                    TabDimmed=(60, 80, 120),
-                                    TabDimmedSelected=(80, 100, 140),
-                                    TabDimmedSelectedOverline=(100, 120, 160))):
+                                    tab=(80, 100, 140),
+                                    tab_hovered=(100, 120, 160),
+                                    tab_selected=(140, 160, 200),
+                                    tab_dimmed=(60, 80, 120),
+                                    tab_dimmed_selected=(80, 100, 140),
+                                    tab_dimmed_selected_overline=(100, 120, 160))):
                 with dcg.Tab(C, label="Tab 1"):
                     dcg.Text(C, value="Tab colors")
                 with dcg.Tab(C, label="Tab 2"):
@@ -374,21 +374,21 @@ def _theme_style_imgui(C: dcg.Context):
     This example demonstrates the most commonly used ThemeStyleImGui properties.
     """
     # Window padding
-    window_padding_theme = dcg.ThemeStyleImGui(C, WindowPadding=(20, 20))
-    with dcg.ChildWindow(C, label="WindowPadding: (20, 20)", 
+    window_padding_theme = dcg.ThemeStyleImGui(C, window_padding=(20, 20))
+    with dcg.ChildWindow(C, label="window_padding: (20, 20)", 
                       width=250, height=100, theme=window_padding_theme):
         dcg.Text(C, value="Note the extra space around this text")
     
     # Frame padding
-    frame_padding_theme = dcg.ThemeStyleImGui(C, FramePadding=(12, 8))
+    frame_padding_theme = dcg.ThemeStyleImGui(C, frame_padding=(12, 8))
     with dcg.HorizontalLayout(C):
-        dcg.Text(C, value="FramePadding: (12, 8)")
+        dcg.Text(C, value="frame_padding: (12, 8)")
         dcg.Button(C, label="Normal Button")
         dcg.Button(C, label="Padded Button", theme=frame_padding_theme)
     
     # Item spacing
-    item_spacing_theme = dcg.ThemeStyleImGui(C, ItemSpacing=(20, 15))
-    with dcg.ChildWindow(C, label="ItemSpacing: (20, 15)", 
+    item_spacing_theme = dcg.ThemeStyleImGui(C, item_spacing=(20, 15))
+    with dcg.ChildWindow(C, label="item_spacing: (20, 15)", 
                       width=250, height=150, theme=item_spacing_theme):
         dcg.Text(C, value="These items have")
         dcg.Text(C, value="extra space")
@@ -397,36 +397,36 @@ def _theme_style_imgui(C: dcg.Context):
     # Rounding
     with dcg.HorizontalLayout(C):
         # Window rounding
-        window_rounding_theme = dcg.ThemeStyleImGui(C, WindowRounding=10.0)
-        with dcg.ChildWindow(C, label="WindowRounding: 10.0", 
+        window_rounding_theme = dcg.ThemeStyleImGui(C, window_rounding=10.0)
+        with dcg.ChildWindow(C, label="window_rounding: 10.0", 
                           width=200, height=80, theme=window_rounding_theme):
             dcg.Text(C, value="Rounded window corners")
         
         # Frame rounding
-        frame_rounding_theme = dcg.ThemeStyleImGui(C, FrameRounding=8.0)
-        with dcg.ChildWindow(C, width=200, height=80, label="FrameRounding: 8.0", theme=frame_rounding_theme):
+        frame_rounding_theme = dcg.ThemeStyleImGui(C, frame_rounding=8.0)
+        with dcg.ChildWindow(C, width=200, height=80, label="frame_rounding: 8.0", theme=frame_rounding_theme):
             dcg.Button(C, label="Rounded Button")
             dcg.InputText(C, label="Rounded Input", hint="Rounded corners")
     
     # Button text alignment
-    button_align_theme = dcg.ThemeStyleImGui(C, ButtonTextAlign=(1.0, 0.5))  # Right-aligned
+    button_align_theme = dcg.ThemeStyleImGui(C, button_text_align=(1.0, 0.5))  # Right-aligned
     with dcg.HorizontalLayout(C):
-        dcg.Text(C, value="ButtonTextAlign:")
+        dcg.Text(C, value="button_text_align:")
         dcg.Button(C, label="Default Aligned", width=150)
         dcg.Button(C, label="Right Aligned", width=150, theme=button_align_theme)
     
     # Combined style example
     with dcg.ThemeList(C) as combined_style:
         dcg.ThemeStyleImGui(C, 
-                          WindowRounding=8.0,
-                          FrameRounding=4.0,
-                          WindowPadding=(16, 16),
-                          FramePadding=(10, 6),
-                          ItemSpacing=(12, 8))
+                          window_rounding=8.0,
+                          frame_rounding=4.0,
+                          window_padding=(16, 16),
+                          frame_padding=(10, 6),
+                          item_spacing=(12, 8))
         dcg.ThemeColorImGui(C,
-                          WindowBg=(40, 42, 54),
-                          FrameBg=(52, 55, 70),
-                          Button=(85, 95, 175))
+                          window_bg=(40, 42, 54),
+                          frame_bg=(52, 55, 70),
+                          button=(85, 95, 175))
     
     with dcg.ChildWindow(C, label="Combined Styles", width=350, height=150, theme=combined_style):
         dcg.Text(C, value="This demonstrates combining style and color themes")
@@ -468,25 +468,25 @@ def _theme_implot(C: dcg.Context):
     
     # Create custom plot colors
     plot_colors = dcg.ThemeColorImPlot(C,
-                                      PlotBg=(30, 30, 40),           # Plot background
-                                      PlotBorder=(70, 70, 100),      # Plot border
-                                      Line=(255, 160, 50),           # Default line color  
-                                      AxisText=(200, 200, 220),      # Axis text
-                                      AxisGrid=(70, 70, 90),         # Grid lines
-                                      LegendBg=(40, 40, 60, 230),    # Legend background
-                                      LegendBorder=(70, 70, 100),    # Legend border
-                                      LegendText=(220, 220, 240),    # Legend text
-                                      TitleText=(255, 200, 60))      # Title text
+                                      plot_bg=(30, 30, 40),           # Plot background
+                                      plot_border=(70, 70, 100),      # Plot border
+                                      line=(255, 160, 50),           # Default line color  
+                                      axis_text=(200, 200, 220),      # Axis text
+                                      axis_grid=(70, 70, 90),         # Grid lines
+                                      legend_bg=(40, 40, 60, 230),    # Legend background
+                                      legend_border=(70, 70, 100),    # Legend border
+                                      legend_text=(220, 220, 240),    # Legend text
+                                      title_text=(255, 200, 60))      # Title text
     
     # Create custom plot styles
     plot_styles = dcg.ThemeStyleImPlot(C,
-                                      LineWeight=2.0,               # Line thickness
-                                      MarkerSize=5.0,               # Marker size
-                                      MarkerWeight=1.5,             # Marker outline weight
-                                      FillAlpha=0.25,               # Fill transparency
-                                      LegendPadding=(12, 12),       # Legend padding
-                                      PlotPadding=(10, 10),         # Plot padding
-                                      MinorAlpha=0.25)              # Minor grid alpha
+                                      line_weight=2.0,               # Line thickness
+                                      marker_size=5.0,               # Marker size
+                                      marker_weight=1.5,             # Marker outline weight
+                                      fill_alpha=0.25,               # Fill transparency
+                                      legend_padding=(12, 12),       # Legend padding
+                                      plot_padding=(10, 10),         # Plot padding
+                                      minor_alpha=0.25)              # Minor grid alpha
     
     # Combine plot colors and styles
     with dcg.ThemeList(C) as plot_theme:
@@ -503,25 +503,25 @@ def _theme_implot(C: dcg.Context):
     with dcg.Plot(C, label="Series-Specific Themes", height=300, width=-1):
         # Global plot theme
         plot_base_theme = dcg.ThemeColorImPlot(C,
-                                             PlotBg=(25, 25, 35),
-                                             AxisText=(200, 200, 220),
-                                             AxisGrid=(60, 60, 80))
+                                             plot_bg=(25, 25, 35),
+                                             axis_text=(200, 200, 220),
+                                             axis_grid=(60, 60, 80))
         
         # Apply themes to specific series
         sin_theme = dcg.ThemeList(C)
         with sin_theme:
-            dcg.ThemeColorImPlot(C, Line=(220, 100, 100))
-            dcg.ThemeStyleImPlot(C, LineWeight=3.0)
+            dcg.ThemeColorImPlot(C, line=(220, 100, 100))
+            dcg.ThemeStyleImPlot(C, line_weight=3.0)
         
         cos_theme = dcg.ThemeList(C)
         with cos_theme:
-            dcg.ThemeColorImPlot(C, Line=(100, 180, 250))
-            dcg.ThemeStyleImPlot(C, LineWeight=2.0)
+            dcg.ThemeColorImPlot(C, line=(100, 180, 250))
+            dcg.ThemeStyleImPlot(C, line_weight=2.0)
         
         points_theme = dcg.ThemeList(C)
         with points_theme:
-            dcg.ThemeColorImPlot(C, MarkerFill=(220, 180, 80), MarkerOutline=(0, 0, 0))
-            dcg.ThemeStyleImPlot(C, MarkerSize=7.0, MarkerWeight=1.5)
+            dcg.ThemeColorImPlot(C, marker_fill=(220, 180, 80), marker_outline=(0, 0, 0))
+            dcg.ThemeStyleImPlot(C, marker_size=7.0, marker_weight=1.5)
         
         # Apply plot theme and add series with their specific themes
         dcg.PlotLine(C, label="Sin(x)", X=x, Y=y1, theme=sin_theme)
@@ -567,55 +567,55 @@ def _theme_management(C: dcg.Context):
             default_theme = dcg.ThemeList(self.context, parent=self)
             with default_theme:
                 dcg.ThemeColorImGui(self.context,
-                    Text=(220, 220, 220),
-                    WindowBg=(45, 45, 48),
-                    Button=(70, 70, 75),
-                    ButtonHovered=(90, 90, 95),
-                    ButtonActive=(110, 110, 120),
-                    FrameBg=(60, 60, 65))
+                    text=(220, 220, 220),
+                    window_bg=(45, 45, 48),
+                    button=(70, 70, 75),
+                    button_hovered=(90, 90, 95),
+                    button_active=(110, 110, 120),
+                    frame_bg=(60, 60, 65))
                 
                 dcg.ThemeStyleImGui(self.context,
-                    WindowRounding=3.0,
-                    FrameRounding=3.0,
-                    WindowPadding=(8, 8),
-                    FramePadding=(6, 3),
-                    ItemSpacing=(8, 4))
+                    window_rounding=3.0,
+                    frame_rounding=3.0,
+                    window_padding=(8, 8),
+                    frame_padding=(6, 3),
+                    item_spacing=(8, 4))
             
             # Create dark blue theme
             dark_blue_theme = dcg.ThemeList(self.context, parent=self)
             with dark_blue_theme:
                 dcg.ThemeColorImGui(self.context,
-                    Text=(220, 220, 255),
-                    WindowBg=(35, 35, 55),
-                    Button=(60, 70, 120),
-                    ButtonHovered=(80, 90, 150),
-                    ButtonActive=(100, 110, 180),
-                    FrameBg=(50, 50, 80))
+                    text=(220, 220, 255),
+                    window_bg=(35, 35, 55),
+                    button=(60, 70, 120),
+                    button_hovered=(80, 90, 150),
+                    button_active=(100, 110, 180),
+                    frame_bg=(50, 50, 80))
                 
                 dcg.ThemeStyleImGui(self.context,
-                    WindowRounding=4.0,
-                    FrameRounding=4.0,
-                    WindowPadding=(10, 10),
-                    FramePadding=(8, 4),
-                    ItemSpacing=(10, 5))
+                    window_rounding=4.0,
+                    frame_rounding=4.0,
+                    window_padding=(10, 10),
+                    frame_padding=(8, 4),
+                    item_spacing=(10, 5))
             
             # Create dark green theme
             dark_green_theme = dcg.ThemeList(self.context, parent=self)
             with dark_green_theme:
                 dcg.ThemeColorImGui(self.context,
-                    Text=(220, 255, 220),
-                    WindowBg=(35, 45, 35),
-                    Button=(60, 110, 70),
-                    ButtonHovered=(80, 140, 90),
-                    ButtonActive=(100, 170, 110),
-                    FrameBg=(50, 70, 50))
+                    text=(220, 255, 220),
+                    window_bg=(35, 45, 35),
+                    button=(60, 110, 70),
+                    button_hovered=(80, 140, 90),
+                    button_active=(100, 170, 110),
+                    frame_bg=(50, 70, 50))
                 
                 dcg.ThemeStyleImGui(self.context,
-                    WindowRounding=2.0,
-                    FrameRounding=2.0,
-                    WindowPadding=(8, 8),
-                    FramePadding=(6, 3),
-                    ItemSpacing=(8, 4))
+                    window_rounding=2.0,
+                    frame_rounding=2.0,
+                    window_padding=(8, 8),
+                    frame_padding=(6, 3),
+                    item_spacing=(8, 4))
             
             # Add themes to the ThemeManager (which is itself a ThemeList)
             self.add_theme("Gray", default_theme)
@@ -706,11 +706,11 @@ def _style_editor(C: dcg.Context):
     with editable_theme:
         dcg.ThemeColorImGui(C,
             # Default dark theme
-            Text=(220, 220, 220),
-            WindowBg=(40, 40, 45),
-            Button=(70, 70, 85),
-            ButtonHovered=(85, 85, 100),
-            ButtonActive=(60, 60, 75))
+            text=(220, 220, 220),
+            window_bg=(40, 40, 45),
+            button=(70, 70, 85),
+            button_hovered=(85, 85, 100),
+            button_active=(60, 60, 75))
     
     # Sample UI with the theme applied
     with dcg.ChildWindow(C, label="Theme Preview", width=400, height=300, 

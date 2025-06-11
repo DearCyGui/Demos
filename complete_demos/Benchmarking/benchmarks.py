@@ -354,7 +354,7 @@ async def item_creation_methods(C: dcg.Context):
     params = {
         "width": 4, "height": 8, "x": 0, "y": 0,
         "arrow": dcg.ButtonDirection.UP, "show": True, "context": C,
-        "enabled": True, "no_newline": True, "indent": 1, "scaling_factor": 2.
+        "enabled": True, "no_newline": True, "scaling_factor": 2.
     }
     
     # First yield provides graph metadata

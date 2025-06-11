@@ -56,45 +56,45 @@ class TetrisContext(dcg.Context):
         with dcg.ThemeList(self) as self.global_theme:  # Sets up the default theme
             # Styles
             dcg.ThemeStyleImGui(self,
-                                WindowPadding=(4, 4),
-                                FramePadding=(8, 8),
-                                ItemSpacing=(4, 4),
-                                ChildRounding=4,
-                                FrameRounding=4,
-                                ChildBorderSize=0
-                                )
+                    window_padding=(4, 4),
+                    frame_padding=(8, 8),
+                    item_spacing=(4, 4),
+                    child_rounding=4,
+                    frame_rounding=4,
+                    child_border_size=0
+                    )
             # Colors
             dcg.ThemeColorImGui(self,
-                                WindowBg=(0, 0, 0),
-                                FrameBg=(0, 0, 0),
-                                PopupBg=(0, 0, 0),
-                                ChildBg=(0, 0, 0),
-                                MenuBarBg=(48, 48, 48),
-                                Text=(168, 168, 168),
-                                Button=(0, 0, 0),
-                                ButtonHovered=(33, 33, 33),
-                                ButtonActive=(33, 33, 33)
-                                )
+                    window_bg=(0, 0, 0),
+                    frame_bg=(0, 0, 0),
+                    popup_bg=(0, 0, 0),
+                    child_bg=(0, 0, 0),
+                    menu_bar_bg=(48, 48, 48),
+                    text=(168, 168, 168),
+                    button=(0, 0, 0),
+                    button_hovered=(33, 33, 33),
+                    button_active=(33, 33, 33)
+                    )
             dcg.ThemeColorImPlot(self,
-                                 PlotBg=(0, 0, 0),
-                                 AxisGrid=(30, 30, 255),
-                                 Line=(0, 0, 255),
-                                 FrameBg=(0, 0, 0),
-                                 PlotBorder=(30, 30, 255)
-                                 )
+                     plot_bg=(0, 0, 0),
+                     axis_grid=(30, 30, 255),
+                     line=(0, 0, 255),
+                     frame_bg=(0, 0, 0),
+                     plot_border=(30, 30, 255)
+                     )
 
         with dcg.ThemeList(self) as self.dummy_button_theme:
             dcg.ThemeColorImGui(self,
-                                Button=(0, 0, 0),
-                                ButtonHovered=(0, 0, 0),
-                                ButtonActive=(0, 0, 0))
+                    button=(0, 0, 0),
+                    button_hovered=(0, 0, 0),
+                    button_active=(0, 0, 0))
 
         with dcg.ThemeList(self) as self.play_button_theme:
             dcg.ThemeColorImGui(self,
-                                Text=(161, 94, 33))
+                    text=(161, 94, 33))
 
         with dcg.ThemeList(self) as self.no_border_board_theme:
             dcg.ThemeColorImPlot(self,
-                                 PlotBorder=(0, 0, 0))
+                     plot_border=(0, 0, 0))
 
-        self.sharp_lines_theme = dcg.ThemeStyleImPlot(self, LineWeight=0.9, no_scaling=True)
+        self.sharp_lines_theme = dcg.ThemeStyleImPlot(self, line_weight=0.9, no_scaling=True)

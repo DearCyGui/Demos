@@ -759,7 +759,7 @@ def _practical_custom_widget(C: dcg.Context):
                     self.context,
                     X=x_values,
                     Y=self._data_points,
-                    theme=dcg.ThemeColorImPlot(C, Line=self._line_color),
+                    theme=dcg.ThemeColorImPlot(C, line=self._line_color),
                     parent=self._plot
                 )
                 

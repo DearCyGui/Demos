@@ -57,8 +57,11 @@ def _text_widgets(C: dcg.Context):
     dcg.Text(C, value="Bullet point text", bullet=True)
     
     # Text with indentation
-    dcg.Text(C, value="Indented text", indent=20)
-    
+    dcg.Text(C, value="Indented text", x=20)
+
+    # Text with default indentation (TreeNode, etc)
+    dcg.Text(C, value="Default indentation", x="parent.x1 + theme.item_spacing.x")
+
     # Text with wrapping
     dcg.Text(C, value="This is a long text that will wrap to the next line if it exceeds the available width. You can control the wrapping behavior with the 'wrap' parameter.", wrap=300)
     
@@ -998,8 +1001,8 @@ def _image_display(C: dcg.Context):
     dcg.Text(C, value="Image with Tinting, Background and Border:")
     theme_border = dcg.ThemeList(C)
     with theme_border:
-        dcg.ThemeColorImGui(C, Border=(255, 0, 0, 255))
-        dcg.ThemeStyleImGui(C, FrameBorderSize=1)
+        dcg.ThemeColorImGui(C, border=(255, 0, 0, 255))
+        dcg.ThemeStyleImGui(C, frame_border_size=1)
 
     dcg.Image(C, 
              texture=gradient_texture,
@@ -1040,7 +1043,7 @@ def _image_display(C: dcg.Context):
     dcg.Image(C,
               button=True,
               texture=checker_texture,
-              theme=dcg.ThemeStyleImGui(C, FramePadding=(10, 10)),
+              theme=dcg.ThemeStyleImGui(C, frame_padding=(10, 10)),
               callback=image_button_callback)
     
     # Image Button with tinting
@@ -1220,8 +1223,8 @@ def _tooltips(C: dcg.Context):
     
     # Create a theme for the tooltip
     tooltip_theme = dcg.ThemeColorImGui(C, 
-                                      WindowBg=(50, 50, 70, 230),  # Dark blue background
-                                      Text=(220, 220, 255))        # Light text
+                                        window_bg=(50, 50, 70, 230),  # Dark blue background
+                                        text=(220, 220, 255))        # Light text
     
     with dcg.Tooltip(C, target=styled_btn, theme=tooltip_theme):
         dcg.Text(C, value="This tooltip has custom styling")
@@ -1695,24 +1698,24 @@ def _theme_colors(C: dcg.Context):
     # Create a theme with custom colors
     custom_theme = dcg.ThemeColorImGui(C,
         # Text and background colors
-        Text=(255, 255, 255),          # White text
-        TextDisabled=(128, 128, 128),  # Gray text for disabled items
-        WindowBg=(40, 40, 40),         # Dark background
+        text=(255, 255, 255),          # White text
+        text_disabled=(128, 128, 128),  # Gray text for disabled items
+        window_bg=(40, 40, 40),         # Dark background
         
         # Button colors
-        Button=(70, 70, 170),          # Blue button
-        ButtonHovered=(90, 90, 200),   # Lighter blue when hovered
-        ButtonActive=(110, 110, 240),  # Even lighter blue when pressed
+        button=(70, 70, 170),          # Blue button
+        button_hovered=(90, 90, 200),   # Lighter blue when hovered
+        button_active=(110, 110, 240),  # Even lighter blue when pressed
         
         # Frame colors (sliders, input fields, etc.)
-        FrameBg=(60, 60, 60),          # Dark gray frames
-        FrameBgHovered=(80, 80, 80),   # Lighter when hovered
-        FrameBgActive=(100, 100, 100), # Even lighter when active
+        frame_bg=(60, 60, 60),          # Dark gray frames
+        frame_bg_hovered=(80, 80, 80),   # Lighter when hovered
+        frame_bg_active=(100, 100, 100), # Even lighter when active
         
         # Header colors (collapsing headers, tree nodes)
-        Header=(70, 100, 170),         # Blue headers
-        HeaderHovered=(90, 120, 200),  # Lighter when hovered
-        HeaderActive=(110, 140, 240),  # Even lighter when active
+        header=(70, 100, 170),         # Blue headers
+        header_hovered=(90, 120, 200),  # Lighter when hovered
+        header_active=(110, 140, 240),  # Even lighter when active
     )
 
     # Create a demo section with the custom theme
@@ -1737,15 +1740,15 @@ def _theme_colors(C: dcg.Context):
     
     # Create themes for specific widgets
     red_button_theme = dcg.ThemeColorImGui(C,
-        Button=(180, 50, 50),           # Red button
-        ButtonHovered=(220, 80, 80),    # Lighter red when hovered
-        ButtonActive=(255, 100, 100),   # Even lighter red when pressed
+        button=(180, 50, 50),           # Red button
+        button_hovered=(220, 80, 80),    # Lighter red when hovered
+        button_active=(255, 100, 100),   # Even lighter red when pressed
     )
     
     green_button_theme = dcg.ThemeColorImGui(C,
-        Button=(50, 180, 50),           # Green button
-        ButtonHovered=(80, 220, 80),    # Lighter green when hovered
-        ButtonActive=(100, 255, 100),   # Even lighter green when pressed
+        button=(50, 180, 50),           # Green button
+        button_hovered=(80, 220, 80),    # Lighter green when hovered
+        button_active=(100, 255, 100),   # Even lighter green when pressed
     )
     
     # Apply themes to individual widgets
@@ -1759,14 +1762,14 @@ def _theme_colors(C: dcg.Context):
     
     # Create a base theme and an accent theme
     base_theme = dcg.ThemeColorImGui(C,
-        Text=(220, 220, 220),          # Light gray text
-        WindowBg=(50, 50, 60),         # Dark blue-gray background
-        FrameBg=(70, 70, 80),          # Slightly lighter frames
+        text=(220, 220, 220),          # Light gray text
+        window_bg=(50, 50, 60),         # Dark blue-gray background
+        frame_bg=(70, 70, 80),          # Slightly lighter frames
     )
     
     accent_theme = dcg.ThemeColorImGui(C,
-        Button=(180, 100, 100),        # Red-ish button
-        CheckMark=(255, 128, 128),     # Light red checkmarks
+        button=(180, 100, 100),        # Red-ish button
+        check_mark=(255, 128, 128),     # Light red checkmarks
     )
     
     # Combine themes using ThemeList
@@ -1799,49 +1802,49 @@ def _theme_styles(C: dcg.Context):
     # Create a style theme with modified properties
     rounded_style = dcg.ThemeStyleImGui(C,
         # Rounding
-        WindowRounding=10.0,           # Rounded window corners
-        FrameRounding=5.0,             # Rounded frames
-        PopupRounding=5.0,             # Rounded popups
-        ScrollbarRounding=12.0,        # Rounded scrollbars
-        GrabRounding=5.0,              # Rounded grab handles (sliders)
-        TabRounding=6.0,               # Rounded tabs
-        ButtonTextAlign=(0.5, 0.5),    # Center button text
+        window_rounding=10.0,           # Rounded window corners
+        frame_rounding=5.0,             # Rounded frames
+        popup_rounding=5.0,             # Rounded popups
+        scrollbar_rounding=12.0,        # Rounded scrollbars
+        grab_rounding=5.0,              # Rounded grab handles (sliders)
+        tab_rounding=6.0,               # Rounded tabs
+        button_text_align=(0.5, 0.5),    # Center button text
         
         # Border and frame sizes
-        WindowBorderSize=1.0,          # Window borders
-        FrameBorderSize=1.0,           # Frame borders
-        PopupBorderSize=1.0,           # Popup borders
+        window_border_size=1.0,          # Window borders
+        frame_border_size=1.0,           # Frame borders
+        popup_border_size=1.0,           # Popup borders
         
         # Padding and spacing
-        WindowPadding=(12, 12),        # Window padding
-        FramePadding=(8, 4),           # Frame padding
-        ItemSpacing=(8, 6),            # Spacing between items
-        ItemInnerSpacing=(6, 4),       # Inner item spacing
-        CellPadding=(5, 5),            # Table cell padding
+        window_padding=(12, 12),        # Window padding
+        frame_padding=(8, 4),           # Frame padding
+        item_spacing=(8, 6),            # Spacing between items
+        item_inner_spacing=(6, 4),       # Inner item spacing
+        cell_padding=(5, 5),            # Table cell padding
         
         # Scrollbar and grab sizes
-        ScrollbarSize=16.0,            # Width of scrollbars
-        GrabMinSize=12.0,              # Min size of slider grab
+        scrollbar_size=16.0,            # Width of scrollbars
+        grab_min_size=12.0,              # Min size of slider grab
     )
     
     # Create a color theme to pair with the style
     modern_color = dcg.ThemeColorImGui(C,
-        Text=(220, 220, 220),          # Light text
-        WindowBg=(45, 45, 48),         # Dark background
-        Border=(60, 60, 70),           # Visible border
-        PopupBg=(55, 55, 63),          # Slightly lighter popup background
-        FrameBg=(65, 65, 70),          # Frame background
+        text=(220, 220, 220),          # Light text
+        window_bg=(45, 45, 48),         # Dark background
+        border=(60, 60, 70),           # Visible border
+        popup_bg=(55, 55, 63),          # Slightly lighter popup background
+        frame_bg=(65, 65, 70),          # Frame background
         
         # Button colors
-        Button=(75, 75, 85),           # Button color
-        ButtonHovered=(95, 95, 105),   # Button hover
-        ButtonActive=(125, 125, 140),  # Button active
+        button=(75, 75, 85),           # Button color
+        button_hovered=(95, 95, 105),   # Button hover
+        button_active=(125, 125, 140),  # Button active
         
         # Highlight colors
-        HeaderActive=(85, 130, 170),   # Active header
-        CheckMark=(130, 160, 200),     # Checkmark
-        SliderGrab=(130, 150, 190),    # Slider grab
-        SliderGrabActive=(150, 170, 210), # Active slider
+        header_active=(85, 130, 170),   # Active header
+        check_mark=(130, 160, 200),     # Checkmark
+        slider_grab=(130, 150, 190),    # Slider grab
+        slider_grab_active=(150, 170, 210), # Active slider
     )
     
     # Combine style and color themes
@@ -1887,11 +1890,11 @@ def _theme_styles(C: dcg.Context):
         
         # Compact style
         compact_style = dcg.ThemeStyleImGui(C,
-            WindowPadding=(4, 4),
-            FramePadding=(4, 2),
-            ItemSpacing=(4, 3),
-            ItemInnerSpacing=(3, 2),
-            FrameRounding=0,
+            window_padding=(4, 4),
+            frame_padding=(4, 2),
+            item_spacing=(4, 3),
+            item_inner_spacing=(3, 2),
+            frame_rounding=0,
         )
         
         with dcg.ChildWindow(C, width=200, height=200, border=True, label="Compact Style", theme=compact_style):
@@ -1903,14 +1906,14 @@ def _theme_styles(C: dcg.Context):
         
         # Highly rounded style
         rounded_bold_style = dcg.ThemeStyleImGui(C,
-            WindowPadding=(12, 12),
-            FramePadding=(10, 8),
-            ItemSpacing=(10, 8),
-            WindowRounding=12.0,
-            FrameRounding=12.0,
-            GrabRounding=12.0,
-            FrameBorderSize=2.0,
-            GrabMinSize=20.0,
+            window_padding=(12, 12),
+            frame_padding=(10, 8),
+            item_spacing=(10, 8),
+            window_rounding=12.0,
+            frame_rounding=12.0,
+            grab_rounding=12.0,
+            frame_border_size=2.0,
+            grab_min_size=20.0,
         )
         
         with dcg.ChildWindow(C, width=200, height=200, border=True, label="Bold Rounded", theme=rounded_bold_style):

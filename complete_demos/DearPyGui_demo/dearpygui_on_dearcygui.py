@@ -100,8 +100,8 @@ class DPGWrapper:
         if "pos" in kwargs:
             pos = kwargs.pop("pos")
             if pos is not None and len(pos) == 2:
-                kwargs["x"] = "parent.x1" + pos[0]
-                kwargs["y"] = "parent.y1" + pos[1]
+                kwargs["x"] = "parent.x1 +" + str(pos[0])
+                kwargs["y"] = "parent.y1 +" + str(pos[1])
 
         # Handle callback
         if "callback" in kwargs:
@@ -671,145 +671,145 @@ mvThemeCat_Core = 0
 mvThemeCat_Plots = 1
 mvThemeCat_Nodes = 2
 
-mvThemeCol_Text = "Text"
-mvThemeCol_TextDisabled = "TextDisabled"
-mvThemeCol_WindowBg = "WindowBg"
-mvThemeCol_ChildBg = "ChildBg"
-mvThemeCol_Border = "Border"
-mvThemeCol_PopupBg = "PopupBg"
-mvThemeCol_BorderShadow = "BorderShadow"
-mvThemeCol_FrameBg = "FrameBg"
-mvThemeCol_FrameBgHovered = "FrameBgHovered"
-mvThemeCol_FrameBgActive = "FrameBgActive"
-mvThemeCol_TitleBg = "TitleBg"
-mvThemeCol_TitleBgActive = "TitleBgActive"
-mvThemeCol_TitleBgCollapsed = "TitleBgCollapsed"
-mvThemeCol_MenuBarBg = "MenuBarBg"
-mvThemeCol_ScrollbarBg = "ScrollbarBg"
-mvThemeCol_ScrollbarGrab = "ScrollbarGrab"
-mvThemeCol_ScrollbarGrabHovered = "ScrollbarGrabHovered"
-mvThemeCol_ScrollbarGrabActive = "ScrollbarGrabActive"
-mvThemeCol_CheckMark = "CheckMark"
-mvThemeCol_SliderGrab = "SliderGrab"
-mvThemeCol_SliderGrabActive = "SliderGrabActive"
-mvThemeCol_Button = "Button"
-mvThemeCol_ButtonHovered = "ButtonHovered"
-mvThemeCol_ButtonActive = "ButtonActive"
-mvThemeCol_Header = "Header"
-mvThemeCol_HeaderHovered = "HeaderHovered"
-mvThemeCol_HeaderActive = "HeaderActive"
-mvThemeCol_Separator = "Separator"
-mvThemeCol_SeparatorHovered = "SeparatorHovered"
-mvThemeCol_SeparatorActive = "SeparatorActive"
-mvThemeCol_ResizeGrip = "ResizeGrip"
-mvThemeCol_ResizeGripHovered = "ResizeGripHovered"
-mvThemeCol_ResizeGripActive = "ResizeGripActive"
-mvThemeCol_Tab = "Tab"
-mvThemeCol_TabHovered = "TabHovered"
-mvThemeCol_TabActive = "TabSelected"
-mvThemeCol_TabUnfocused = "TabDimmed"
-mvThemeCol_TabUnfocusedActive = "TabDimmedSelected"
-mvThemeCol_PlotLines = "PlotLines"
-mvThemeCol_PlotLinesHovered = "PlotLinesHovered"
-mvThemeCol_PlotHistogram = "PlotHistogram"
-mvThemeCol_PlotHistogramHovered = "PlotHistogramHovered"
-mvThemeCol_TableHeaderBg = "TableHeaderBg"
-mvThemeCol_TableBorderStrong = "TableBorderStrong"
-mvThemeCol_TableBorderLight = "TableBorderLight"
-mvThemeCol_TableRowBg = "TableRowBg"
-mvThemeCol_TableRowBgAlt = "TableRowBgAlt"
-mvThemeCol_TextSelectedBg = "TextSelectedBg"
-mvThemeCol_DragDropTarget = "DragDropTarget"
-mvThemeCol_NavHighlight = "NavCursor"
-mvThemeCol_NavWindowingHighlight = "NavWindowingHighlight"
-mvThemeCol_NavWindowingDimBg = "NavWindowingDimBg"
-mvThemeCol_ModalWindowDimBg = "ModalWindowDimBg"
+mvThemeCol_Text = "text"
+mvThemeCol_TextDisabled = "text_disabled"
+mvThemeCol_WindowBg = "window_bg"
+mvThemeCol_ChildBg = "child_bg"
+mvThemeCol_Border = "border"
+mvThemeCol_PopupBg = "popup_bg"
+mvThemeCol_BorderShadow = "border_shadow"
+mvThemeCol_FrameBg = "frame_bg"
+mvThemeCol_FrameBgHovered = "frame_bg_hovered"
+mvThemeCol_FrameBgActive = "frame_bg_active"
+mvThemeCol_TitleBg = "title_bg"
+mvThemeCol_TitleBgActive = "title_bg_active"
+mvThemeCol_TitleBgCollapsed = "title_bg_collapsed"
+mvThemeCol_MenuBarBg = "menu_bar_bg"
+mvThemeCol_ScrollbarBg = "scrollbar_bg"
+mvThemeCol_ScrollbarGrab = "scrollbar_grab"
+mvThemeCol_ScrollbarGrabHovered = "scrollbar_grab_hovered"
+mvThemeCol_ScrollbarGrabActive = "scrollbar_grab_active"
+mvThemeCol_CheckMark = "check_mark"
+mvThemeCol_SliderGrab = "slider_grab"
+mvThemeCol_SliderGrabActive = "slider_grab_active"
+mvThemeCol_Button = "button"
+mvThemeCol_ButtonHovered = "button_hovered"
+mvThemeCol_ButtonActive = "button_active"
+mvThemeCol_Header = "header"
+mvThemeCol_HeaderHovered = "header_hovered"
+mvThemeCol_HeaderActive = "header_active"
+mvThemeCol_Separator = "separator"
+mvThemeCol_SeparatorHovered = "separator_hovered"
+mvThemeCol_SeparatorActive = "separator_active"
+mvThemeCol_ResizeGrip = "resize_grip"
+mvThemeCol_ResizeGripHovered = "resize_grip_hovered"
+mvThemeCol_ResizeGripActive = "resize_grip_active"
+mvThemeCol_Tab = "tab"
+mvThemeCol_TabHovered = "tab_hovered"
+mvThemeCol_TabActive = "tab_selected"
+mvThemeCol_TabUnfocused = "tab_dimmed"
+mvThemeCol_TabUnfocusedActive = "tab_dimmed_selected"
+mvThemeCol_PlotLines = "plot_lines"
+mvThemeCol_PlotLinesHovered = "plot_lines_hovered"
+mvThemeCol_PlotHistogram = "plot_histogram"
+mvThemeCol_PlotHistogramHovered = "plot_histogram_hovered"
+mvThemeCol_TableHeaderBg = "table_header_bg"
+mvThemeCol_TableBorderStrong = "table_border_strong"
+mvThemeCol_TableBorderLight = "table_border_light"
+mvThemeCol_TableRowBg = "table_row_bg"
+mvThemeCol_TableRowBgAlt = "table_row_bg_alt"
+mvThemeCol_TextSelectedBg = "text_selected_bg"
+mvThemeCol_DragDropTarget = "drag_drop_target"
+mvThemeCol_NavHighlight = "nav_cursor"
+mvThemeCol_NavWindowingHighlight = "nav_windowing_highlight"
+mvThemeCol_NavWindowingDimBg = "nav_windowing_dim_bg"
+mvThemeCol_ModalWindowDimBg = "modal_window_dim_bg"
 
-mvPlotCol_Line = "Line"
-mvPlotCol_Fill = "Fill"
-mvPlotCol_MarkerOutline = "MarkerOutline"
-mvPlotCol_MarkerFill = "MarkerFill"
-mvPlotCol_ErrorBar = "ErrorBar"
-mvPlotCol_FrameBg = "FrameBg"
-mvPlotCol_PlotBg = "PlotBg"
-mvPlotCol_PlotBorder = "PlotBorder"
-mvPlotCol_LegendBg = "LegendBg"
-mvPlotCol_LegendBorder = "LegendBorder"
-mvPlotCol_LegendText = "LegendText"
-mvPlotCol_TitleText = "TitleText"
-mvPlotCol_InlayText = "InlayText"
-mvPlotCol_AxisBg = "AxisBg"
-mvPlotCol_AxisBgActive = "AxisBgActive"
-mvPlotCol_AxisBgHovered = "AxisBgHovered"
-mvPlotCol_AxisGrid = "AxisGrid"
-mvPlotCol_AxisText = "AxisText"
-mvPlotCol_Selection = "Selection"
-mvPlotCol_Crosshairs = "Crosshairs"
+mvPlotCol_Line = "line"
+mvPlotCol_Fill = "fill"
+mvPlotCol_MarkerOutline = "marker_outline"
+mvPlotCol_MarkerFill = "marker_fill"
+mvPlotCol_ErrorBar = "error_bar"
+mvPlotCol_FrameBg = "frame_bg"
+mvPlotCol_PlotBg = "plot_bg"
+mvPlotCol_PlotBorder = "plot_border"
+mvPlotCol_LegendBg = "legend_bg"
+mvPlotCol_LegendBorder = "legend_border"
+mvPlotCol_LegendText = "legend_text"
+mvPlotCol_TitleText = "title_text"
+mvPlotCol_InlayText = "inlay_text"
+mvPlotCol_AxisBg = "axis_bg"
+mvPlotCol_AxisBgActive = "axis_bg_active"
+mvPlotCol_AxisBgHovered = "axis_bg_hovered"
+mvPlotCol_AxisGrid = "axis_grid"
+mvPlotCol_AxisText = "axis_text"
+mvPlotCol_Selection = "selection"
+mvPlotCol_Crosshairs = "crosshairs"
 
 
-mvStyleVar_Alpha = "Alpha" #float Alpha
-mvStyleVar_DisabledAlpha = "DisabledAlpha" #float DisabledAlpha
-mvStyleVar_WindowPadding = "WindowPadding" #ImVec2WindowPadding
-mvStyleVar_WindowRounding = "WindowRounding"#float WindowRounding
-mvStyleVar_WindowBorderSize = "WindowBorderSize"#float WindowBorderSize
-mvStyleVar_WindowMinSize = "WindowMinSize" #ImVec2WindowMinSize
-mvStyleVar_WindowTitleAlign = "WindowTitleAlign"#ImVec2WindowTitleAlign
-mvStyleVar_ChildRounding = "ChildRounding" #float ChildRounding
-mvStyleVar_ChildBorderSize = "ChildBorderSize" #float ChildBorderSize
-mvStyleVar_PopupRounding = "PopupRounding" #float PopupRounding
-mvStyleVar_PopupBorderSize = "PopupBorderSize" #float PopupBorderSize
-mvStyleVar_FramePadding = "FramePadding"#ImVec2FramePadding
-mvStyleVar_FrameRounding = "FrameRounding" #float FrameRounding
-mvStyleVar_FrameBorderSize = "FrameBorderSize" #float FrameBorderSize
-mvStyleVar_ItemSpacing = "ItemSpacing" #ImVec2ItemSpacing
-mvStyleVar_ItemInnerSpacing = "ItemInnerSpacing"#ImVec2ItemInnerSpacing
-mvStyleVar_IndentSpacing = "IndentSpacing" #float IndentSpacing
-mvStyleVar_CellPadding = "CellPadding" #ImVec2CellPadding
-mvStyleVar_ScrollbarSize = "ScrollbarSize" #float ScrollbarSize
-mvStyleVar_ScrollbarRounding = "ScrollbarRounding" #float ScrollbarRounding
-mvStyleVar_GrabMinSize = "GrabMinSize" #float GrabMinSize
-mvStyleVar_GrabRounding = "GrabRounding" #float GrabRounding
-mvStyleVar_TabRounding = "TabRounding" #float TabRounding
-mvStyleVar_TabBorderSize = "TabBorderSize"	# float TabBorderSize
-mvStyleVar_TabBarBorderSize = "TabBarBorderSize"	# float TabBarBorderSize
-mvStyleVar_TableAngledHeadersAngle = "TableAngledHeadersAngle" # float TableAngledHeadersAngle
-mvStyleVar_TableAngledHeadersTextAlign = "TableAngledHeadersTextAlign" #ImVec2 TableAngledHeadersTextAlign
-mvStyleVar_ButtonTextAlign = "ButtonTextAlign" #ImVec2ButtonTextAlign
-mvStyleVar_SelectableTextAlign = "SelectableTextAlign" #ImVec2SelectableTextAlign
-mvStyleVar_SeparatorTextBorderSize = "SeparatorTextBorderSize"	# float SeparatorTextBorderSize
-mvStyleVar_SeparatorTextAlign = "SeparatorTextAlign"# ImVec2SeparatorTextAlign
-mvStyleVar_SeparatorTextPadding = "SeparatorTextPadding"	# ImVec2SeparatorTextPadding
+mvStyleVar_Alpha = "alpha" #float Alpha
+mvStyleVar_DisabledAlpha = "disabled_alpha" #float DisabledAlpha
+mvStyleVar_WindowPadding = "window_padding" #ImVec2WindowPadding
+mvStyleVar_WindowRounding = "window_rounding"#float WindowRounding
+mvStyleVar_WindowBorderSize = "window_border_size"#float WindowBorderSize
+mvStyleVar_WindowMinSize = "window_min_size" #ImVec2WindowMinSize
+mvStyleVar_WindowTitleAlign = "window_title_align"#ImVec2WindowTitleAlign
+mvStyleVar_ChildRounding = "child_rounding" #float ChildRounding
+mvStyleVar_ChildBorderSize = "child_border_size" #float ChildBorderSize
+mvStyleVar_PopupRounding = "popup_rounding" #float PopupRounding
+mvStyleVar_PopupBorderSize = "popup_border_size" #float PopupBorderSize
+mvStyleVar_FramePadding = "frame_padding"#ImVec2FramePadding
+mvStyleVar_FrameRounding = "frame_rounding" #float FrameRounding
+mvStyleVar_FrameBorderSize = "frame_border_size" #float FrameBorderSize
+mvStyleVar_ItemSpacing = "item_spacing" #ImVec2ItemSpacing
+mvStyleVar_ItemInnerSpacing = "item_inner_spacing"#ImVec2ItemInnerSpacing
+mvStyleVar_IndentSpacing = "indent_spacing" #float IndentSpacing
+mvStyleVar_CellPadding = "cell_padding" #ImVec2CellPadding
+mvStyleVar_ScrollbarSize = "scrollbar_size" #float ScrollbarSize
+mvStyleVar_ScrollbarRounding = "scrollbar_rounding" #float ScrollbarRounding
+mvStyleVar_GrabMinSize = "grab_min_size" #float GrabMinSize
+mvStyleVar_GrabRounding = "grab_rounding" #float GrabRounding
+mvStyleVar_TabRounding = "tab_rounding" #float TabRounding
+mvStyleVar_TabBorderSize = "tab_border_size"	# float TabBorderSize
+mvStyleVar_TabBarBorderSize = "tab_bar_border_size"	# float TabBarBorderSize
+mvStyleVar_TableAngledHeadersAngle = "table_angled_headers_angle" # float TableAngledHeadersAngle
+mvStyleVar_TableAngledHeadersTextAlign = "table_angled_headers_text_align" #ImVec2 TableAngledHeadersTextAlign
+mvStyleVar_ButtonTextAlign = "button_text_align" #ImVec2ButtonTextAlign
+mvStyleVar_SelectableTextAlign = "selectable_text_align" #ImVec2SelectableTextAlign
+mvStyleVar_SeparatorTextBorderSize = "separator_text_border_size"	# float SeparatorTextBorderSize
+mvStyleVar_SeparatorTextAlign = "separator_text_align"# ImVec2SeparatorTextAlign
+mvStyleVar_SeparatorTextPadding = "separator_text_padding"	# ImVec2SeparatorTextPadding
 
 # item styling variables
-mvPlotStyleVar_LineWeight = "LineWeight" #float,  plot item line weight in pixels
-mvPlotStyleVar_Marker = "Marker" #int,marker specification
-mvPlotStyleVar_MarkerSize = "MarkerSize" #float,  marker size in pixels (roughly the marker's "radius")
-mvPlotStyleVar_MarkerWeight =   "MarkerWeight"#float,  plot outline weight of markers in pixels
-mvPlotStyleVar_FillAlpha =  "FillAlpha"#float,  alpha modifier applied to all plot item fills
-mvPlotStyleVar_ErrorBarSize =   "ErrorBarSize"#float,  error bar whisker width in pixels
-mvPlotStyleVar_ErrorBarWeight = "ErrorBarWeight" #float,  error bar whisker weight in pixels
-mvPlotStyleVar_DigitalBitHeight =   "DigitalBitHeight"#float,  digital channels bit height (at 1) in pixels
-mvPlotStyleVar_DigitalBitGap =  "DigitalBitGap"#float,  digital channels bit padding gap in pixels
+mvPlotStyleVar_LineWeight = "line_weight" #float,  plot item line weight in pixels
+mvPlotStyleVar_Marker = "marker" #int,marker specification
+mvPlotStyleVar_MarkerSize = "marker_size" #float,  marker size in pixels (roughly the marker's "radius")
+mvPlotStyleVar_MarkerWeight = "marker_weight"#float,  plot outline weight of markers in pixels
+mvPlotStyleVar_FillAlpha = "fill_alpha"#float,  alpha modifier applied to all plot item fills
+mvPlotStyleVar_ErrorBarSize = "error_bar_size"#float,  error bar whisker width in pixels
+mvPlotStyleVar_ErrorBarWeight = "error_bar_weight" #float,  error bar whisker weight in pixels
+mvPlotStyleVar_DigitalBitHeight = "digital_bit_height"#float,  digital channels bit height (at 1) in pixels
+mvPlotStyleVar_DigitalBitGap = "digital_bit_gap"#float,  digital channels bit padding gap in pixels
 
 # plot styling variables
-mvPlotStyleVar_PlotBorderSize = "PlotBorderSize" #float,  thickness of border around plot area
-mvPlotStyleVar_MinorAlpha = "MinorAlpha" #float,  alpha multiplier applied to minor axis grid lines
-mvPlotStyleVar_MajorTickLen = "MajorTickLen" #ImVec2, major tick lengths for X and Y axes
-mvPlotStyleVar_MinorTickLen = "MinorTickLen" #ImVec2, minor tick lengths for X and Y axes
-mvPlotStyleVar_MajorTickSize = "MajorTickSize"#ImVec2, line thickness of major ticks
-mvPlotStyleVar_MinorTickSize = "MinorTickSize"#ImVec2, line thickness of minor ticks
-mvPlotStyleVar_MajorGridSize = "MajorGridSize"#ImVec2, line thickness of major grid lines
-mvPlotStyleVar_MinorGridSize = "MinorGridSize"#ImVec2, line thickness of minor grid lines
-mvPlotStyleVar_PlotPadding = "PlotPadding"#ImVec2, padding between widget frame and plot area, labels, or outside legends (i.e. main padding)
-mvPlotStyleVar_LabelPadding = "LabelPadding" #ImVec2, padding between axes labels, tick labels, and plot edge
-mvPlotStyleVar_LegendPadding = "LegendPadding"#ImVec2, legend padding from plot edges
-mvPlotStyleVar_LegendInnerPadding = "LegendInnerPadding" #ImVec2, legend inner padding from legend edges
-mvPlotStyleVar_LegendSpacing = "LegendSpacing"#ImVec2, spacing between legend entries
-mvPlotStyleVar_MousePosPadding = "MousePosPadding"#ImVec2, padding between plot edge and interior info text
-mvPlotStyleVar_AnnotationPadding = "AnnotationPadding"#ImVec2, text padding around annotation labels
-mvPlotStyleVar_FitPadding = "FitPadding" #ImVec2, additional fit padding as a percentage of the fit extents (e.g. ImVec2(0.1f,0.1f) adds 10% to the fit extents of X and Y)
-mvPlotStyleVar_PlotDefaultSize = "PlotDefaultSize"#ImVec2, default size used when ImVec2(0,0) is passed to BeginPlot
-mvPlotStyleVar_PlotMinSize = "PlotMinSize"   # ImVec2, minimum size plot frame can be when shrunk
+mvPlotStyleVar_PlotBorderSize = "plot_border_size" #float,  thickness of border around plot area
+mvPlotStyleVar_MinorAlpha = "minor_alpha" #float,  alpha multiplier applied to minor axis grid lines
+mvPlotStyleVar_MajorTickLen = "major_tick_len" #ImVec2, major tick lengths for X and Y axes
+mvPlotStyleVar_MinorTickLen = "minor_tick_len" #ImVec2, minor tick lengths for X and Y axes
+mvPlotStyleVar_MajorTickSize = "major_tick_size"#ImVec2, line thickness of major ticks
+mvPlotStyleVar_MinorTickSize = "minor_tick_size"#ImVec2, line thickness of minor ticks
+mvPlotStyleVar_MajorGridSize = "major_grid_size"#ImVec2, line thickness of major grid lines
+mvPlotStyleVar_MinorGridSize = "minor_grid_size"#ImVec2, line thickness of minor grid lines
+mvPlotStyleVar_PlotPadding = "plot_padding"#ImVec2, padding between widget frame and plot area, labels, or outside legends (i.e. main padding)
+mvPlotStyleVar_LabelPadding = "label_padding" #ImVec2, padding between axes labels, tick labels, and plot edge
+mvPlotStyleVar_LegendPadding = "legend_padding"#ImVec2, legend padding from plot edges
+mvPlotStyleVar_LegendInnerPadding = "legend_inner_padding" #ImVec2, legend inner padding from legend edges
+mvPlotStyleVar_LegendSpacing = "legend_spacing"#ImVec2, spacing between legend entries
+mvPlotStyleVar_MousePosPadding = "mouse_pos_padding"#ImVec2, padding between plot edge and interior info text
+mvPlotStyleVar_AnnotationPadding = "annotation_padding"#ImVec2, text padding around annotation labels
+mvPlotStyleVar_FitPadding = "fit_padding" #ImVec2, additional fit padding as a percentage of the fit extents (e.g. ImVec2(0.1f,0.1f) adds 10% to the fit extents of X and Y)
+mvPlotStyleVar_PlotDefaultSize = "plot_default_size"#ImVec2, default size used when ImVec2(0,0) is passed to BeginPlot
+mvPlotStyleVar_PlotMinSize = "plot_min_size"   # ImVec2, minimum size plot frame can be when shrunk
 
 
 # nodes
@@ -1109,7 +1109,7 @@ def set_item_height(item: Union[int, str], height: int):
     CONTEXT.get(item).height = height
 
 def set_item_indent(item: Union[int, str], indent: int):
-    CONTEXT.get(item).indent = indent
+    CONTEXT.get(item).x = indent
 
 def set_item_callback(item: Union[int, str], callback: Callable):
     try:
@@ -1141,7 +1141,7 @@ def get_item_label(item: Union[int, str]) -> Union[str, None]:
     return CONTEXT.get(item).label
 
 def get_item_indent(item: Union[int, str]) -> Union[int, None]:
-    return CONTEXT.get(item).indent
+    return CONTEXT.get(item).x
 
 def get_item_width(item: Union[int, str]) -> Union[int, None]:
     return CONTEXT.get(item).width
@@ -1353,31 +1353,31 @@ def bool_value(*, label: str =None, user_data: Any =None, default_value: bool =F
 
 def button(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, small: bool =False, repeat: bool =False, direction=None, arrow=None, **kwargs) -> Union[int, str]:
     arrow_value = direction if arrow is True else None
-    return dcg.Button(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, small=small, arrow=arrow_value, repeat=repeat, **kwargs)
+    return dcg.Button(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, small=small, arrow=arrow_value, repeat=repeat, **kwargs)
 
 def checkbox(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Checkbox(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, **kwargs)
+    return dcg.Checkbox(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, **kwargs)
 
 def child_window(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, border: bool =True, autosize_x: bool =False, autosize_y: bool =False, no_scrollbar: bool =False, horizontal_scrollbar: bool =False, menubar: bool =False, no_scroll_with_mouse: bool =False, flattened_navigation: bool =True, always_use_window_padding: bool =False, resizable_x: bool =False, resizable_y: bool =False, always_auto_resize: bool =False, frame_style: bool =False, auto_resize_x: bool =False, auto_resize_y: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.ChildWindow(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, border=border, autosize_x=autosize_x, autosize_y=autosize_y, no_scrollbar=no_scrollbar, horizontal_scrollbar=horizontal_scrollbar, menubar=menubar, no_scroll_with_mouse=no_scroll_with_mouse, flattened_navigation=flattened_navigation, always_use_window_padding=always_use_window_padding, resizable_x=resizable_x, resizable_y=resizable_y, always_auto_resize=always_auto_resize, frame_style=frame_style, auto_resize_x=auto_resize_x, auto_resize_y=auto_resize_y, **kwargs)
+    return dcg.ChildWindow(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, border=border, autosize_x=autosize_x, autosize_y=autosize_y, no_scrollbar=no_scrollbar, horizontal_scrollbar=horizontal_scrollbar, menubar=menubar, no_scroll_with_mouse=no_scroll_with_mouse, flattened_navigation=flattened_navigation, always_use_window_padding=always_use_window_padding, resizable_x=resizable_x, resizable_y=resizable_y, always_auto_resize=always_auto_resize, frame_style=frame_style, auto_resize_x=auto_resize_x, auto_resize_y=auto_resize_y, **kwargs)
 
 def collapsing_header(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, closable: bool =False, default_open: bool =False, open_on_double_click: bool =False, open_on_arrow: bool =False, leaf: bool =False, bullet: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.CollapsingHeader(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, closable=closable, value=default_open, open_on_double_click=open_on_double_click, open_on_arrow=open_on_arrow, leaf=leaf, bullet=bullet, **kwargs)
+    return dcg.CollapsingHeader(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, closable=closable, value=default_open, open_on_double_click=open_on_double_click, open_on_arrow=open_on_arrow, leaf=leaf, bullet=bullet, **kwargs)
 
 def color_button(default_value : Union[List[int], Tuple[int, ...]] =(0, 0, 0, 255), *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, no_alpha: bool =False, no_border: bool =False, no_drag_drop: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.ColorButton(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_border=no_border, no_drag_drop=no_drag_drop, **kwargs)
+    return dcg.ColorButton(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_border=no_border, no_drag_drop=no_drag_drop, **kwargs)
 
 def color_edit(default_value : Union[List[int], Tuple[int, ...]] =(0, 0, 0, 255), *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, no_alpha: bool =False, no_picker: bool =False, no_options: bool =False, no_small_preview: bool =False, no_inputs: bool =False, no_tooltip: bool =False, no_label: bool =False, no_drag_drop: bool =False, alpha_bar: bool =False, alpha_preview: int =mvColorEdit_AlphaPreviewNone, display_mode: int =mvColorEdit_rgb, display_type: int =mvColorEdit_uint8, input_mode: int =mvColorEdit_input_rgb, **kwargs) -> Union[int, str]:
-    return dcg.ColorEdit(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_picker=no_picker, no_options=no_options, no_small_preview=no_small_preview, no_inputs=no_inputs, no_tooltip=no_tooltip, no_label=no_label, no_drag_drop=no_drag_drop, alpha_bar=alpha_bar, alpha_preview=alpha_preview, display_mode=display_mode, display_type=display_type, input_mode=input_mode, **kwargs)
+    return dcg.ColorEdit(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_picker=no_picker, no_options=no_options, no_small_preview=no_small_preview, no_inputs=no_inputs, no_tooltip=no_tooltip, no_label=no_label, no_drag_drop=no_drag_drop, alpha_bar=alpha_bar, alpha_preview=alpha_preview, display_mode=display_mode, display_type=display_type, input_mode=input_mode, **kwargs)
 
 def color_picker(default_value : Union[List[int], Tuple[int, ...]] =(0, 0, 0, 255), *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, no_alpha: bool =False, no_side_preview: bool =False, no_small_preview: bool =False, no_inputs: bool =False, no_tooltip: bool =False, no_label: bool =False, alpha_bar: bool =False, display_rgb: bool =False, display_hsv: bool =False, display_hex: bool =False, picker_mode: int =mvColorPicker_bar, alpha_preview: int =mvColorEdit_AlphaPreviewNone, display_type: int =mvColorEdit_uint8, input_mode: int =mvColorEdit_input_rgb, **kwargs) -> Union[int, str]:
-    return dcg.ColorPicker(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_side_preview=no_side_preview, no_small_preview=no_small_preview, no_inputs=no_inputs, no_tooltip=no_tooltip, no_label=no_label, alpha_bar=alpha_bar, display_rgb=display_rgb, display_hsv=display_hsv, display_hex=display_hex, picker_mode=picker_mode, alpha_preview=alpha_preview, display_type=display_type, input_mode=input_mode, **kwargs)
+    return dcg.ColorPicker(CONTEXT, value=default_value, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_alpha=no_alpha, no_side_preview=no_side_preview, no_small_preview=no_small_preview, no_inputs=no_inputs, no_tooltip=no_tooltip, no_label=no_label, alpha_bar=alpha_bar, display_rgb=display_rgb, display_hsv=display_hsv, display_hex=display_hex, picker_mode=picker_mode, alpha_preview=alpha_preview, display_type=display_type, input_mode=input_mode, **kwargs)
 
 def color_value(*, label: str =None, user_data: Any =None, default_value: Union[List[float], Tuple[float, ...]] =(0.0, 0.0, 0.0, 0.0), parent: Union[int, str] =mvReservedUUID_3, **kwargs) -> Union[int, str]:
     return dcg.SharedColor(CONTEXT, default_value)
 
 def combo(items : Union[List[str], Tuple[str, ...]] =(), *, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: str ='', popup_align_left: bool =False, no_arrow_button: bool =False, no_preview: bool =False, fit_width: bool =False, height_mode: str ="regular", **kwargs) -> Union[int, str]:
-    return dcg.Combo(CONTEXT, items=items, label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, popup_align_left=popup_align_left, no_arrow_button=no_arrow_button, no_preview=no_preview, fit_width=fit_width, height_mode=height_mode, **kwargs)
+    return dcg.Combo(CONTEXT, items=items, label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, popup_align_left=popup_align_left, no_arrow_button=no_arrow_button, no_preview=no_preview, fit_width=fit_width, height_mode=height_mode, **kwargs)
 
 def double4_value(*, label: str =None, user_data: Any =None, default_value: Any =(0.0, 0.0, 0.0, 0.0), parent: Union[int, str] =mvReservedUUID_3, **kwargs) -> Union[int, str]:
     return dcg.SharedDouble4(CONTEXT, default_value)
@@ -1386,22 +1386,22 @@ def double_value(*, label: str =None, user_data: Any =None, default_value: float
     return dcg.SharedDouble(CONTEXT, default_value)
 
 def drag_double(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: float =0.0, format: str ='%0.3f', speed: float =1.0, min_value: float =0.0, max_value: float =100.0, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="double", size=1, drag=True, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="double", size=1, drag=True, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drag_doublex(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Any =(0.0, 0.0, 0.0, 0.0), size: int =4, format: str ='%0.3f', speed: float =1.0, min_value: float =0.0, max_value: float =100.0, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="double", drag=True, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="double", drag=True, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drag_float(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: float =0.0, format: str ='%0.3f', speed: float =1.0, min_value: float =0.0, max_value: float =100.0, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="float", drag=True, size=1, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="float", drag=True, size=1, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drag_floatx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[float], Tuple[float, ...]] =(0.0, 0.0, 0.0, 0.0), size: int =4, format: str ='%0.3f', speed: float =1.0, min_value: float =0.0, max_value: float =100.0, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="float", drag=True, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="float", drag=True, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drag_int(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: int =0, format: str ='%d', speed: float =1.0, min_value: int =0, max_value: int =100, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="int", size=1, drag=True, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="int", size=1, drag=True, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drag_intx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[int], Tuple[int, ...]] =(0, 0, 0, 0), size: int =4, format: str ='%d', speed: float =1.0, min_value: int =0, max_value: int =100, no_input: bool =False, clamped: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="int", drag=True, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="int", drag=True, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, print_format=format, speed=speed, min_value=min_value, max_value=max_value, no_input=no_input, clamped=clamped, **kwargs)
 
 def drawlist(width : int, height : int, *, label: str =None, user_data: Any =None, callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, **kwargs) -> Union[int, str]:
     return dcg.DrawInWindow(CONTEXT, button=True, width=width, height=height, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, **kwargs)
@@ -1438,7 +1438,7 @@ def group(*, label: str =None, user_data: Any =None, width: int =0, height: int 
             positions = [i * xoffset for i in range(num_items)]
             item.positions = positions
         kwargs["callback"] = assign_spaces
-    return target_class(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, **kwargs)
+    return target_class(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, **kwargs)
 
 def handler_registry(*, label: str =None, user_data: Any =None, show: bool =True, **kwargs) -> Union[int, str]:
     item = dcg.HandlerList(CONTEXT, label=label, user_data=user_data, show=show, attach=False, **kwargs)
@@ -1449,10 +1449,10 @@ def handler_registry(*, label: str =None, user_data: Any =None, show: bool =True
 
 def image(texture_tag : Union[int, str], *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, tint_color: Union[List[float], Tuple[float, ...]] =-1, border_color: Union[List[float], Tuple[float, ...]] =(0, 0, 0, 0), uv_min: Union[List[float], Tuple[float, ...]] =(0.0, 0.0), uv_max: Union[List[float], Tuple[float, ...]] =(1.0, 1.0), **kwargs) -> Union[int, str]:
     # TODO: border_color
-    return dcg.Image(CONTEXT, texture=CONTEXT.get(texture_tag), label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, color_multiplier=tint_color, uv=(uv_min[0], uv_min[1], uv_max[0], uv_max[1]), **kwargs)
+    return dcg.Image(CONTEXT, texture=CONTEXT.get(texture_tag), label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, color_multiplier=tint_color, uv=(uv_min[0], uv_min[1], uv_max[0], uv_max[1]), **kwargs)
 
 def image_button(texture_tag : Union[int, str], *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, tint_color: Union[List[float], Tuple[float, ...]] =-1, background_color: Union[List[float], Tuple[float, ...]] =(0, 0, 0, 0), uv_min: Union[List[float], Tuple[float, ...]] =(0.0, 0.0), uv_max: Union[List[float], Tuple[float, ...]] =(1.0, 1.0), **kwargs) -> Union[int, str]:
-    return dcg.Image(CONTEXT, button=True, texture=CONTEXT.get(texture_tag), label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, color_multiplier=tint_color, background_color=background_color, uv=(uv_min[0], uv_min[1], uv_max[0], uv_max[1]), **kwargs)
+    return dcg.Image(CONTEXT, button=True, texture=CONTEXT.get(texture_tag), label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, color_multiplier=tint_color, background_color=background_color, uv=(uv_min[0], uv_min[1], uv_max[0], uv_max[1]), **kwargs)
 
 def image_series(texture_tag : Union[int, str], bounds_min : Union[List[float], Tuple[float, ...]], bounds_max : Union[List[float], Tuple[float, ...]], *, label: str =None, user_data: Any =None, show: bool =True, uv_min: Union[List[float], Tuple[float, ...]] =(0.0, 0.0), uv_max: Union[List[float], Tuple[float, ...]] =(1.0, 1.0), tint_color: Union[int, List[int], Tuple[int, ...]] =-1, **kwargs) -> Union[int, str]:
     parent = kwargs.pop("parent", None)
@@ -1487,7 +1487,7 @@ def input_double(*, label: str =None, user_data: Any =None, width: int =0, inden
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="double", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="double", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_doublex(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Any =(0.0, 0.0, 0.0, 0.0), format: str ='%.3f', min_value: float =0.0, max_value: float =100.0, size: int =4, min_clamped: bool =False, max_clamped: bool =False, on_enter: bool =False, readonly: bool =False, **kwargs) -> Union[int, str]:
     if not(min_clamped):
@@ -1495,7 +1495,7 @@ def input_doublex(*, label: str =None, user_data: Any =None, width: int =0, inde
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="double", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="double", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_float(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: float =0.0, format: str ='%.3f', min_value: float =0.0, max_value: float =100.0, step: float =0.1, step_fast: float =1.0, min_clamped: bool =False, max_clamped: bool =False, on_enter: bool =False, readonly: bool =False, **kwargs) -> Union[int, str]:
     if not(min_clamped):
@@ -1503,7 +1503,7 @@ def input_float(*, label: str =None, user_data: Any =None, width: int =0, indent
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="float", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="float", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_floatx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[float], Tuple[float, ...]] =(0.0, 0.0, 0.0, 0.0), format: str ='%.3f', min_value: float =0.0, max_value: float =100.0, size: int =4, min_clamped: bool =False, max_clamped: bool =False, on_enter: bool =False, readonly: bool =False, **kwargs) -> Union[int, str]:
     if not(min_clamped):
@@ -1511,7 +1511,7 @@ def input_floatx(*, label: str =None, user_data: Any =None, width: int =0, inden
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="float", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="float", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, print_format=format, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_int(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: int =0, min_value: int =0, max_value: int =100, step: int =1, step_fast: int =100, min_clamped: bool =False, max_clamped: bool =False, on_enter: bool =False, readonly: bool =False, **kwargs) -> Union[int, str]:
     if not(min_clamped):
@@ -1519,7 +1519,7 @@ def input_int(*, label: str =None, user_data: Any =None, width: int =0, indent: 
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="int", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="int", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, min_value=min_value, max_value=max_value, step=step, step_fast=step_fast, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_intx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[int], Tuple[int, ...]] =(0, 0, 0, 0), min_value: int =0, max_value: int =100, size: int =4, min_clamped: bool =False, max_clamped: bool =False, on_enter: bool =False, readonly: bool =False, **kwargs) -> Union[int, str]:
     if not(min_clamped):
@@ -1527,10 +1527,10 @@ def input_intx(*, label: str =None, user_data: Any =None, width: int =0, indent:
     if not(max_clamped):
         max_value = 1e100
 
-    return dcg.InputValue(CONTEXT, format="int", label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
+    return dcg.InputValue(CONTEXT, format="int", label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, min_value=min_value, max_value=max_value, size=size, callback_on_enter=on_enter, readonly=readonly, **kwargs)
 
 def input_text(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: str ='', hint: str ='', multiline: bool =False, no_spaces: bool =False, uppercase: bool =False, tab_input: bool =False, decimal: bool =False, hexadecimal: bool =False, readonly: bool =False, password: bool =False, scientific: bool =False, on_enter: bool =False, auto_select_all: bool =False, ctrl_enter_for_new_line: bool =False, no_horizontal_scroll: bool =False, always_overwrite: bool =False, no_undo_redo: bool =False, escape_clears_all: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.InputText(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, hint=hint, multiline=multiline, no_spaces=no_spaces, uppercase=uppercase, tab_input=tab_input, decimal=decimal, hexadecimal=hexadecimal, readonly=readonly, password=password, scientific=scientific, callback_on_enter=on_enter, auto_select_all=auto_select_all, ctrl_enter_for_new_line=ctrl_enter_for_new_line, no_horizontal_scroll=no_horizontal_scroll, always_overwrite=always_overwrite, no_undo_redo=no_undo_redo, escape_clears_all=escape_clears_all, **kwargs)
+    return dcg.InputText(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, hint=hint, multiline=multiline, no_spaces=no_spaces, uppercase=uppercase, tab_input=tab_input, decimal=decimal, hexadecimal=hexadecimal, readonly=readonly, password=password, scientific=scientific, callback_on_enter=on_enter, auto_select_all=auto_select_all, ctrl_enter_for_new_line=ctrl_enter_for_new_line, no_horizontal_scroll=no_horizontal_scroll, always_overwrite=always_overwrite, no_undo_redo=no_undo_redo, escape_clears_all=escape_clears_all, **kwargs)
 
 def int4_value(*, label: str =None, user_data: Any =None, default_value: Union[List[int], Tuple[int, ...]] =(0, 0, 0, 0), parent: Union[int, str] =mvReservedUUID_3, **kwargs) -> Union[int, str]:
     return dcg.SharedInt4(CONTEXT, default_value)
@@ -1608,16 +1608,16 @@ def line_series(x : Union[List[float], Tuple[float, ...]], y : Union[List[float]
     return dcg.PlotLine(CONTEXT, parent=plot, axes=(dcg.Axis.X1, axis_y.axis), X=x, Y=y, label=label, user_data=user_data, show=show, segments=segments, loop=loop, skip_nan=skip_nan, no_clip=no_clip, shaded=shaded, **kwargs)
 
 def listbox(items : Union[List[str], Tuple[str, ...]] =(), *, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: str ='', num_items: int =3, **kwargs) -> Union[int, str]:
-    return dcg.ListBox(CONTEXT, items=items, label=label, user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, num_items_shown_when_open=num_items, **kwargs)
+    return dcg.ListBox(CONTEXT, items=items, label=label, user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, num_items_shown_when_open=num_items, **kwargs)
 
 def menu(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drop_callback: Callable =None, show: bool =True, enabled: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, **kwargs) -> Union[int, str]:
-   return dcg.Menu(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, enabled=enabled, filter_key=filter_key, tracked=tracked, track_offset=track_offset, **kwargs)
+   return dcg.Menu(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, enabled=enabled, filter_key=filter_key, tracked=tracked, track_offset=track_offset, **kwargs)
 
 def menu_bar(*, label: str =None, user_data: Any =None, indent: int =0, show: bool =True, **kwargs) -> Union[int, str]:
-    return dcg.MenuBar(CONTEXT, label=label, user_data=user_data, indent=indent, show=show, **kwargs)
+    return dcg.MenuBar(CONTEXT, label=label, user_data=user_data, x=indent, show=show, **kwargs)
 
 def menu_item(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: bool =False, shortcut: str ='', check: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.MenuItem(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drop_callback=drop_callback, show=show, enabled=enabled, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, shortcut=shortcut, check=check, **kwargs)
+    return dcg.MenuItem(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drop_callback=drop_callback, show=show, enabled=enabled, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, shortcut=shortcut, check=check, **kwargs)
 
 def mouse_click_handler(button : int =-1, *, label: str =None, user_data: Any =None, callback: Callable =None, show: bool =True, parent: Union[int, str] =mvReservedUUID_1, **kwargs) -> Union[int, str]:
     return dcg.MouseClickHandler(CONTEXT, button=button, label=label, user_data=user_data, callback=wrap_callback(callback), show=show, **kwargs)
@@ -1644,7 +1644,7 @@ def plot(*, label: str =None, user_data: Any =None, width: int =0, height: int =
     # Won't work if plot are created in a row and them the axes
     LOCAL_STORAGE.Y_AXIS = dcg.Axis.Y1
 
-    return dcg.Plot(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_title=no_title, no_menus=no_menus, no_box_select=no_box_select, no_mouse_pos=no_mouse_pos, query=query, query_color=query_color, min_query_rects=min_query_rects, max_query_rects=max_query_rects, crosshairs=crosshairs, equal_aspects=equal_aspects, no_inputs=no_inputs, no_frame=no_frame, use_local_time=use_local_time, use_ISO8601=use_ISO8601, use_24hour_clock=use_24hour_clock, pan_button=pan_button, pan_mod=pan_mod, context_menu_button=context_menu_button, fit_button=fit_button, box_select_button=box_select_button, box_select_mod=box_select_mod, box_select_cancel_button=box_select_cancel_button, query_toggle_mod=query_toggle_mod, horizontal_mod=horizontal_mod, vertical_mod=vertical_mod, override_mod=override_mod, zoom_mod=zoom_mod, zoom_rate=zoom_rate, **kwargs)
+    return dcg.Plot(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_title=no_title, no_menus=no_menus, no_box_select=no_box_select, no_mouse_pos=no_mouse_pos, query=query, query_color=query_color, min_query_rects=min_query_rects, max_query_rects=max_query_rects, crosshairs=crosshairs, equal_aspects=equal_aspects, no_inputs=no_inputs, no_frame=no_frame, use_local_time=use_local_time, use_ISO8601=use_ISO8601, use_24hour_clock=use_24hour_clock, pan_button=pan_button, pan_mod=pan_mod, context_menu_button=context_menu_button, fit_button=fit_button, box_select_button=box_select_button, box_select_mod=box_select_mod, box_select_cancel_button=box_select_cancel_button, query_toggle_mod=query_toggle_mod, horizontal_mod=horizontal_mod, vertical_mod=vertical_mod, override_mod=override_mod, zoom_mod=zoom_mod, zoom_rate=zoom_rate, **kwargs)
 
 def plot_axis(axis : int, *, label: str =None, user_data: Any =None, payload_type: str ='$$DPG_PAYLOAD', drop_callback: Callable =None, show: bool =True, no_label: bool =False, no_gridlines: bool =False, no_tick_marks: bool =False, no_tick_labels: bool =False, no_initial_fit: bool =False, no_menus: bool =False, no_side_switch: bool =False, no_highlight: bool =False, opposite: bool =False, foreground_grid: bool =False, tick_format: str ='', scale: int =mvPlotScale_Linear, invert: bool =False, auto_fit: bool =False, range_fit: bool =False, pan_stretch: bool =False, lock_min: bool =False, lock_max: bool =False, **kwargs) -> Union[int, str]:
     parent = kwargs.pop("parent", None)
@@ -1687,10 +1687,10 @@ def plot_legend(*, label: str =None, user_data: Any =None, payload_type: str ='$
     return item
 
 def progress_bar(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, overlay: str ='', default_value: float =0.0, **kwargs) -> Union[int, str]:
-    return dcg.ProgressBar(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, overlay=overlay, value=default_value, **kwargs)
+    return dcg.ProgressBar(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, overlay=overlay, value=default_value, **kwargs)
 
 def radio_button(items : Union[List[str], Tuple[str, ...]] =(), *, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: str ='', horizontal: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.RadioButton(CONTEXT, items=items, label=label, user_data=user_data, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, horizontal=horizontal, **kwargs)
+    return dcg.RadioButton(CONTEXT, items=items, label=label, user_data=user_data, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, horizontal=horizontal, **kwargs)
 
 def raw_texture(width : int, height : int, default_value : Union[List[float], Tuple[float, ...]], *, label: str =None, user_data: Any =None, format: int =mvFormat_Float_rgba, parent: Union[int, str] =mvReservedUUID_2, **kwargs) -> Union[int, str]:
     content = np.asarray(default_value).reshape([height, width, -1])
@@ -1713,10 +1713,10 @@ def scatter_series(x : Union[List[float], Tuple[float, ...]], y : Union[List[flo
     return dcg.PlotScatter(CONTEXT, parent=plot, axes=(dcg.Axis.X1, axis_y.axis), X=x, Y=y, label=label, user_data=user_data, show=show, no_clip=no_clip, **kwargs)
 
 def selectable(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: bool =False, span_columns: bool =False, disable_popup_close: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Selectable(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, span_columns=span_columns, disable_popup_close=disable_popup_close, **kwargs)
+    return dcg.Selectable(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, span_columns=span_columns, disable_popup_close=disable_popup_close, **kwargs)
 
 def separator(*, label: str =None, user_data: Any =None, indent: int =0, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], **kwargs) -> Union[int, str]:
-    return dcg.Separator(CONTEXT, label=label, user_data=user_data, indent=indent, show=show, pos=pos, **kwargs)
+    return dcg.Separator(CONTEXT, label=label, user_data=user_data, x=indent, show=show, pos=pos, **kwargs)
 
 def shade_series(x : Union[List[float], Tuple[float, ...]], y1 : Union[List[float], Tuple[float, ...]], *, label: str =None, user_data: Any =None, show: bool =True, y2: Any =[], **kwargs) -> Union[int, str]:
     parent = kwargs.pop("parent", None)
@@ -1730,28 +1730,28 @@ def shade_series(x : Union[List[float], Tuple[float, ...]], y1 : Union[List[floa
     return dcg.PlotShadedLine(CONTEXT, parent=plot, axes=(dcg.Axis.X1, axis_y.axis), X=x, Y1=y1, label=label, user_data=user_data, show=show, Y2=y2, **kwargs)
 
 def simple_plot(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[float], Tuple[float, ...]] =(), overlay: str ='', histogram: bool =False, autosize: bool =True, min_scale: float =0.0, max_scale: float =0.0, **kwargs) -> Union[int, str]:
-    return dcg.SimplePlot(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, overlay=overlay, histogram=histogram, autoscale=autosize, scale_min=min_scale, scale_max=max_scale, **kwargs)
+    return dcg.SimplePlot(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, overlay=overlay, histogram=histogram, autoscale=autosize, scale_min=min_scale, scale_max=max_scale, **kwargs)
 
 def slider_double(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: float =0.0, vertical: bool =False, no_input: bool =False, clamped: bool =False, min_value: float =0.0, max_value: float =100.0, format: str ='%.3f', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="double", size=1, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="double", size=1, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def slider_doublex(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Any =(0.0, 0.0, 0.0, 0.0), size: int =4, no_input: bool =False, clamped: bool =False, min_value: float =0.0, max_value: float =100.0, format: str ='%.3f', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="double", user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="double", user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def slider_float(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: float =0.0, vertical: bool =False, no_input: bool =False, clamped: bool =False, min_value: float =0.0, max_value: float =100.0, format: str ='%.3f', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="float", size=1, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="float", size=1, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def slider_floatx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[float], Tuple[float, ...]] =(0.0, 0.0, 0.0, 0.0), size: int =4, no_input: bool =False, clamped: bool =False, min_value: float =0.0, max_value: float =100.0, format: str ='%.3f', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="float", user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="float", user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def slider_int(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: int =0, vertical: bool =False, no_input: bool =False, clamped: bool =False, min_value: int =0, max_value: int =100, format: str ='%d', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="int", size=1, user_data=user_data, width=width, height=height, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="int", size=1, user_data=user_data, width=width, height=height, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, vertical=vertical, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def slider_intx(*, label: str =None, user_data: Any =None, width: int =0, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, enabled: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_value: Union[List[int], Tuple[int, ...]] =(0, 0, 0, 0), size: int =4, no_input: bool =False, clamped: bool =False, min_value: int =0, max_value: int =100, format: str ='%d', **kwargs) -> Union[int, str]:
-    return dcg.Slider(CONTEXT, label=label, format="int", user_data=user_data, width=width, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
+    return dcg.Slider(CONTEXT, label=label, format="int", user_data=user_data, width=width, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, enabled=enabled, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_value, size=size, no_input=no_input, clamped=clamped, min_value=min_value, max_value=max_value, print_format=format, **kwargs)
 
 def spacer(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], **kwargs) -> Union[int, str]:
-    return dcg.Spacer(CONTEXT, label=label, user_data=user_data, width=width, height=height, indent=indent, show=show, pos=pos, **kwargs)
+    return dcg.Spacer(CONTEXT, label=label, user_data=user_data, width=width, height=height, x=indent, show=show, pos=pos, **kwargs)
 
 def stage(*, label: str =None, user_data: Any =None, **kwargs) -> Union[int, str]:
     item = dcg.PlaceHolderParent(CONTEXT, **kwargs)
@@ -1785,22 +1785,22 @@ def stem_series(x : Union[List[float], Tuple[float, ...]], y : Union[List[float]
 
     plot = axis_y.plot
 
-    return dcg.PlotStems(CONTEXT, parent=plot, axes=(dcg.Axis.X1, axis_y.axis), X=x, Y=y, label=label, user_data=user_data, indent=indent, show=show, horizontal=horizontal, **kwargs)
+    return dcg.PlotStems(CONTEXT, parent=plot, axes=(dcg.Axis.X1, axis_y.axis), X=x, Y=y, label=label, user_data=user_data, x=indent, show=show, horizontal=horizontal, **kwargs)
 
 def string_value(*, label: str =None, user_data: Any =None, default_value: str ='', parent: Union[int, str] =mvReservedUUID_3, **kwargs) -> Union[int, str]:
     return dcg.SharedStr(CONTEXT, label=label, user_data=user_data, value=default_value, **kwargs)
 
 def subplots(rows : int, columns : int, *, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, row_ratios: Union[List[float], Tuple[float, ...]] =[], column_ratios: Union[List[float], Tuple[float, ...]] =[], no_title: bool =False, no_menus: bool =False, no_resize: bool =False, no_align: bool =False, share_series: bool =False, link_rows: bool =False, link_columns: bool =False, link_all_x: bool =False, link_all_y: bool =False, column_major: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.Subplots(CONTEXT, rows=rows, cols=columns, label=label, user_data=user_data, width=width, height=height, indent=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, row_ratios=row_ratios, column_ratios=column_ratios, no_title=no_title, no_menus=no_menus, no_resize=no_resize, no_align=no_align, share_legends=share_series, col_major=column_major, **kwargs)
+    return dcg.Subplots(CONTEXT, rows=rows, cols=columns, label=label, user_data=user_data, width=width, height=height, x=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, row_ratios=row_ratios, column_ratios=column_ratios, no_title=no_title, no_menus=no_menus, no_resize=no_resize, no_align=no_align, share_legends=share_series, col_major=column_major, **kwargs)
 
 def tab(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drop_callback: Callable =None, show: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, closable: bool =False, no_tooltip: bool =False, order_mode: int =0, **kwargs) -> Union[int, str]:
-    return dcg.Tab(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, closable=closable, no_tooltip=no_tooltip, order_mode=order_mode, **kwargs)
+    return dcg.Tab(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, closable=closable, no_tooltip=no_tooltip, order_mode=order_mode, **kwargs)
 
 def tab_bar(*, label: str =None, user_data: Any =None, indent: int =0, callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, reorderable: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.TabBar(CONTEXT, label=label, user_data=user_data, indent=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, reorderable=reorderable, **kwargs)
+    return dcg.TabBar(CONTEXT, label=label, user_data=user_data, x=indent, callback=wrap_callback(callback), show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, reorderable=reorderable, **kwargs)
 
 def tab_button(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', callback: Callable =None, drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, filter_key: str ='', tracked: bool =False, track_offset: float =0.5, no_reorder: bool =False, leading: bool =False, trailing: bool =False, no_tooltip: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.TabButton(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_reorder=no_reorder, leading=leading, trailing=trailing, no_tooltip=no_tooltip, **kwargs)
+    return dcg.TabButton(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, callback=wrap_callback(callback), drag_callback=drag_callback, drop_callback=drop_callback, show=show, filter_key=filter_key, tracked=tracked, track_offset=track_offset, no_reorder=no_reorder, leading=leading, trailing=trailing, no_tooltip=no_tooltip, **kwargs)
 
 def table(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, indent: int =0, callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', header_row: bool =True, clipper: bool =False, inner_width: int =0, policy: int =0, freeze_rows: int =0, freeze_columns: int =0, sort_multi: bool =False, sort_tristate: bool =False, resizable: bool =False, reorderable: bool =False, hideable: bool =False, sortable: bool =False, context_menu_in_body: bool =False, row_background: bool =False, borders_innerH: bool =False, borders_outerH: bool =False, borders_innerV: bool =False, borders_outerV: bool =False, no_host_extendX: bool =False, no_host_extendY: bool =False, no_keep_columns_visible: bool =False, precise_widths: bool =False, no_clip: bool =False, pad_outerX: bool =False, no_pad_outerX: bool =False, no_pad_innerX: bool =False, scrollX: bool =False, scrollY: bool =False, no_saved_settings: bool =False, **kwargs) -> Union[int, str]:
     table = dcg.Table(CONTEXT)
@@ -1926,7 +1926,7 @@ def text(default_value : str ='', *, label: str =None, user_data: Any =None, ind
         value = default_value + " " + label if label else default_value
     else:
         value = default_value
-    return dcg.Text(CONTEXT, value=value, user_data=user_data, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, bullet=bullet, **kwargs)
+    return dcg.Text(CONTEXT, value=value, user_data=user_data, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, bullet=bullet, **kwargs)
 
 def texture_registry(*, label: str =None, user_data: Any =None, show: bool =False, **kwargs) -> Union[int, str]:
     return dcg.PlaceHolderParent(CONTEXT)
@@ -1985,7 +1985,7 @@ def tooltip(parent : Union[int, str], *, label: str =None, user_data: Any =None,
             parent = parent.parent
 
 def tree_node(*, label: str =None, user_data: Any =None, indent: int =0, payload_type: str ='$$DPG_PAYLOAD', drag_callback: Callable =None, drop_callback: Callable =None, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], filter_key: str ='', tracked: bool =False, track_offset: float =0.5, default_open: bool =False, open_on_double_click: bool =False, open_on_arrow: bool =False, leaf: bool =False, bullet: bool =False, selectable: bool =False, span_text_width: bool =False, span_full_width: bool =False, **kwargs) -> Union[int, str]:
-    return dcg.TreeNode(CONTEXT, label=label, user_data=user_data, indent=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_open, open_on_double_click=open_on_double_click, open_on_arrow=open_on_arrow, leaf=leaf, bullet=bullet, selectable=selectable, span_text_width=span_text_width, span_full_width=span_full_width, **kwargs)
+    return dcg.TreeNode(CONTEXT, label=label, user_data=user_data, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, value=default_open, open_on_double_click=open_on_double_click, open_on_arrow=open_on_arrow, leaf=leaf, bullet=bullet, selectable=selectable, span_text_width=span_text_width, span_full_width=span_full_width, **kwargs)
 
 def value_registry(*, label: str =None, user_data: Any =None, **kwargs) -> Union[int, str]:
     return dcg.PlaceHolderParent(CONTEXT, label=label, user_data=user_data, **kwargs)
@@ -1994,7 +1994,7 @@ def viewport_drawlist(*, label: str =None, user_data: Any =None, show: bool =Tru
     return dcg.ViewportDrawList(CONTEXT, parent=CONTEXT.viewport, label=label, user_data=user_data, show=show, filter_key=filter_key, front=front, **kwargs)
 
 def viewport_menu_bar(*, label: str =None, user_data: Any =None, indent: int =0, show: bool =True, **kwargs) -> Union[int, str]:
-    return menu_bar(parent=CONTEXT.viewport, label=label, user_data=user_data, indent=indent, show=show, **kwargs)
+    return menu_bar(parent=CONTEXT.viewport, label=label, user_data=user_data, x=indent, show=show, **kwargs)
 
 def window(*, label: str =None, user_data: Any =None, width: int =0, height: int =0, show: bool =True, pos: Union[List[int], Tuple[int, ...]] =[], min_size: Union[List[int], Tuple[int, ...]] =[100, 100], max_size: Union[List[int], Tuple[int, ...]] =[30000, 30000], menubar: bool =False, collapsed: bool =False, autosize: bool =False, no_resize: bool =False, unsaved_document: bool =False, no_title_bar: bool =False, no_move: bool =False, no_scrollbar: bool =False, no_collapse: bool =False, horizontal_scrollbar: bool =False, no_focus_on_appearing: bool =False, no_bring_to_front_on_focus: bool =False, no_close: bool =False, no_background: bool =False, modal: bool =False, popup: bool =False, no_saved_settings: bool =False, no_open_over_existing_popup: bool =True, no_scroll_with_mouse: bool =False, on_close: Callable =None, **kwargs) -> Union[int, str]:
     return dcg.Window(CONTEXT, parent=CONTEXT.viewport, label=label, user_data=user_data, width=width, height=height, show=show, pos=pos, min_size=min_size, max_size=max_size, menubar=menubar, collapsed=collapsed, autosize=autosize, no_resize=no_resize, unsaved_document=unsaved_document, no_title_bar=no_title_bar, no_move=no_move, no_scrollbar=no_scrollbar, no_collapse=no_collapse, horizontal_scrollbar=horizontal_scrollbar, no_focus_on_appearing=no_focus_on_appearing, no_bring_to_front_on_focus=no_bring_to_front_on_focus, has_close_button=not(no_close), no_background=no_background, modal=modal, popup=popup, no_saved_settings=no_saved_settings, no_open_over_existing_popup=no_open_over_existing_popup, no_scroll_with_mouse=no_scroll_with_mouse, on_close=wrap_callback(on_close), **kwargs)

@@ -1727,8 +1727,8 @@ def _combining_colors(C: dcg.Context):
     
     # Set custom theme colors for alternating rows - using more muted colors
     table.theme = dcg.ThemeColorImGui(C,
-        TableRowBg=(70, 90, 120),     # Muted blue
-        TableRowBgAlt=(80, 100, 80)   # Muted green
+        table_row_bg=(70, 90, 120),     # Muted blue
+        table_row_bg_alt=(80, 100, 80)   # Muted green
     )
     
     # Add rows
@@ -1835,21 +1835,21 @@ def _table_theme_attributes(C: dcg.Context):
     # Create theme components with distinct colors
     with dcg.HorizontalLayout(C):
         with dcg.VerticalLayout(C):
-            add_theme_component("Text", (255, 220, 0))  # Gold for header text
-            add_theme_component("PopupBg", (20, 60, 30))  # Dark green for popups
-            add_theme_component("ScrollbarBg", (30, 30, 30))  # Dark gray for scrollbar bg
-            add_theme_component("ScrollbarGrab", (100, 100, 140))  # Medium purple for scrollbar
-            add_theme_component("ScrollbarGrabHovered", (120, 120, 180))  # Lighter purple for hovered
+            add_theme_component("text", (255, 220, 0))  # Gold for header text
+            add_theme_component("popup_bg", (20, 60, 30))  # Dark green for popups
+            add_theme_component("scrollbar_bg", (30, 30, 30))  # Dark gray for scrollbar bg
+            add_theme_component("scrollbar_grab", (100, 100, 140))  # Medium purple for scrollbar
+            add_theme_component("scrollbar_grab_hovered", (120, 120, 180))  # Lighter purple for hovered
         
         with dcg.VerticalLayout(C):
-            add_theme_component("ScrollbarGrabActive", (140, 140, 220))  # Bright purple for active
-            add_theme_component("TableHeaderBg", (60, 80, 120))  # Medium blue for header bg
-            add_theme_component("TableBorderStrong", (200, 200, 255))  # Light lavender for strong borders
-            add_theme_component("TableBorderLight", (120, 120, 180))  # Medium lavender for light borders
-            add_theme_component("TableRowBg", (50, 70, 90))  # Dark blue for even rows
+            add_theme_component("scrollbar_grab_active", (140, 140, 220))  # Bright purple for active
+            add_theme_component("table_header_bg", (60, 80, 120))  # Medium blue for header bg
+            add_theme_component("table_border_strong", (200, 200, 255))  # Light lavender for strong borders
+            add_theme_component("table_border_light", (120, 120, 180))  # Medium lavender for light borders
+            add_theme_component("table_row_bg", (50, 70, 90))  # Dark blue for even rows
         
         with dcg.VerticalLayout(C):
-            add_theme_component("TableRowBgAlt", (60, 80, 70))  # Dark green for odd rows
+            add_theme_component("table_row_bg_alt", (60, 80, 70))  # Dark green for odd rows
 
 pop_group()  # End Styling
 

@@ -146,12 +146,12 @@ def show_demo(C : dcg.Context):
                     for i in range(7):
                         with dcg.ThemeList(C) as theme:
                             dcg.ThemeColorImGui(C,
-                                                Button=hsv(i/7.0, 0.6, 0.6),
-                                                ButtonHovered=hsv(i/7.0, 0.7, 0.7),
-                                                ButtonActive=hsv(i/7.0, 0.8, 0.8))
+                                                button=hsv(i/7.0, 0.6, 0.6),
+                                                button_hovered=hsv(i/7.0, 0.7, 0.7),
+                                                button_active=hsv(i/7.0, 0.8, 0.8))
                             dcg.ThemeStyleImGui(C,
-                                                FrameRounding=i*5,
-                                                FramePadding=(i*3, i*3))
+                                                frame_rounding=i*5,
+                                                frame_padding=(i*3, i*3))
                         dcg.Button(C, label="Click", callback=_log, theme=theme)
 
                 with dcg.HorizontalLayout(C):
@@ -519,10 +519,10 @@ def show_demo(C : dcg.Context):
 
                         for i in range(7):
                             t = dcg.ThemeColorImGui(C,
-                                    FrameBg=hsv(i/7.0, 0.5, 0.5),
-                                    SliderGrab=hsv(i/7.0, 0.9, 0.9),
-                                    FrameBgActive=hsv(i/7.0, 0.7, 0.5),
-                                    FrameBgHovered=hsv(i/7.0, 0.6, 0.5))
+                                    frame_bg=hsv(i/7.0, 0.5, 0.5),
+                                    slider_grab=hsv(i/7.0, 0.9, 0.9),
+                                    frame_bg_active=hsv(i/7.0, 0.7, 0.5),
+                                    frame_bg_hovered=hsv(i/7.0, 0.6, 0.5))
 
                             dcg.Slider(C, label=" ", value=values[i], width=20,
                                        vertical=True, max_value=1.0, height=160,
@@ -918,23 +918,23 @@ def show_demo(C : dcg.Context):
             with dcg.TreeNode(C, label="Help"):
                 dcg.Separator(C)
                 dcg.Text(C, value="ABOUT TEXTURES:")
-                dcg.Text(C, value="Textures are buffers of RGBA data.", bullet=True, indent=20)
-                dcg.Text(C, value="Textures are used by 'image based' widgets:", bullet=True, indent=20) 
-                dcg.Text(C, value="Image", bullet=True, indent=50)
-                dcg.Text(C, value="DrawImage", bullet=True, indent=50)
-                dcg.Text(C, value="Textures can be assigned a dynamic hint", bullet=True, indent=20)
+                dcg.Text(C, value="Textures are buffers of RGBA data.", bullet=True, x=20)
+                dcg.Text(C, value="Textures are used by 'image based' widgets:", bullet=True, x=20) 
+                dcg.Text(C, value="Image", bullet=True, x=50)
+                dcg.Text(C, value="DrawImage", bullet=True, x=50)
+                dcg.Text(C, value="Textures can be assigned a dynamic hint", bullet=True, x=20)
                 dcg.Text(C, value="The dynamic hint helps GPU placement to optimize \n"
-                                  "for fast upload (but possibly slower GPU access)", bullet=True, indent=20)
-                dcg.Text(C, value="When their value are set, the content is uploaded right away to the GPU", bullet=True, indent=20)
-                dcg.Text(C, value="Resizing is allowed but requires a sync, prefer allocating a new texture", bullet=True, indent=20)
-                dcg.Text(C, value="Available format are R, RG, RGB, RGBA", bullet=True, indent=20)
-                dcg.Text(C, value="They can be stored as uint8 or float32 (in that case data must be between 0 and 1)", bullet=True, indent=20)
+                                  "for fast upload (but possibly slower GPU access)", bullet=True, x=20)
+                dcg.Text(C, value="When their value are set, the content is uploaded right away to the GPU", bullet=True, x=20)
+                dcg.Text(C, value="Resizing is allowed but requires a sync, prefer allocating a new texture", bullet=True, x=20)
+                dcg.Text(C, value="Available format are R, RG, RGB, RGBA", bullet=True, x=20)
+                dcg.Text(C, value="They can be stored as uint8 or float32 (in that case data must be between 0 and 1)", bullet=True, x=20)
 
                 dcg.Separator(C)
                 dcg.Text(C, value="PROGRAMMER GUIDE:")
-                dcg.Text(C, value="'image based' widgets hold a reference to a texture widget.", bullet=True, indent=20)
-                dcg.Text(C, value="Deleting the texture widget will not affect widget's using it.", bullet=True, indent=50)
-                dcg.Text(C, value="Textures are only free'd from the GPU when the reference count reaches 0.", bullet=True, indent=50)
+                dcg.Text(C, value="'image based' widgets hold a reference to a texture widget.", bullet=True, x=20)
+                dcg.Text(C, value="Deleting the texture widget will not affect widget's using it.", bullet=True, x=50)
+                dcg.Text(C, value="Textures are only free'd from the GPU when the reference count reaches 0.", bullet=True, x=50)
                 dcg.Separator(C)
 
             with dcg.TreeNode(C, label="Textures"):
@@ -1376,8 +1376,8 @@ def show_demo(C : dcg.Context):
                     table = dcg.Table(C, header=False, flags=dcg.TableFlag.ROW_BG)
                     table.theme = \
                         dcg.ThemeColorImGui(C,
-                            TableRowBg=(0, 255, 0),
-                            TableRowBgAlt=(0, 0, 255))
+                            table_row_bg=(0, 255, 0),
+                            table_row_bg_alt=(0, 0, 255))
                     for i in range(6):
                         with table.next_row:
                             for j in range(6):
@@ -1422,8 +1422,8 @@ def show_demo(C : dcg.Context):
                     table = dcg.Table(C, header=False, flags=dcg.TableFlag.ROW_BG)
                     table.theme = \
                         dcg.ThemeColorImGui(C,
-                            TableRowBg=(0, 255, 0),
-                            TableRowBgAlt=(0, 0, 255))
+                            table_row_bg=(0, 255, 0),
+                            table_row_bg_alt=(0, 0, 255))
                     for i in range(6):
                         with table.next_row:
                             for j in range(6):
@@ -1924,8 +1924,8 @@ def show_demo(C : dcg.Context):
                 #Create theme that hides table headers
                 table_theme = \
                     dcg.ThemeColorImGui(C,
-                        HeaderActive=(0, 0, 0, 0),
-                        Header=(0, 0, 0, 0))
+                        header_active=(0, 0, 0, 0),
+                        header=(0, 0, 0, 0))
 
                 table_sel_rows = dcg.Table(C, header=True, theme=table_theme)
                 table_sel_rows.col_config[0].label = "First"
@@ -2090,7 +2090,7 @@ def show_demo(C : dcg.Context):
                                                bg_color=(255, 255, 0, 255))
                             dcg.PlotAnnotation(C, text="This is another text annotation",
                                                x=0.5, y=-40., clamp=True,
-                                               theme=dcg.ThemeColorImPlot(C, InlayText=(255, 255, 0, 255)))
+                                               theme=dcg.ThemeColorImPlot(C, inlay_text=(255, 255, 0, 255)))
                                 
                     with dcg.TreeNode(C, label="Shade Series"):
                         std_alpha = 0.25
@@ -2098,7 +2098,7 @@ def show_demo(C : dcg.Context):
                         alpha_slider = dcg.Slider(C, format="float", min_value=0, max_value=1, 
                                                   speed=0.01, value=std_alpha)
                         
-                        alpha_theme = dcg.ThemeStyleImPlot(C, FillAlpha=std_alpha)
+                        alpha_theme = dcg.ThemeStyleImPlot(C, fill_alpha=std_alpha)
 
                         with dcg.Plot(C, label="Shaded Plot", height=400, width=-1, theme=alpha_theme) as shaded_plot_1:
                             xs = np.linspace(0, 1, 1001)
@@ -2114,7 +2114,7 @@ def show_demo(C : dcg.Context):
                             dcg.PlotLine(C, X=xs, Y=ys3, label="Overlapping")
                             dcg.PlotLine(C, X=xs, Y=ys4, label="Overlapping")
                         def _cb_alpha(sender, target, value):
-                            alpha_theme = dcg.ThemeStyleImPlot(C, FillAlpha=value)
+                            alpha_theme = dcg.ThemeStyleImPlot(C, fill_alpha=value)
                             shaded_plot_1.theme = alpha_theme
 
                         alpha_slider.callbacks = _cb_alpha
@@ -2128,16 +2128,16 @@ def show_demo(C : dcg.Context):
                         stock_data5 = 600 + 75 * np.abs(np.random.random(100))
 
                         stock_theme1 = dcg.ThemeColorImPlot(C,
-                                                            Line=(0, 0, 255),
-                                                            Fill=(0, 0, 255, 64))
+                                                            line=(0, 0, 255),
+                                                            fill=(0, 0, 255, 64))
                         stock_theme2 = dcg.ThemeColorImPlot(C,
-                                                            Line=(255, 0, 0),
-                                                            Fill=(255, 0, 0, 64))
+                                                            line=(255, 0, 0),
+                                                            fill=(255, 0, 0, 64))
                         stock_theme3 = dcg.ThemeColorImPlot(C,
-                                                            Line=(0, 255, 0),
-                                                            Fill=(0, 255, 0, 64))
+                                                            line=(0, 255, 0),
+                                                            fill=(0, 255, 0, 64))
                         stock_theme4 = dcg.ThemeColorImPlot(C,
-                                                            Fill=(255, 255, 100, 64))
+                                                            fill=(255, 255, 100, 64))
 
                         with dcg.Plot(C, label="Stock Prices", height=400, width=-1) as stock_plot:
                             stock_plot.X1.label = "Days"
@@ -2151,12 +2151,12 @@ def show_demo(C : dcg.Context):
                             dcg.PlotShadedLine(C, X=stock_datax, Y1=stock_data5, Y2=stock_data4, label="Shade between lines", theme=stock_theme4)
 
                     with dcg.TreeNode(C, label="Scatter Series"):
-                        scatter_theme = dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.CIRCLE)
+                        scatter_theme = dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.CIRCLE)
                         def change_marker(sender, target, marker_name):
                             scatter_theme.Marker = getattr(dcg.PlotMarker, marker_name.upper())
 
                         def change_size(sender, target, size):
-                            scatter_theme.MarkerSize = size
+                            scatter_theme.marker_size = size
 
                         with dcg.ChildWindow(C, width=-1, auto_resize_y=True, horizontal_scrollbar=True, no_scrollbar=True):
                             dcg.RadioButton(C, 
@@ -2171,7 +2171,7 @@ def show_demo(C : dcg.Context):
                             format="float",
                             min_value=2.0,
                             max_value=10.0,
-                            value=scatter_theme.get_default("MarkerSize"),
+                            value=scatter_theme.get_default("marker_size"),
                             callback=change_size
                         )
 
@@ -2332,8 +2332,8 @@ def show_demo(C : dcg.Context):
                         
                     with dcg.TreeNode(C, label="Stem Series"):
                         with dcg.ThemeList(C) as stem_theme1:
-                            dcg.ThemeColorImPlot(C, Line=(0, 255, 0))
-                            dcg.ThemeStyleImPlot(C, Marker=dcg.PlotMarker.DIAMOND)
+                            dcg.ThemeColorImPlot(C, line=(0, 255, 0))
+                            dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.DIAMOND)
                         with dcg.Plot(C, label="Stem Series", height=400, width=-1) as plot_stem_series:
                             plot_stem_series.X1.label = "x"
                             plot_stem_series.Y1.label = "y"
@@ -2472,7 +2472,7 @@ def show_demo(C : dcg.Context):
 
                     with dcg.TreeNode(C, label="Digital Plots"):
                         dcg.Text(C, value="Digital plots do not respond to Y drag and zoom, so that", bullet=True)
-                        dcg.Text(C, value="you can drag analog plots over the rising/falling digital edge.", indent=20)
+                        dcg.Text(C, value="you can drag analog plots over the rising/falling digital edge.", x=20)
                         with dcg.Plot(C, label="Digital Plot", height=400, width=-1) as plot_digital:
                             plot_digital.X1.label = "x"
                             plot_digital.X1.min = -10
@@ -2898,11 +2898,11 @@ def show_demo(C : dcg.Context):
                 with dcg.Tab(C, label="Help"):
                     dcg.Text(C, value="Plotting User Guide")
                     dcg.Text(C, value="Left click and drag within the plot area to pan X and Y axes.", bullet=True)
-                    dcg.Text(C, value="Left click and drag on an axis to pan an individual axis.", bullet=True, indent=20)
+                    dcg.Text(C, value="Left click and drag on an axis to pan an individual axis.", bullet=True, x=20)
                     dcg.Text(C, value="Scoll in the plot area to zoom both X and Y axes.", bullet=True)
-                    dcg.Text(C, value="Scroll on an axis to zoom an individual axis.", bullet=True, indent=20)
+                    dcg.Text(C, value="Scroll on an axis to zoom an individual axis.", bullet=True, x=20)
                     dcg.Text(C, value="Double left click to fit all visible data.", bullet=True)
-                    dcg.Text(C, value="Double left click on an axis to fit the individual axis", bullet=True, indent=20)
+                    dcg.Text(C, value="Double left click on an axis to fit the individual axis", bullet=True, x=20)
                     dcg.Text(C, value="Double right click to open the plot context menu.", bullet=True)
                     dcg.Text(C, value="Click legend label icons to show/hide plot items.", bullet=True)
 

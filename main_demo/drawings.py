@@ -1872,8 +1872,8 @@ def _draw_texture_advanced_example(C: dcg.Context):
         title="Invisible")
     invisible_context.viewport.theme = \
         dcg.ThemeColorImGui(invisible_context,
-                            Text=(30, 0, 30),
-                            WindowBg=(180, 180, 180))
+                            text=(30, 0, 30),
+                            window_bg=(180, 180, 180))
 
     invisible_ui = InvisibleUI(invisible_context)
     cube_demo = CubeDemo(C, width=-1, auto_resize_y=True)

@@ -343,7 +343,7 @@ class DemoContentContainer(dcg.ChildWindow):
         self.theme = \
             dcg.ThemeColorImGui(
                 self.context,
-                ChildBg=color
+                child_bg=color
             )
 
 class DemoWindow(dcg.Window):

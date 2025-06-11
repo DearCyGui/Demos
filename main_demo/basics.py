@@ -1253,10 +1253,10 @@ def _styling(C: dcg.Context):
     
     # Create a color theme
     color_theme = dcg.ThemeColorImGui(C,
-                                     Text=(255, 255, 0),        # Yellow text
-                                     Button=(100, 0, 0),        # Dark red button
-                                     ButtonHovered=(150, 0, 0), # Lighter red when hovered
-                                     ButtonActive=(80, 0, 0))   # Darker red when clicked
+                                      text=(255, 255, 0),        # Yellow text
+                                      button=(100, 0, 0),        # Dark red button
+                                      button_hovered=(150, 0, 0), # Lighter red when hovered
+                                      button_active=(80, 0, 0))   # Darker red when clicked
         
     # Apply theme to individual items
     dcg.Text(C, value="This text uses the color theme", theme=color_theme)
@@ -1269,9 +1269,9 @@ def _styling(C: dcg.Context):
     
     # Create a style theme
     style_theme = dcg.ThemeStyleImGui(C,
-                                     FrameRounding=10.0,    # Rounded corners
-                                     FramePadding=(12, 6),  # More padding
-                                     ItemSpacing=(15, 8))   # More space between items
+                                      frame_rounding=10.0,    # Rounded corners
+                                      frame_padding=(12, 6),  # More padding
+                                      item_spacing=(15, 8))   # More space between items
     
     # Apply style theme
     dcg.Button(C, label="Default style")

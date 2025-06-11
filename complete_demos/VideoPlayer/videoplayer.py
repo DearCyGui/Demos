@@ -558,8 +558,8 @@ class VideoPlayer(dcg.Window):
         # Make the window content use the whole size
         self.theme = \
             dcg.ThemeStyleImGui(context,
-                                WindowPadding=(0, 0),
-                                WindowBorderSize=0)
+                                window_padding=(0, 0),
+                                window_border_size=0)
         plot = dcg.Plot(context, parent=self, width=-1, height=-1)
         # Disable all plot features we don't want
         plot.X1.no_label = True
@@ -587,7 +587,7 @@ class VideoPlayer(dcg.Window):
         plot.no_legend = True
         plot.no_menus = True
         # Remove empty borders
-        plot.theme = dcg.ThemeStyleImPlot(self.context, PlotPadding=(0, 0), PlotBorderSize=0)
+        plot.theme = dcg.ThemeStyleImPlot(self.context, plot_padding=(0, 0), plot_border_size=0)
         # Image viewer
         with dcg.DrawInPlot(self.context, parent=plot):
             self.stream_viewer = DrawStream(context)

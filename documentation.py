@@ -38,7 +38,7 @@ class TextAnsi(dcg.HorizontalLayout):
     def __init__(self, context, wrap=0, **kwargs):
         self.textline = ""
         self._bullet = False
-        self.theme = dcg.ThemeStyleImGui(self.context, ItemSpacing=(0, 0))
+        self.theme = dcg.ThemeStyleImGui(self.context, item_spacing=(0, 0))
         super().__init__(context, width=wrap, **kwargs)
 
     def render_text(self):
@@ -112,18 +112,18 @@ class TextAnsi(dcg.HorizontalLayout):
                     else:
                         current_theme = dcg.ThemeList(self.context)
                         current_theme_style = dcg.ThemeStyleImGui(self.context,
-                                                  ItemSpacing=(0, 0),
-                                                  FrameBorderSize=0,
-                                                  FramePadding=(0, 0),
-                                                  FrameRounding=0,
-                                                  ItemInnerSpacing=(0, 0))
+                                                  item_spacing=(0, 0),
+                                                  frame_border_size=0,
+                                                  frame_padding=(0, 0),
+                                                  frame_rounding=0,
+                                                  item_inner_spacing=(0, 0))
                         current_theme_color = dcg.ThemeColorImGui(self.context)
                         current_theme.children = [current_theme_color, current_theme_style]
                         bg_color = background_color if background_color is not None else (0, 0, 0, 0)
-                        current_theme_color.Button = bg_color
-                        current_theme_color.ButtonHovered = bg_color
-                        current_theme_color.ButtonActive = bg_color
-                        current_theme_color.Text = color
+                        current_theme_color.button = bg_color
+                        current_theme_color.button_hovered = bg_color
+                        current_theme_color.button_active = bg_color
+                        current_theme_color.text = color
                         words = [w + " " for w in words[:-1]] + words[-1:]
                         # Wrapping the text within a button window.
                         for word in words:
@@ -245,7 +245,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
             self.use_auto_scale = False
         self.default_font = C.viewport.font
         self.wrap = wrap
-        self.no_spacing = dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))
+        self.no_spacing = dcg.ThemeStyleImGui(C, frame_padding=(0,0), frame_border_size=0, item_spacing=(0, 0))
         self._text = None
         marko.Renderer.__init__(self)
         dcg.Layout.__init__(self, C, **kwargs)
@@ -287,7 +287,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
         return ""
 
     def render_list(self, element):
-        with dcg.VerticalLayout(self.C, indent=-1):
+        with dcg.VerticalLayout(self.C, x="parent.x1 + theme.item_spacing.x"):
             self.render_children_if_not_str(element)
         return ""
 
@@ -325,7 +325,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
 
         formatter = Terminal256Formatter(bg='dark', style='monokai')
         text = code if lexer is None else highlight(code, lexer, formatter)
-        with dcg.ChildWindow(self.C, indent=-1, auto_resize_y=True, theme=self.no_spacing):
+        with dcg.ChildWindow(self.C, x="parent.x1 + theme.item_spacing.x", auto_resize_y=True, theme=self.no_spacing):
             lines = text.split("\n")
             for line in lines:
                 if line == "":
@@ -554,22 +554,22 @@ class InteractiveDocstring(dcg.ChildWindow):
         with self:
             if len(writable_properties) > 0:
                 dcg.Text(C, value="Read-Write properties:")
-                with dcg.HorizontalLayout(C, indent=-1, alignment_mode=dcg.Alignment.JUSTIFIED):
+                with dcg.HorizontalLayout(C, x="parent.x1 + theme.item_spacing.x", alignment_mode=dcg.Alignment.JUSTIFIED):
                     for attr in writable_properties:
                         TextWithDocstring(C, getattr(object_class, attr))
             if len(read_only_properties) > 0:
                 dcg.Text(C, value="Read-only properties:")
-                with dcg.HorizontalLayout(C, indent=-1):
+                with dcg.HorizontalLayout(C, x="parent.x1 + theme.item_spacing.x"):
                     for attr in read_only_properties:
                         TextWithDocstring(C, getattr(object_class, attr))
             if len(dynamic_properties) > 0:
                 dcg.Text(C, value="Dynamic properties:")
-                with dcg.HorizontalLayout(C, indent=-1):
+                with dcg.HorizontalLayout(C, x="parent.x1 + theme.item_spacing.x"):
                     for attr in dynamic_properties:
                         dcg.Text(C, value=attr)
             if len(methods) > 0:
                 dcg.Text(C, value="Methods:")
-                with dcg.HorizontalLayout(C, indent=-1):
+                with dcg.HorizontalLayout(C, x="parent.x1 + theme.item_spacing.x"):
                     for attr in methods:
                         TextWithDocstring(C, getattr(object_class, attr))
 
@@ -581,7 +581,7 @@ class AvailableItems(dcg.Layout):
         super().__init__(C, **kwargs)
 
         with self:
-            with dcg.HorizontalLayout(C, theme=dcg.ThemeStyleImGui(C, FramePadding=(0,0), FrameBorderSize=0, ItemSpacing=(0, 0))):
+            with dcg.HorizontalLayout(C, theme=dcg.ThemeStyleImGui(C, frame_padding=(0,0), frame_border_size=0, item_spacing=(0, 0))):
                 with dcg.VerticalLayout(C):
                     filter = dcg.Combo(C, width=200)
                     left = dcg.ChildWindow(C, height=-1, width=200)
@@ -637,7 +637,7 @@ class AvailableItems(dcg.Layout):
                     object_class = getattr(dcg, item.label)
                     try:
                         InteractiveDocstring(C, object_class, width=0, auto_resize_y=True,
-                                             theme=dcg.ThemeStyleImGui(C, FramePadding=(4,3), FrameBorderSize=1, ItemSpacing=(8, 4)))
+                                             theme=dcg.ThemeStyleImGui(C, frame_padding=(4,3), frame_border_size=1, item_spacing=(8, 4)))
                     except: # Shared*
                         pass
                     display_docstring(C, object_class)
