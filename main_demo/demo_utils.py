@@ -970,7 +970,17 @@ def launch_demo(title="DearCyGui Demo"):
     context.queue = AsyncPoolExecutor()
     context.viewport.wait_for_input = True
     context.viewport.initialize(title=title, width=950, height=750)
+    with dcg.Window(context, x="viewport.width/2 - self.width/2",
+                    y="viewport.height/2 - self.height/2",
+                    width="0.9*viewport.width",
+                    height="0.9*viewport.height") as temp_window:
+        with dcg.VerticalLayout(context, alignment_mode=dcg.Alignment.CENTER):
+            with dcg.HorizontalLayout(context, alignment_mode=dcg.Alignment.CENTER):
+                dcg.Text(context, value="Please wait while the demo is loading...", color=(255, 255, 0))
+    while not context.viewport.render_frame():
+        pass
     DemoWindow(context)
+    temp_window.delete_item()
 
     loop.run_until_complete(run_viewport_loop(context.viewport))
     
