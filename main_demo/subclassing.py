@@ -157,9 +157,9 @@ def _python_naming_conventions(C: dcg.Context):
     
     # Explanation of naming conventions
     dcg.Text(C, value="\nNaming Convention Examples:")
-    dcg.Text(C, bullet=True, value="Public: temp_widget.current_temperature - intended for external use")
-    dcg.Text(C, bullet=True, value="Protected: temp_widget._last_update_time - intended for internal/subclass use")
-    dcg.Text(C, bullet=True, value="Private: temp_widget.__temperature_offset - intended for use only within the class")
+    dcg.Text(C, marker="bullet", value="Public: temp_widget.current_temperature - intended for external use")
+    dcg.Text(C, marker="bullet", value="Protected: temp_widget._last_update_time - intended for internal/subclass use")
+    dcg.Text(C, marker="bullet", value="Private: temp_widget.__temperature_offset - intended for use only within the class")
     
     # Demonstrate accessing the attributes
     def check_temps():

@@ -54,7 +54,7 @@ def _text_widgets(C: dcg.Context):
     dcg.Text(C, value="This text is red", color=(255, 0, 0))
     
     # Text with a bullet point
-    dcg.Text(C, value="Bullet point text", bullet=True)
+    dcg.Text(C, value="Bullet point text", marker="bullet")
     
     # Text with indentation
     dcg.Text(C, value="Indented text", x=20)

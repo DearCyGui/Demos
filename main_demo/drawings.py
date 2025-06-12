@@ -1198,11 +1198,11 @@ def _draw_pattern(C: dcg.Context):
 
     # Add notes about pattern usage
     dcg.Text(C, value="Notes on Patterns:")
-    dcg.Text(C, bullet=True, value="Patterns control the outline appearance, not the fill.")
-    dcg.Text(C, bullet=True, value="The 'screen_space' property determines if pattern scaling changes with zoom.")
-    dcg.Text(C, bullet=True, value="For complex shapes, 'points' mode creates patterns between vertices.")
-    dcg.Text(C, bullet=True, value="For smooth curves, 'length' mode gives more consistent results.")
-    dcg.Text(C, bullet=True, value="Different scale_factor ranges work best for 'points' vs 'length' modes.")
+    dcg.Text(C, marker="bullet", value="Patterns control the outline appearance, not the fill.")
+    dcg.Text(C, marker="bullet", value="The 'screen_space' property determines if pattern scaling changes with zoom.")
+    dcg.Text(C, marker="bullet", value="For complex shapes, 'points' mode creates patterns between vertices.")
+    dcg.Text(C, marker="bullet", value="For smooth curves, 'length' mode gives more consistent results.")
+    dcg.Text(C, marker="bullet", value="Different scale_factor ranges work best for 'points' vs 'length' modes.")
 
 
 @demosection(dcg.DrawInWindow, dcg.utils.DrawStream)

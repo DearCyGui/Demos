@@ -1926,7 +1926,7 @@ def text(default_value : str ='', *, label: str =None, user_data: Any =None, ind
         value = default_value + " " + label if label else default_value
     else:
         value = default_value
-    return dcg.Text(CONTEXT, value=value, user_data=user_data, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, bullet=bullet, **kwargs)
+    return dcg.Text(CONTEXT, value=value, user_data=user_data, x=indent, payload_type=payload_type, drag_callback=drag_callback, drop_callback=drop_callback, show=show, pos=pos, filter_key=filter_key, tracked=tracked, track_offset=track_offset, wrap=wrap, marker="bullet" if bullet else None, **kwargs)
 
 def texture_registry(*, label: str =None, user_data: Any =None, show: bool =False, **kwargs) -> Union[int, str]:
     return dcg.PlaceHolderParent(CONTEXT)

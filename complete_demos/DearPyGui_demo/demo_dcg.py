@@ -397,13 +397,13 @@ def show_demo(C : dcg.Context):
 
             with dcg.TreeNode(C, label="Bullets"):
 
-                dcg.Text(C, value="Bullet point 1", bullet=True)
-                dcg.Text(C, value="Bullet point 2\nbullet text can be\nOn multiple lines", bullet=True)
+                dcg.Text(C, value="Bullet point 1", marker="bullet")
+                dcg.Text(C, value="Bullet point 2\nbullet text can be\nOn multiple lines", marker="bullet")
                 with dcg.TreeNode(C, label="Tree node"):
-                    dcg.Text(C, value="Another bullet point", bullet=True)
+                    dcg.Text(C, value="Another bullet point", marker="bullet")
                 
                 with dcg.HorizontalLayout(C):
-                    dcg.Text(C, value="1", bullet=True)
+                    dcg.Text(C, value="1", marker="bullet")
                     dcg.Button(C, label="Button", small=True)
 
             with dcg.TreeNode(C, label="Text"):
@@ -908,23 +908,23 @@ def show_demo(C : dcg.Context):
             with dcg.TreeNode(C, label="Help"):
                 dcg.Separator(C)
                 dcg.Text(C, value="ABOUT TEXTURES:")
-                dcg.Text(C, value="Textures are buffers of RGBA data.", bullet=True, x=20)
-                dcg.Text(C, value="Textures are used by 'image based' widgets:", bullet=True, x=20) 
-                dcg.Text(C, value="Image", bullet=True, x=50)
-                dcg.Text(C, value="DrawImage", bullet=True, x=50)
-                dcg.Text(C, value="Textures can be assigned a dynamic hint", bullet=True, x=20)
+                dcg.Text(C, value="Textures are buffers of RGBA data.", marker="bullet", x=20)
+                dcg.Text(C, value="Textures are used by 'image based' widgets:", marker="bullet", x=20) 
+                dcg.Text(C, value="Image", marker="bullet", x=50)
+                dcg.Text(C, value="DrawImage", marker="bullet", x=50)
+                dcg.Text(C, value="Textures can be assigned a dynamic hint", marker="bullet", x=20)
                 dcg.Text(C, value="The dynamic hint helps GPU placement to optimize \n"
-                                  "for fast upload (but possibly slower GPU access)", bullet=True, x=20)
-                dcg.Text(C, value="When their value are set, the content is uploaded right away to the GPU", bullet=True, x=20)
-                dcg.Text(C, value="Resizing is allowed but requires a sync, prefer allocating a new texture", bullet=True, x=20)
-                dcg.Text(C, value="Available format are R, RG, RGB, RGBA", bullet=True, x=20)
-                dcg.Text(C, value="They can be stored as uint8 or float32 (in that case data must be between 0 and 1)", bullet=True, x=20)
+                                  "for fast upload (but possibly slower GPU access)", marker="bullet", x=20)
+                dcg.Text(C, value="When their value are set, the content is uploaded right away to the GPU", marker="bullet", x=20)
+                dcg.Text(C, value="Resizing is allowed but requires a sync, prefer allocating a new texture", marker="bullet", x=20)
+                dcg.Text(C, value="Available format are R, RG, RGB, RGBA", marker="bullet", x=20)
+                dcg.Text(C, value="They can be stored as uint8 or float32 (in that case data must be between 0 and 1)", marker="bullet", x=20)
 
                 dcg.Separator(C)
                 dcg.Text(C, value="PROGRAMMER GUIDE:")
-                dcg.Text(C, value="'image based' widgets hold a reference to a texture widget.", bullet=True, x=20)
-                dcg.Text(C, value="Deleting the texture widget will not affect widget's using it.", bullet=True, x=50)
-                dcg.Text(C, value="Textures are only free'd from the GPU when the reference count reaches 0.", bullet=True, x=50)
+                dcg.Text(C, value="'image based' widgets hold a reference to a texture widget.", marker="bullet", x=20)
+                dcg.Text(C, value="Deleting the texture widget will not affect widget's using it.", marker="bullet", x=50)
+                dcg.Text(C, value="Textures are only free'd from the GPU when the reference count reaches 0.", marker="bullet", x=50)
                 dcg.Separator(C)
 
             with dcg.TreeNode(C, label="Textures"):
@@ -1015,9 +1015,9 @@ def show_demo(C : dcg.Context):
 
                 popup_values = ["Bream", "Haddock", "Mackerel", "Pollock", "Tilefish"]
 
-                dcg.Text(C, value="This is a light wrapper over a window.", bullet=True)
-                dcg.Text(C, value="By default a popup will shrink fit the items it contains. This is useful for context windows, and simple modal window popups.", bullet=True)
-                dcg.Text(C, value="When a popup is active, it inhibits interacting with windows that are behind the popup. Clicking outside the popup closes it.", bullet=True)
+                dcg.Text(C, value="This is a light wrapper over a window.", marker="bullet")
+                dcg.Text(C, value="By default a popup will shrink fit the items it contains. This is useful for context windows, and simple modal window popups.", marker="bullet")
+                dcg.Text(C, value="When a popup is active, it inhibits interacting with windows that are behind the popup. Clicking outside the popup closes it.", marker="bullet")
             
                 with dcg.HorizontalLayout(C):
                     def popup_open_callback(sender):
@@ -1032,7 +1032,7 @@ def show_demo(C : dcg.Context):
                     t = dcg.Text(C, value="<None>")
                     b.user_data = t
 
-                dcg.Text(C, value="A Popup with minimum size and no_move", bullet=True)
+                dcg.Text(C, value="A Popup with minimum size and no_move", marker="bullet")
                 with dcg.HorizontalLayout(C):
                     def popup_open_callback2(sender):
                         with dcg.Window(C, popup=True, no_move=True, min_size=(300,400)):
@@ -1062,7 +1062,7 @@ def show_demo(C : dcg.Context):
 
             with dcg.TreeNode(C, label="File/Directory Selector"):
                 dcg.Text(C, value="Demonstration of OS file dialogs")
-                dcg.Text(C, value="Note: Paths are returned in a list passed to the callback", bullet=True)
+                dcg.Text(C, value="Note: Paths are returned in a list passed to the callback", marker="bullet")
 
                 def _log_paths(paths):
                     print(f"Selected paths: {paths}")
@@ -2460,7 +2460,7 @@ def show_demo(C : dcg.Context):
                         checkbox_hist_density.callbacks = update_density
 
                     with dcg.TreeNode(C, label="Digital Plots"):
-                        dcg.Text(C, value="Digital plots do not respond to Y drag and zoom, so that", bullet=True)
+                        dcg.Text(C, value="Digital plots do not respond to Y drag and zoom, so that", marker="bullet")
                         dcg.Text(C, value="you can drag analog plots over the rising/falling digital edge.", x=20)
                         with dcg.Plot(C, label="Digital Plot", height=400, width=-1) as plot_digital:
                             plot_digital.X1.label = "x"
@@ -2555,8 +2555,8 @@ def show_demo(C : dcg.Context):
                         timedatax = np.arange(0, 739497600, 60*60*24*7)
                         timedatay = timedatax / (60*60*24)
                 
-                        dcg.Text(C, value="When time is enabled, x-axis values are interpreted as UNIX timestamps in seconds (e.g. 1599243545).", bullet=True)
-                        dcg.Text(C, value="UNIX timestamps are seconds since 00:00:00 UTC on 1 January 1970", bullet=True)
+                        dcg.Text(C, value="When time is enabled, x-axis values are interpreted as UNIX timestamps in seconds (e.g. 1599243545).", marker="bullet")
+                        dcg.Text(C, value="UNIX timestamps are seconds since 00:00:00 UTC on 1 January 1970", marker="bullet")
                         with dcg.Plot(C, label="Time Plot", height=400, width=-1) as plot:
                             plot.X1.label = "Date"
                             plot.X1.scale = dcg.AxisScale.TIME
@@ -2843,8 +2843,8 @@ def show_demo(C : dcg.Context):
 
                     with dcg.TreeNode(C, label="Animation with DrawStream"):
                         dcg.Text(C, value="DrawStream allows you to create animations by showing items sequentially.")
-                        dcg.Text(C, value="Each item is associated with an expiration time.", bullet=True)
-                        dcg.Text(C, value="When time_modulus is set, the animation loops.", bullet=True)
+                        dcg.Text(C, value="Each item is associated with an expiration time.", marker="bullet")
+                        dcg.Text(C, value="When time_modulus is set, the animation loops.", marker="bullet")
                         
                         with dcg.Plot(C, label="Animated Shapes", height=400, width=-1) as plot:
                             plot.X1.label = "x"
@@ -2886,14 +2886,14 @@ def show_demo(C : dcg.Context):
 
                 with dcg.Tab(C, label="Help"):
                     dcg.Text(C, value="Plotting User Guide")
-                    dcg.Text(C, value="Left click and drag within the plot area to pan X and Y axes.", bullet=True)
-                    dcg.Text(C, value="Left click and drag on an axis to pan an individual axis.", bullet=True, x=20)
-                    dcg.Text(C, value="Scoll in the plot area to zoom both X and Y axes.", bullet=True)
-                    dcg.Text(C, value="Scroll on an axis to zoom an individual axis.", bullet=True, x=20)
-                    dcg.Text(C, value="Double left click to fit all visible data.", bullet=True)
-                    dcg.Text(C, value="Double left click on an axis to fit the individual axis", bullet=True, x=20)
-                    dcg.Text(C, value="Double right click to open the plot context menu.", bullet=True)
-                    dcg.Text(C, value="Click legend label icons to show/hide plot items.", bullet=True)
+                    dcg.Text(C, value="Left click and drag within the plot area to pan X and Y axes.", marker="bullet")
+                    dcg.Text(C, value="Left click and drag on an axis to pan an individual axis.", marker="bullet", x=20)
+                    dcg.Text(C, value="Scoll in the plot area to zoom both X and Y axes.", marker="bullet")
+                    dcg.Text(C, value="Scroll on an axis to zoom an individual axis.", marker="bullet", x=20)
+                    dcg.Text(C, value="Double left click to fit all visible data.", marker="bullet")
+                    dcg.Text(C, value="Double left click on an axis to fit the individual axis", marker="bullet", x=20)
+                    dcg.Text(C, value="Double right click to open the plot context menu.", marker="bullet")
+                    dcg.Text(C, value="Click legend label icons to show/hide plot items.", marker="bullet")
 
 if __name__ == "__main__":
     C = dcg.Context()

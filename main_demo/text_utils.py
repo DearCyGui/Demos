@@ -56,7 +56,7 @@ class TextAnsi(dcg.HorizontalLayout):
         strikethrough = False # TODO
         with self:
             if self._bullet:
-                dcg.Text(self.context, bullet=True, value="")
+                dcg.Text(self.context, marker="bullet", value="")
             for instr in Ansi(self.textline).instructions():
                 if isinstance(instr, SetAttribute):
                     if instr.attribute == AnsiAttribute.NORMAL:

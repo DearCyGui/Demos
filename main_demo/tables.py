@@ -805,10 +805,10 @@ def _advanced_column_options(C: dcg.Context):
     # Column configuration options description
     dcg.Separator(C)
     dcg.Text(C, value="Column configuration restrictions:")
-    dcg.Text(C, bullet=True, value="ID column: Cannot be hidden")
-    dcg.Text(C, bullet=True, value="Name column: Cannot be reordered")
-    dcg.Text(C, bullet=True, value="Value column: Cannot be sorted")
-    dcg.Text(C, bullet=True, value="Options column: Cannot be resized")
+    dcg.Text(C, marker="bullet", value="ID column: Cannot be hidden")
+    dcg.Text(C, marker="bullet", value="Name column: Cannot be reordered")
+    dcg.Text(C, marker="bullet", value="Value column: Cannot be sorted")
+    dcg.Text(C, marker="bullet", value="Options column: Cannot be resized")
     
     dcg.Text(C, value="Try right-clicking on column headers to see available options")
 
@@ -1426,9 +1426,9 @@ def _column_handlers(C: dcg.Context):
     # Instructions
     dcg.Separator(C)
     dcg.Text(C, value="Try these interactions:")
-    dcg.Text(C, bullet=True, value="Hover over the first column to highlight it")
-    dcg.Text(C, bullet=True, value="Click the second column to change text color")
-    dcg.Text(C, bullet=True, value="Right-click on the header and toggle the third column")
+    dcg.Text(C, marker="bullet", value="Hover over the first column to highlight it")
+    dcg.Text(C, marker="bullet", value="Click the second column to change text color")
+    dcg.Text(C, marker="bullet", value="Right-click on the header and toggle the third column")
 
 @demosection(dcg.Table, dcg.TableFlag, dcg.GotHoverHandler, dcg.LostHoverHandler,
              dcg.ClickedHandler, dcg.ResizeHandler)
@@ -1527,10 +1527,10 @@ def _table_handlers(C: dcg.Context):
     
     # Instructions
     dcg.Text(C, value="Try these interactions:")
-    dcg.Text(C, bullet=True, value="Hover over and leave the table")
-    dcg.Text(C, bullet=True, value="Click on the table headers")
-    dcg.Text(C, bullet=True, value="Add or remove rows")
-    dcg.Text(C, bullet=True, value="Resize the table by dragging column dividers")
+    dcg.Text(C, marker="bullet", value="Hover over and leave the table")
+    dcg.Text(C, marker="bullet", value="Click on the table headers")
+    dcg.Text(C, marker="bullet", value="Add or remove rows")
+    dcg.Text(C, marker="bullet", value="Resize the table by dragging column dividers")
 
 
 pop_group()  # End Interactions
@@ -1755,10 +1755,10 @@ def _combining_colors(C: dcg.Context):
     
     # Explanation
     dcg.Text(C, value="Color levels in this example:")
-    dcg.Text(C, bullet=True, value="Theme: Alternating light blue/light green rows")
-    dcg.Text(C, bullet=True, value="Row: Semi-transparent red on even rows")
-    dcg.Text(C, bullet=True, value="Cell: Semi-transparent purple in columns 2 & 3")
-    dcg.Text(C, bullet=True, value="Notice the blending effects in column 3 where row and cell colors combine")
+    dcg.Text(C, marker="bullet", value="Theme: Alternating light blue/light green rows")
+    dcg.Text(C, marker="bullet", value="Row: Semi-transparent red on even rows")
+    dcg.Text(C, marker="bullet", value="Cell: Semi-transparent purple in columns 2 & 3")
+    dcg.Text(C, marker="bullet", value="Notice the blending effects in column 3 where row and cell colors combine")
 
 
 @demosection(dcg.Table, dcg.TableFlag, dcg.ThemeList, dcg.ThemeColorImGui, dcg.ThemeStyleImGui)

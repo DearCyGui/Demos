@@ -2670,10 +2670,10 @@ def _sharing_axes_legends(C: dcg.Context):
     
     # Explain the linking behavior
     dcg.Text(C, value="In this example:")
-    dcg.Text(C, value="All plots share a common legend", bullet=True)
-    dcg.Text(C, value="Plot 1 and 2 share the same X-axis (top row)", bullet=True)
-    dcg.Text(C, value="Plot 1 and 3 share the same Y-axis (left column)", bullet=True)
-    dcg.Text(C, value="Try zooming or panning one of these linked plots to see the effect", bullet=True)
+    dcg.Text(C, value="All plots share a common legend", marker="bullet")
+    dcg.Text(C, value="Plot 1 and 2 share the same X-axis (top row)", marker="bullet")
+    dcg.Text(C, value="Plot 1 and 3 share the same Y-axis (left column)", marker="bullet")
+    dcg.Text(C, value="Try zooming or panning one of these linked plots to see the effect", marker="bullet")
 
 @demosection(dcg.Subplots, dcg.Plot, dcg.PlotAxisConfig, dcg.PlotInfLines, dcg.PlotHistogram,
              dcg.PlotScatter, dcg.PlotBars)
