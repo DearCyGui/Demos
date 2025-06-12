@@ -88,7 +88,7 @@ def _creating_basic_items(C: dcg.Context):
                label="Adjust me", 
                min_value=0, 
                max_value=100, 
-               format="int",
+               print_format="%.0f",
                callback=slider_callback)
     
     # Creating an input field

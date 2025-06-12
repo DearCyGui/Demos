@@ -506,7 +506,6 @@ class VideoPlayer(dcg.Window):
             self.progress = \
                 SliderWithTooltip(context,
                                   width=200,
-                                  format="float",  # Shows time in seconds
                                   callback=lambda s : self.seek(s.value),
                                   min_value=0., 
                                   max_value=self.decoder.duration,
@@ -516,7 +515,6 @@ class VideoPlayer(dcg.Window):
             self.volume_slider = \
                 SliderWithTooltip(context,
                                   label="Volume",
-                                  format='float',
                                   value=1.0,  # Default full volume
                                   min_value=0.0,  # Mute
                                   max_value=1.0,  # Maximum volume

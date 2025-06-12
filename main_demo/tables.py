@@ -722,7 +722,7 @@ def _outer_size_scrolling(C: dcg.Context):
     dcg.Slider(C, label="", 
                  min_value=0, 
                  max_value=5,
-                 format="int",
+                 print_format="%.0f",
                  value=0,
                  callback=set_frozen_rows)
     

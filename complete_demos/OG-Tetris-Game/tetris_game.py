@@ -197,7 +197,7 @@ with dcg.Window(C, autosize=True, no_collapse=True, no_resize=True,
 
     with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
         dcg.Text(C, value="Enter your level (0-9) > ")
-        dcg.InputValue(C, format="int", label="", step=0, min_value=0,
+        dcg.InputValue(C, print_format="%.0f", label="", step=0, min_value=0,
                            max_value=9, width=100, callback_on_enter=True,
                            callback=set_main_window)
 

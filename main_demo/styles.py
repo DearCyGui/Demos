@@ -332,7 +332,7 @@ def _theme_color_imgui(C: dcg.Context):
                                     check_mark=(255, 200, 100)))
             
             # Slider colors
-            dcg.Slider(C, label="Slider colors", format="float",
+            dcg.Slider(C, label="Slider colors",
                        theme=dcg.ThemeColorImGui(C, 
                                     frame_bg=(50, 50, 70),
                                     slider_grab=(100, 200, 150),
@@ -664,7 +664,7 @@ def _theme_management(C: dcg.Context):
         dcg.Button(C, label="Button")
         dcg.InputText(C, label="Input Field", hint="Enter text")
         dcg.Checkbox(C, label="Checkbox")
-        dcg.Slider(C, label="Slider", format="float", min_value=0, max_value=1, value=0.5)
+        dcg.Slider(C, label="Slider", min_value=0, max_value=1, value=0.5)
         with dcg.TreeNode(C, label="Tree Node"):
             dcg.Text(C, value="Tree content")
     
@@ -719,7 +719,7 @@ def _style_editor(C: dcg.Context):
         dcg.Button(C, label="Sample Button")
         dcg.InputText(C, label="Sample Input", hint="Type here")
         dcg.Checkbox(C, label="Sample Checkbox")
-        dcg.Slider(C, label="Sample Slider", format="float", 
+        dcg.Slider(C, label="Sample Slider",
                  min_value=0, max_value=1, value=0.5)
         
         with dcg.TreeNode(C, label="Tree Node"):

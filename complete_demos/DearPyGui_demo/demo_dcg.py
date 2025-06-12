@@ -106,8 +106,8 @@ def show_demo(C : dcg.Context):
                         for i in range(10):
                             dcg.Text(C, value=f"Scolling Text{i}")
 
-                    dcg.Slider(C, label="Slider Float", format="float")
-                    dcg.InputValue(C, label="Input Int", format="int")
+                    dcg.Slider(C, label="Slider Float")
+                    dcg.InputValue(C, label="Input Int", print_format="%.0f")
                     dcg.Combo(C, items=("Yes", "No", "Maybe"), label="Combo")
 
             with dcg.Menu(C, label="Tools"):
@@ -184,31 +184,31 @@ def show_demo(C : dcg.Context):
                 """
                 add_help_symbol(input_text_hello, help_text)
                 dcg.InputText(C, label="input text (w/ hint)", hint="enter text here", callback=_log)
-                dcg.InputValue(C, label="input int", format="int", callback=_log)
-                dcg.InputValue(C, label="input float", format="float", print_format="%.3f", callback=_log)
-                dcg.InputValue(C, label="input scientific", format="float", print_format="%e", callback=_log)
+                dcg.InputValue(C, label="input int", print_format="%.0f", callback=_log)
+                dcg.InputValue(C, label="input float", print_format="%.3f", callback=_log)
+                dcg.InputValue(C, label="input scientific", print_format="%e", callback=_log)
 
-                dcg.InputValue(C, label="input floatx", format="float", size=4, callback=_log, value=[1,2,3,4])
-                dcg.InputValue(C, label="input double", format="float", print_format="%.14f", callback=_log)
-                dcg.InputValue(C, label="input doublex", format="float", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
+                dcg.InputValue(C, label="input floatx", size=4, callback=_log, value=[1,2,3,4])
+                dcg.InputValue(C, label="input double", print_format="%.14f", callback=_log)
+                dcg.InputValue(C, label="input doublex", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
 
-                drag_int = dcg.Slider(C, label="drag int", format="int", drag=True, callback=_log)
+                drag_int = dcg.Slider(C, label="drag int", print_format="%.0f", drag=True, callback=_log)
                 add_help_symbol(drag_int, 
                     "Click and drag to edit value.\n"
                     "Hold SHIFT/ALT for faster/slower edit.\n"
                     "Double-click or CTRL+click to input value.")
                 
-                dcg.Slider(C, label="drag int 0..100", format="int", print_format="%d%%", drag=True, callback=_log)
-                dcg.Slider(C, label="drag float", format="float", drag=True, callback=_log)
-                dcg.Slider(C, label="drag small float", format="float",
+                dcg.Slider(C, label="drag int 0..100", print_format="%.0f", print_format="%d%%", drag=True, callback=_log)
+                dcg.Slider(C, label="drag float", drag=True, callback=_log)
+                dcg.Slider(C, label="drag small float",
                            print_format="%.06f ns", drag=True, value=0.0067, callback=_log)
 
-                slider_int = dcg.Slider(C, label="slider int", format="int", max_value=3, callback=_log)
+                slider_int = dcg.Slider(C, label="slider int", print_format="%.0f", max_value=3, callback=_log)
                 add_help_symbol(slider_int, "CTRL+click to enter value.")
                 
-                dcg.Slider(C, label="slider float", format="float", print_format="ratio = %.3f", max_value=1.0, callback=_log)
-                dcg.Slider(C, label="slider double", format="float", print_format="ratio = %.14f", max_value=1.0, callback=_log)
-                dcg.Slider(C, label="slider angle", format="int", print_format="%d deg", min_value=-360, max_value=360, callback=_log)
+                dcg.Slider(C, label="slider float", print_format="ratio = %.3f", max_value=1.0, callback=_log)
+                dcg.Slider(C, label="slider double", print_format="ratio = %.14f", max_value=1.0, callback=_log)
+                dcg.Slider(C, label="slider angle", print_format="%.0f", print_format="%d deg", min_value=-360, max_value=360, callback=_log)
 
                 add_help_symbol(dcg.ColorEdit(C, label="color edit 4", value=(102, 179, 0, 128), callback=_log),
                     "Click on the colored square to open a color picker.\n"
@@ -370,9 +370,9 @@ def show_demo(C : dcg.Context):
                 items = ("A","B","C","D","E","F","G","H","I","J","K","L","M" "O","P","Q","R","S","T","U","V","W","X","Y","Z")
                 listbox_1 = dcg.ListBox(C, items=items, label="listbox 1 (full)")
                 listbox_2 = dcg.ListBox(C, items=items, label="listbox 2", width=200)
-                dcg.InputValue(C, format="int", label="num_items",
+                dcg.InputValue(C, print_format="%.0f", label="num_items",
                                callback=_config, user_data=[listbox_1, listbox_2], before = listbox_1)
-                dcg.Slider(C, format="int", label="width",
+                dcg.Slider(C, print_format="%.0f", label="width",
                            value=200, callback=_config, user_data=listbox_2,
                            before = listbox_1, max_value=500)
 
@@ -417,7 +417,7 @@ def show_demo(C : dcg.Context):
                     paragraph2 = 'The lazy dong is a good dog. This paragraph should fit within the child. Testing a 1 character word. The quick brown fox jumps over the lazy dog.'
 
                     dcg.Text(C, value=paragraph1, wrap=0)
-                    widget_id = dcg.Slider(C, format="int", label="wrap width",
+                    widget_id = dcg.Slider(C, print_format="%.0f", label="wrap width",
                                            value=500, max_value=1000, 
                                            callback=lambda s, t, d: t.user_data.configure(wrap=d))
                     widget_id.user_data = dcg.Text(C, value=paragraph2, wrap=500)
@@ -481,29 +481,29 @@ def show_demo(C : dcg.Context):
                     with dcg.VerticalLayout(C):
                         float_source = dcg.InputValue(C, label=f"input float {i}",
                                                       min_value=0.0, max_value=100.0,
-                                                      format="float", size=i)
+                                                      size=i)
                         dcg.Slider(C, label=f"drag float {i}", shareable_value=float_source.shareable_value,
-                                   format="float", size=i, drag=True)
+                                   size=i, drag=True)
                         dcg.Slider(C, label=f"slider float {i}", shareable_value=float_source.shareable_value,
-                                   format="float", size=i)
+                                   size=i)
 
                     with dcg.VerticalLayout(C):
                         int_source = dcg.InputValue(C, label=f"input int {i}",
                                                     min_value=0, max_value=100,
-                                                    format="int", size=i)
+                                                    print_format="%.0f", size=i)
                         dcg.Slider(C, label=f"drag int {i}", shareable_value=int_source.shareable_value,
-                                   format="int", size=i, drag=True)
+                                   print_format="%.0f", size=i, drag=True)
                         dcg.Slider(C, label=f"slider int {i}", shareable_value=int_source.shareable_value,
-                                   format="int", size=i)
+                                   print_format="%.0f", size=i)
 
                     dcg.Spacer(C, height=10)
 
             with dcg.TreeNode(C, label="Vertical Sliders"):
                 with dcg.HorizontalLayout(C):
                     dcg.Slider(C, label=" ", value=1, vertical=True, width=20,
-                               max_value=5, height=160, format="int")
+                               max_value=5, height=160, print_format="%.0f")
                     dcg.Slider(C, label=" ", value=1.0, vertical=True, width=20,
-                               max_value=5.0, height=160, format="float")
+                               max_value=5.0, height=160)
 
                     with dcg.HorizontalLayout(C):
                         values = [0.0, 0.60, 0.35, 0.9, 0.70, 0.20, 0.0]
@@ -517,7 +517,7 @@ def show_demo(C : dcg.Context):
 
                             dcg.Slider(C, label=" ", value=values[i], width=20,
                                        vertical=True, max_value=1.0, height=160,
-                                       format="float", theme=t)
+                                       theme=t)
 
                         with dcg.VerticalLayout(C):
                             for i in range(3):
@@ -525,18 +525,17 @@ def show_demo(C : dcg.Context):
                                     values = [0.20, 0.80, 0.40, 0.25]
                                     for j in range(4):
                                         dcg.Slider(C, label=" ", value=values[j], width=20,
-                                                   vertical=True, max_value=1.0, height=50,
-                                                   format="float")
+                                                   vertical=True, max_value=1.0, height=50)
 
                         with dcg.HorizontalLayout(C):
                             dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
-                                       height=160, width=40, format="float")
+                                       height=160, width=40)
                             dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
-                                       height=160, width=40, format="float") 
+                                       height=160, width=40) 
                             dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
-                                       height=160, width=40, format="float")
+                                       height=160, width=40)
                             dcg.Slider(C, label=" ", vertical=True, max_value=1.0,
-                                       height=160, width=40, format="float")
+                                       height=160, width=40)
             with dcg.TreeNode(C, label="Time/Date widgets"):
                 def _log_time(sender, target, value):
                     print(f"Time/Date changed: {value}")
@@ -591,19 +590,19 @@ def show_demo(C : dcg.Context):
             with dcg.TreeNode(C, label="Widgets Width"):
                 
                 dcg.Text(C, value="Width=100")
-                dcg.Slider(C, label="float", width=100, format="float", drag=True)
+                dcg.Slider(C, label="float", width=100, drag=True)
 
                 dcg.Text(C, value="Width=-100")
-                dcg.Slider(C, label="float", width=-100, format="float", drag=True)
+                dcg.Slider(C, label="float", width=-100, drag=True)
 
                 dcg.Text(C, value="Width=-1")
-                dcg.Slider(C, label="float", width=-1, format="float", drag=True)
+                dcg.Slider(C, label="float", width=-1, drag=True)
 
                 dcg.Text(C, value="group with width=75")
                 with dcg.VerticalLayout(C, width=75):
-                    dcg.Slider(C, label="float", format="float", drag=True) 
-                    dcg.Slider(C, label="float", format="float", drag=True)
-                    dcg.Slider(C, label="float", format="float", drag=True)
+                    dcg.Slider(C, label="float", drag=True) 
+                    dcg.Slider(C, label="float", drag=True)
+                    dcg.Slider(C, label="float", drag=True)
 
             with dcg.TreeNode(C, label="Basic Horizontal Layout"):
 
@@ -1788,7 +1787,7 @@ def show_demo(C : dcg.Context):
 
                 for i in range(25):
                     with table.next_row:
-                        dcg.InputValue(C, label=" ", format="int", step=0)
+                        dcg.InputValue(C, label=" ", print_format="%.0f", step=0)
                         dcg.Button(C, label=f"Cell {i}, 1")
                         dcg.Text(C, value=f"Cell {i}, 2")
 
@@ -1798,10 +1797,10 @@ def show_demo(C : dcg.Context):
                 with dcg.HorizontalLayout(C):
                     def _table_frozen_rows(sender, target, value, table=table):
                         table.num_rows_frozen = value
-                    dcg.Slider(C, label="Number of frozen rows", format="int", value=0, min_value=0, max_value=25, callback=_table_frozen_rows)
+                    dcg.Slider(C, label="Number of frozen rows", print_format="%.0f", value=0, min_value=0, max_value=25, callback=_table_frozen_rows)
                     def _table_frozen_cols(sender, target, value, table=table):
                         table.num_cols_frozen = value
-                    dcg.Slider(C, label="Number of frozen columns", format="int", value=0, min_value=0, max_value=3, callback=_table_frozen_cols)
+                    dcg.Slider(C, label="Number of frozen columns", print_format="%.0f", value=0, min_value=0, max_value=3, callback=_table_frozen_cols)
 
             with dcg.TreeNode(C, label="Filtering"):
                 dcg.Text(C, value="Using Filter (column 3)")
@@ -1821,7 +1820,7 @@ def show_demo(C : dcg.Context):
 
                 for i in range(25):
                     with table.next_row:
-                        dcg.InputValue(C, label=" ", format="int", step=0)
+                        dcg.InputValue(C, label=" ", print_format="%.0f", step=0)
                         dcg.Button(C, label=f"Cell {i}, 1")
                         dcg.Text(C, value=str(int(10000*np.random.randn())))
 
@@ -2086,7 +2085,7 @@ def show_demo(C : dcg.Context):
                     with dcg.TreeNode(C, label="Shade Series"):
                         std_alpha = 0.25
 
-                        alpha_slider = dcg.Slider(C, format="float", min_value=0, max_value=1, 
+                        alpha_slider = dcg.Slider(C, min_value=0, max_value=1, 
                                                   speed=0.01, value=std_alpha)
                         
                         alpha_theme = dcg.ThemeStyleImPlot(C, fill_alpha=std_alpha)
@@ -2158,8 +2157,7 @@ def show_demo(C : dcg.Context):
                             )
 
                         dcg.Slider(C, 
-                            label="Marker Size", 
-                            format="float",
+                            label="Marker Size",
                             min_value=2.0,
                             max_value=10.0,
                             value=scatter_theme.get_default("marker_size"),
@@ -2214,7 +2212,7 @@ def show_demo(C : dcg.Context):
                     with dcg.TreeNode(C, label="Bar Group Series"):
                         horizontal_bar_group_cb = dcg.Checkbox(C, label="horizontal", value=False)
                         stacked_bar_group_cb = dcg.Checkbox(C, label="stacked", value=False)
-                        slider_bar_group_width = dcg.Slider(C, format="float", min_value=0.1, max_value=1.0, value=0.67)
+                        slider_bar_group_width = dcg.Slider(C, min_value=0.1, max_value=1.0, value=0.67)
                         with dcg.Plot(C, label="Bar Group Series", height=400, width=-1) as plot_bar_group:
                             plot_bar_group.X1.label = "Student"
                             plot_bar_group.X1.no_gridlines = True
@@ -2418,8 +2416,8 @@ def show_demo(C : dcg.Context):
                         cumulative_histograms_cb.callbacks = lambda s, t, d: hist_series.configure(cumulative=d)
 
                     with dcg.TreeNode(C, label="Histogram 2D Series"):
-                        slider_hist_count = dcg.Slider(C, format="int", width=300, min_value=100, max_value=100000, value=1000)
-                        slider_hist_bins = dcg.Slider(C, format="int", width=300, size=2, min_value=1, max_value=500, value=(50, 50))
+                        slider_hist_count = dcg.Slider(C, print_format="%.0f", width=300, min_value=100, max_value=100000, value=1000)
+                        slider_hist_bins = dcg.Slider(C, print_format="%.0f", width=300, size=2, min_value=1, max_value=500, value=(50, 50))
                         checkbox_hist_density = dcg.Checkbox(C, label="density", value=False)
 
                         with dcg.Plot(C, label="Histogram 2D Plot", height=400, width=650) as plot_hist_2d:
@@ -2792,9 +2790,9 @@ def show_demo(C : dcg.Context):
                                 # They must be uiItems.
                                 # In addition, DrawInPlot accepts drawing items, but these
                                 # are not part of the context menu.
-                                frequency_slider = dcg.Slider(C, format="float", label="Frequency",
+                                frequency_slider = dcg.Slider(C, label="Frequency",
                                                               value=frequency, min_value=0.01, max_value=5.0)
-                                amplitude_slider = dcg.Slider(C, format="float", label="Amplitude",
+                                amplitude_slider = dcg.Slider(C, label="Amplitude",
                                                               value=amplitude, min_value=0.01, max_value=5.0)
                                 dcg.Separator(C)
                         frequency_slider.callbacks = \

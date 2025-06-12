@@ -32,7 +32,7 @@ def _widgets_intro(C: dcg.Context):
 
 push_group("Basic Widgets")
 
-@demosection(dcg.Text, dcg.TextValue, dcg.SharedInt)
+@demosection(dcg.Text, dcg.TextValue, dcg.SharedFloat)
 @documented
 @democode
 def _text_widgets(C: dcg.Context):
@@ -66,8 +66,8 @@ def _text_widgets(C: dcg.Context):
     dcg.Text(C, value="This is a long text that will wrap to the next line if it exceeds the available width. You can control the wrapping behavior with the 'wrap' parameter.", wrap=300)
     
     # TextValue widget with a changeable value
-    counter_value = dcg.SharedInt(C, value=0)
-    dcg.TextValue(C, shareable_value=counter_value, print_format="Counter: %d")
+    counter_value = dcg.SharedFloat(C, value=0)
+    dcg.TextValue(C, shareable_value=counter_value, print_format="Counter: %.0f")
     
     # Button to increment the counter
     def inc_counter():
@@ -76,7 +76,7 @@ def _text_widgets(C: dcg.Context):
     dcg.Button(C, label="Increment Counter", 
                callback=inc_counter)
 
-@demosection(dcg.Button, dcg.ButtonDirection, dcg.SharedInt)
+@demosection(dcg.Button, dcg.ButtonDirection, dcg.SharedFloat)
 @documented
 @democode
 def _button_widgets(C: dcg.Context):
@@ -110,13 +110,13 @@ def _button_widgets(C: dcg.Context):
         dcg.Text(C, value="This is a tooltip for the button")
     
     # Repeat button (triggers repeatedly while being held down)
-    repeat_counter = dcg.SharedInt(C, value=0)
+    repeat_counter = dcg.SharedFloat(C, value=0)
     def inc_counter():
         repeat_counter.value += 1
         C.viewport.wake()  # Display the updated value
     dcg.Button(C, label="Repeat Button (hold down)", repeat=True,
               callback=inc_counter)
-    dcg.TextValue(C, shareable_value=repeat_counter, print_format="Repeat count: %d")
+    dcg.TextValue(C, shareable_value=repeat_counter, print_format="Repeat count: %.0f")
 
 @demosection(dcg.Checkbox, dcg.RadioButton, dcg.Separator)
 @documented
@@ -215,16 +215,16 @@ def _input_fields(C: dcg.Context):
     dcg.Separator(C)
     
     # Numeric inputs
-    dcg.InputValue(C, label="Age", format="int", callback=input_callback)
+    dcg.InputValue(C, label="Age", print_format="%.0f", callback=input_callback)
     
-    dcg.InputValue(C, label="Price", format="float", print_format="$%.2f", callback=input_callback)
+    dcg.InputValue(C, label="Price", print_format="$%.2f", callback=input_callback)
     
     # Input with min/max constraints
-    dcg.InputValue(C, label="Rating (1-5)", format="int", 
+    dcg.InputValue(C, label="Rating (1-5)", print_format="%.0f", 
                   min_value=1, max_value=5, callback=input_callback)
     
     # Vector input (multiple values)
-    dcg.InputValue(C, label="RGB Color", format="float", size=3, 
+    dcg.InputValue(C, label="RGB Color", size=3, 
                   value=[1.0, 0.5, 0.2], callback=input_callback)
 
 @demosection(dcg.Slider)
@@ -248,27 +248,27 @@ def _sliders(C: dcg.Context):
     def slider_callback(sender, target, data):
         print(f"Slider '{sender.label}' changed to: {data}")
 
-    dcg.Slider(C, label="Volume", format="int", 
+    dcg.Slider(C, label="Volume", print_format="%.0f",
               min_value=0, max_value=100, value=50,
               callback=slider_callback)
 
     # Float slider with formatting
-    dcg.Slider(C, label="Opacity", format="float", print_format="%.2f", 
-              min_value=0.0, max_value=1.0, value=0.75, clamped=True,
+    dcg.Slider(C, label="Opacity", print_format="%.2f", 
+              min_value=0.0, max_value=1.0, value=0.75, keyboard_clamped=True,
               callback=slider_callback)
 
     # Slider with dragging enabled
-    dcg.Slider(C, label="Zoom", format="float", 
+    dcg.Slider(C, label="Zoom",
               min_value=0.1, max_value=10.0, value=1.0, 
               drag=True, callback=slider_callback)
 
     # Logarithmic slider
-    dcg.Slider(C, label="Log Scale", format="float",
+    dcg.Slider(C, label="Log Scale",
                 min_value=1e-3, max_value=1e3, value=1.0,
                 logarithmic=True, callback=slider_callback)
 
     # Multi-component slider (vector). Max 4 components
-    dcg.Slider(C, label="Position", format="float", size=2,
+    dcg.Slider(C, label="Position", size=2,
                 min_value=-10.0, max_value=10.0,
                 value=[3.0, 0.0], callback=slider_callback)
 
@@ -282,9 +282,9 @@ def _sliders(C: dcg.Context):
     # Multiple sliders with shared value
     shared_value = dcg.SharedFloat(C, value=5.0)
     dcg.Text(C, value="Sliders with shared value:")
-    dcg.Slider(C, label="Slider 1", format="float", min_value=0, max_value=10,
+    dcg.Slider(C, label="Slider 1", min_value=0, max_value=10,
              shareable_value=shared_value, callback=slider_callback)
-    dcg.Slider(C, label="Slider 2", format="float", min_value=0, max_value=10,
+    dcg.Slider(C, label="Slider 2", min_value=0, max_value=10,
              shareable_value=shared_value, callback=slider_callback)
     dcg.TextValue(C, shareable_value=shared_value, print_format="Shared value: %.2f")
 
@@ -1276,7 +1276,7 @@ def _tooltips(C: dcg.Context):
         with dcg.HorizontalLayout(C):
             dcg.Button(C, label="Buttons")
             dcg.Checkbox(C, label="Checkboxes")
-        dcg.Slider(C, label="Even sliders", format="float", min_value=0.0, max_value=1.0)
+        dcg.Slider(C, label="Even sliders", min_value=0.0, max_value=1.0)
     
     dcg.Separator(C)
     
@@ -1504,7 +1504,7 @@ def _popups_and_modals(C: dcg.Context):
         # Form data
         name = dcg.SharedStr(C, value="")
         email = dcg.SharedStr(C, value="")
-        age = dcg.SharedInt(C, value=25)
+        age = dcg.SharedFloat(C, value=25)
         subscribe = dcg.SharedBool(C, value=False)
         
         with form_popup:
@@ -1512,7 +1512,7 @@ def _popups_and_modals(C: dcg.Context):
             
             dcg.InputText(C, label="Name", shareable_value=name)
             dcg.InputText(C, label="Email", shareable_value=email)
-            dcg.Slider(C, label="Age", format="int", min_value=18, max_value=100, shareable_value=age)
+            dcg.Slider(C, label="Age", print_format="%.0f", min_value=18, max_value=100, shareable_value=age)
             dcg.Checkbox(C, label="Subscribe to newsletter", shareable_value=subscribe)
             
             def submit_form():
@@ -1821,7 +1821,7 @@ def _theme_colors(C: dcg.Context):
         # Basic widgets with the theme applied
         dcg.Button(C, label="Themed Button")
         dcg.Checkbox(C, label="Themed Checkbox")
-        dcg.Slider(C, label="Themed Slider", format="float", min_value=0.0, max_value=1.0, value=0.5)
+        dcg.Slider(C, label="Themed Slider", min_value=0.0, max_value=1.0, value=0.5)
         
         # Input fields
         dcg.InputText(C, label="Themed Text Input", hint="Enter text here")
@@ -1959,7 +1959,7 @@ def _theme_styles(C: dcg.Context):
             dcg.Checkbox(C, label="Checkbox 1")
             dcg.Checkbox(C, label="Checkbox 2")
         
-        dcg.Slider(C, label="Styled Slider", format="float", min_value=0.0, max_value=1.0, value=0.7)
+        dcg.Slider(C, label="Styled Slider", min_value=0.0, max_value=1.0, value=0.7)
         dcg.InputText(C, label="Styled Input", hint="Type here")
         
         # Show tabs with the styling
@@ -1980,7 +1980,7 @@ def _theme_styles(C: dcg.Context):
         with dcg.ChildWindow(C, width=200, height=200, border=True, label="Default Style"):
             dcg.Button(C, label="Button")
             dcg.Checkbox(C, label="Checkbox")
-            dcg.Slider(C, label="Slider", format="float", value=0.5)
+            dcg.Slider(C, label="Slider", value=0.5)
             with dcg.TreeNode(C, label="Tree Node"):
                 dcg.Text(C, value="Content")
         
@@ -1996,7 +1996,7 @@ def _theme_styles(C: dcg.Context):
         with dcg.ChildWindow(C, width=200, height=200, border=True, label="Compact Style", theme=compact_style):
             dcg.Button(C, label="Button")
             dcg.Checkbox(C, label="Checkbox")
-            dcg.Slider(C, label="Slider", format="float", value=0.5)
+            dcg.Slider(C, label="Slider", value=0.5)
             with dcg.TreeNode(C, label="Tree Node"):
                 dcg.Text(C, value="Content")
         
@@ -2015,7 +2015,7 @@ def _theme_styles(C: dcg.Context):
         with dcg.ChildWindow(C, width=200, height=200, border=True, label="Bold Rounded", theme=rounded_bold_style):
             dcg.Button(C, label="Button")
             dcg.Checkbox(C, label="Checkbox")
-            dcg.Slider(C, label="Slider", format="float", value=0.5)
+            dcg.Slider(C, label="Slider", value=0.5)
             with dcg.TreeNode(C, label="Tree Node"):
                 dcg.Text(C, value="Content")
 
@@ -2030,13 +2030,13 @@ def _shared_values(C: dcg.Context):
     
     - Link multiple widgets to the same data source
     - Update UI automatically when values change
-    - Support various types: bool, int, float, string, etc.
+    - Support various types: bool, float, string, etc.
     
     Shared values simplify state management and keep your interface consistent.
     """
     # Create shared values of different types
     text_value = dcg.SharedStr(C, value="Hello, World!")
-    int_value = dcg.SharedInt(C, value=50)
+    int_value = dcg.SharedFloat(C, value=50)
     float_value = dcg.SharedFloat(C, value=0.75)
     bool_value = dcg.SharedBool(C, value=True)
     color_value = dcg.SharedColor(C, value=(100, 150, 200, 255))
@@ -2066,22 +2066,22 @@ def _shared_values(C: dcg.Context):
         dcg.Text(C, value="Shared integer value:")
         
         # Slider that modifies the integer
-        dcg.Slider(C, label="Integer Slider", format="int", 
+        dcg.Slider(C, label="Integer Slider", print_format="%.0f", 
                   min_value=0, max_value=100, shareable_value=int_value)
         
         # Input that modifies the same integer
-        dcg.InputValue(C, label="Integer Input", format="int", shareable_value=int_value)
-    
+        dcg.InputValue(C, label="Integer Input", print_format="%.0f", shareable_value=int_value)
+
         
         # Shared float value
         dcg.Text(C, value="Shared float value:")
         
         # Slider for the float
-        dcg.Slider(C, label="Float Slider", format="float", 
+        dcg.Slider(C, label="Float Slider", 
                   min_value=0.0, max_value=1.0, shareable_value=float_value)
         
         # Input for the same float
-        dcg.InputValue(C, label="Float Input", format="float", 
+        dcg.InputValue(C, label="Float Input",
                       min_value=0.0, max_value=1.0, shareable_value=float_value)
 
         # Progress bar that shows the same value

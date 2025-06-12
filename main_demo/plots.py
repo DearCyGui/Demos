@@ -3035,9 +3035,9 @@ def _legend_popup_menus(C: dcg.Context):
         with dcg.PlotLine(C, label="Sine Wave (Right-click me!)", 
                         X=x, Y=np.sin(x)) as sine_series:
             # Adding children to a plot series makes them appear in its legend context menu
-            frequency_slider = dcg.Slider(C, format="float", label="Frequency", 
+            frequency_slider = dcg.Slider(C, label="Frequency", 
                                         value=1.0, min_value=0.1, max_value=5.0)
-            amplitude_slider = dcg.Slider(C, format="float", label="Amplitude",
+            amplitude_slider = dcg.Slider(C, label="Amplitude",
                                         value=1.0, min_value=0.1, max_value=2.0)
             dcg.Text(C, value="Adjust parameters above")
             dcg.Separator(C)  # Visual separator in the menu

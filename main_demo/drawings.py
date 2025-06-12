@@ -790,7 +790,7 @@ def _advanced_combinations(C: dcg.Context):
         # Create the gauge
         gauge = Gauge(C, value=25.0)
 
-        gauge_value = dcg.Slider(C, label="Gauge Value", format="float",
+        gauge_value = dcg.Slider(C, label="Gauge Value",
                                  min_value=0.0, max_value=100.0,
                                  value=25.0, print_format="%.1f")     
 
@@ -953,7 +953,7 @@ def _draw_pattern(C: dcg.Context):
                          shareable_value=use_screen_space_thickness)
     
     # Create scale factor slider with dynamic bounds
-    scale_slider = dcg.Slider(C, label="Scale Factor", format="float",
+    scale_slider = dcg.Slider(C, label="Scale Factor",
                             print_format="%.3f", shareable_value=scale_factor,
                             min_value=0.01, max_value=0.2, width=-1)
     
