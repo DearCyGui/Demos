@@ -1072,8 +1072,20 @@ def launch_demo(title="DearCyGui Demo"):
     context = dcg.Context()
     loop = asyncio.get_event_loop()
     context.queue = AsyncPoolExecutor()
+    # refresh only when needed
     context.viewport.wait_for_input = True
+    # Set an icon for the viewport (must be set before initializing the viewport)
     context.viewport.icon = create_demo_icon()
+    # Set some app metadata (completly optional)
+    dcg.os.set_application_metadata(
+        name="DearCyGui Demo",
+        version="0.1.0",
+        identifier="dearcygui.demo",
+        creator="DearCyGui Team",
+        copyright="MIT",
+        url="https://github.com/DearCyGui/Demos",
+        type="application")
+    # Initialize the viewport
     context.viewport.initialize(title=title, width=950, height=750)
 
     # Show a temporary centered window while the demo is loading
