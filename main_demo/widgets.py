@@ -866,6 +866,102 @@ def _positioning_and_sizing(C: dcg.Context):
         dcg.Button(C, label="Justified 2", width=100)
         dcg.Button(C, label="Justified 3", width=100)
 
+@demosection(dcg.HorizontalLayout, dcg.VerticalLayout, dcg.ChildWindow, dcg.utils.DraggableBar)
+@documented
+@democode
+def _dashboards(C: dcg.Context):
+    """
+    ## Dashboards
+
+    While DearCyGui does not have a dedicated dashboard widget, you can create
+    complex dashboard-like interfaces by combining various layout containers.
+
+    - Child windows for scrollable content areas
+    - Use horizontal and vertical layouts for simple organization
+    - Use string positioning for advanced control
+    - Draggable bars for custom resizing sections
+    """
+
+    dcg.Text(C, value="Dashboard example:")
+    
+    with dcg.ChildWindow(C, border=False, resizable_y=False, resizable_x=True,
+                         width=300, no_newline=True,
+                         no_scroll_with_mouse=True,
+                         no_scrollbar=True) as c1:
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly",
+                        border=True, resizable_y=False, resizable_x=False)
+    with dcg.ChildWindow(C, border=False, resizable_y=False, resizable_x=True,
+                         width=300, no_newline=True,
+                         no_scroll_with_mouse=True,
+                         no_scrollbar=True) as c2:
+        dcg.ChildWindow(C, width="fillx", height=300, border=True,
+                        resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly", border=True)
+    with dcg.ChildWindow(C, border=False, resizable_y=False, resizable_x=False,
+                         width="fillx",
+                         no_scroll_with_mouse=True,
+                         no_scrollbar=True) as c3:
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly",
+                        border=True, resizable_y=False, resizable_x=False)
+
+    # Link heights
+    c1.height = "min(filly, 600*dpi)"
+    c2.height = c1.height
+    c3.height = c1.height
+
+    dcg.Text(C, value="Same example with custom draggable sections:")
+    
+    with dcg.VerticalLayout(C) as col1:
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly",
+                        border=True, resizable_y=False, resizable_x=False)
+    with dcg.VerticalLayout(C) as col2:
+        dcg.ChildWindow(C, width="fillx", height=300, border=True,
+                        resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly", border=True)
+    with dcg.VerticalLayout(C) as col3:
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height=200,
+                        border=True, resizable_y=True, resizable_x=False)
+        dcg.ChildWindow(C, width="fillx", height="filly",
+                        border=True, resizable_y=False, resizable_x=False)
+
+    # Custom resize sections between columns
+    sep1 = dcg.utils.DraggableBar(C, vertical=True, position=0.2, no_newline=True)
+    sep2 = dcg.utils.DraggableBar(C, vertical=True, position=0.6, no_newline=True)
+    col1.x = 0
+    col1.width = "sep1.x1 - self.x1"
+    col1.no_newline = True
+    col2.x = "sep1.x2"
+    col2.width = "sep2.x1 - self.x1"
+    col2.no_newline = True
+    col3.x = "sep2.x2"
+    col3.width = "fillx"
+    sep1.y = col1.y
+    sep2.y = col1.y
+
+    # Link heights
+    sep1.height = col1.height
+    sep2.height = col1.height
+    col2.height = col1.height
+    col3.height = col1.height
+
+    # Define height
+    col1.height = "min(filly, 600*dpi)"
+
+
 pop_group()  # End Layout Containers
 
 push_group("Advanced Widgets")
