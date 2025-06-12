@@ -2981,9 +2981,9 @@ def _legend_styling(C: dcg.Context):
         with dcg.ThemeList(C) as legend_theme:
             # Style the legend background and border
             dcg.ThemeColorImPlot(C, 
-                               LegendBg=(25, 25, 25, 220),     # Dark background
-                               LegendBorder=(200, 200, 200),   # Light gray border
-                               LegendText=(220, 220, 220))     # Off-white text
+                                 legend_bg=(25, 25, 25, 220),     # Dark background
+                                 legend_border=(200, 200, 200),   # Light gray border
+                                 legend_text=(220, 220, 220))     # Off-white text
         
         # Apply the theme to the plot (themes cascade to children)
         plot.theme = legend_theme
