@@ -674,7 +674,7 @@ class MethodInfo:
     name: str
     
     # Documentation string describing the method
-    docstring: str
+    docstring: str | None
     
     # String representation of the method signature
     signature: str
@@ -1096,8 +1096,10 @@ def launch_demo(title="DearCyGui Demo"):
         with dcg.VerticalLayout(context, alignment_mode=dcg.Alignment.CENTER):
             with dcg.HorizontalLayout(context, alignment_mode=dcg.Alignment.CENTER):
                 dcg.Text(context, value="Please wait while the demo is loading...", color=(255, 255, 0))
-    while not context.viewport.render_frame():
-        pass
+    # Render two full frames for size convergence
+    for _ in range(2):
+        while not context.viewport.render_frame():
+            pass
 
     DemoWindow(context)
 

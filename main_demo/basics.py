@@ -846,7 +846,7 @@ def _multiviewport(C: dcg.Context):
     dcg.Button(C, label="Create New Viewport", callback=lambda: create_viewport())
 
 
-@demosection(dcg.Context, dcg.Viewport)
+@demosection(dcg.Context, dcg.Viewport, dcg.DrawArc, dcg.DrawText)
 @documented
 @democode
 def Programing(C: dcg.Context):
@@ -864,9 +864,14 @@ def Programing(C: dcg.Context):
     """
     # Make font with huge digits only
     glyphset = dcg.make_extended_latin_font(200)
+    reduced_height = 1
     reduced_glyphset = dcg.GlyphSet(glyphset.height, glyphset.origin_y)
     for i in range(10):
         reduced_glyphset.add_glyph(ord(str(i)), *glyphset[ord(str(i))])
+        # This works because the digits bottom and top are aligned
+        reduced_height = max(reduced_height, glyphset[ord(str(i))][0].shape[0])
+    reduced_glyphset.center_on_glyph(ord("0"))
+    reduced_glyphset.fit_to_new_height(reduced_height)
     font_texture = dcg.FontTexture(C)
     font_texture.add_custom_font(reduced_glyphset)
     font_texture.build()
@@ -885,9 +890,15 @@ def Programing(C: dcg.Context):
                               pattern=railroad_pattern,
                               fill=(100, 100, 255, 100))
             
-            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
-                                     text="00", font=font,
-                                     size=0.7, color=(255, 255, 255))
+            time_text = dcg.DrawTextQuad(C, 
+                                         p1=(0.25, 0.75),
+                                         p2=(0.75, 0.75),
+                                         p3=(0.75, 0.25),
+                                         p4=(0.25, 0.25),
+                                         text="00",
+                                         font=font,
+                                         color=(255, 255, 255),
+                                         preserve_ratio=True)
             
         # Attach the async callback as a handler
         async def async_animation_handler(sender, target: dcg.DrawInWindow):
@@ -927,9 +938,15 @@ def Programing(C: dcg.Context):
                               pattern=railroad_pattern,
                               fill=(100, 100, 255, 100))
             
-            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
-                                     text="00", font=font,
-                                     size=0.7, color=(255, 255, 255))
+            time_text = dcg.DrawTextQuad(C, 
+                                         p1=(0.25, 0.75),
+                                         p2=(0.75, 0.75),
+                                         p3=(0.75, 0.25),
+                                         p4=(0.25, 0.25),
+                                         text="00",
+                                         font=font,
+                                         color=(255, 255, 255),
+                                         preserve_ratio=True)
             
             # Define the update function that will run in a thread
             def update_thread():
@@ -977,9 +994,15 @@ def Programing(C: dcg.Context):
                                        pattern=railroad_pattern,
                                        fill=(100, 100, 255, 100))
             
-                self._time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
-                                              text="00", font=font,
-                                              size=0.7, color=(255, 255, 255))
+                self._time_text = dcg.DrawTextQuad(C, 
+                                         p1=(0.25, 0.75),
+                                         p2=(0.75, 0.75),
+                                         p3=(0.75, 0.25),
+                                         p4=(0.25, 0.25),
+                                         text="00",
+                                         font=font,
+                                         color=(255, 255, 255),
+                                         preserve_ratio=True)
             # Attach the render handler
             self.handlers += [dcg.RenderHandler(context, callback=self._update_clock)]
 
@@ -1013,9 +1036,15 @@ def Programing(C: dcg.Context):
                               pattern=railroad_pattern,
                               fill=(100, 100, 255, 100))
             
-            time_text = dcg.DrawText(C, pos=(0.22, 0.15), 
-                                     text="00", font=font,
-                                     size=0.7, color=(255, 255, 255))
+            time_text = dcg.DrawTextQuad(C, 
+                                         p1=(0.25, 0.75),
+                                         p2=(0.75, 0.75),
+                                         p3=(0.75, 0.25),
+                                         p4=(0.25, 0.25),
+                                         text="00",
+                                         font=font,
+                                         color=(255, 255, 255),
+                                         preserve_ratio=True)
             
             # Create a render handler to use with the async generator
             render_handler = dcg.RenderHandler(C)
