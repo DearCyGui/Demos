@@ -416,12 +416,12 @@ class DemoWindow(dcg.Window):
                         await asyncio.sleep(5.)  # Update every five seconds
 
                 async def update_fps_usage(target: dcg.ProgressBar):
-                    last_frame_count = C.viewport.metrics["frame_count"]
-                    last_frame_time = C.viewport.metrics["last_time_after_swapping"] * 1e-9
+                    last_frame_count = C.viewport.metrics.frame_count
+                    last_frame_time = C.viewport.metrics.last_time_after_swapping
                     while C.running:
                         # Update FPS
-                        current_frame_count = C.viewport.metrics["frame_count"]
-                        current_frame_time = C.viewport.metrics["last_time_after_swapping"] * 1e-9
+                        current_frame_count = C.viewport.metrics.frame_count
+                        current_frame_time = C.viewport.metrics.last_time_after_swapping
                         fps = (current_frame_count - last_frame_count) / max(0.0001, (current_frame_time - last_frame_time))
                         target.value = min(fps / 120., 1.0)  # Normalize to 120fps max
                         target.overlay = f"{int(fps)}"
@@ -433,20 +433,20 @@ class DemoWindow(dcg.Window):
                         await asyncio.sleep(0.5)  # Update every half-second
 
                 async def update_max_fps(target: dcg.ProgressBar):
-                    last_frame_count = C.viewport.metrics["frame_count"]
+                    last_frame_count = C.viewport.metrics.frame_count
                     while C.running:
                         acc_deltas = 0.
                         acc_count = 0
                         while acc_count < 30 and C.running:
-                            current_frame_count = C.viewport.metrics["frame_count"]
+                            current_frame_count = C.viewport.metrics.frame_count
                             if last_frame_count == current_frame_count:
                                 # No new frames rendered, skip this iteration
                                 await asyncio.sleep(0.05)
                                 continue
                             last_frame_count = current_frame_count
                             metrics = C.viewport.metrics
-                            current_start_frame_time = metrics["last_time_before_event_handling"] * 1e-9
-                            current_end_frame_time = metrics["last_time_after_swapping"] * 1e-9
+                            current_start_frame_time = metrics.last_time_before_event_handling
+                            current_end_frame_time = metrics.last_time_after_swapping
                             acc_deltas += current_end_frame_time - current_start_frame_time
                             acc_count += 1
                             await asyncio.sleep(0.05)  # Wait for a short time to get a good average

@@ -439,7 +439,7 @@ class FrameCallback:
         """
         if self.run:
             return
-        if self.context.viewport.metrics["frame_count"] < self.frame:
+        if self.context.viewport.metrics.frame_count < self.frame:
             return
         self.callback(self, self, None)
         with self.context.viewport.mutex:
@@ -2134,7 +2134,7 @@ def get_clipboard_text(**kwargs) -> str:
     return CONTEXT.clipboard
 
 def get_frame_count(**kwargs) -> int:
-    return CONTEXT.viewport.metrics["frame_count"]
+    return CONTEXT.viewport.metrics.frame_count
 
 def get_item_alias(item : Union[int, str], **kwargs) -> str:
     return CONTEXT.get_item_tag(CONTEXT.get(item))

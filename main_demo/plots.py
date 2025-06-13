@@ -1661,7 +1661,7 @@ def _digital_plots(C: dcg.Context):
                 t = 0
             
             # Advance time
-            t += C.viewport.metrics["delta_whole_frame"]
+            t += C.viewport.metrics.delta_whole_frame
             
             # Update visible range
             plot.X1.min = t - 10

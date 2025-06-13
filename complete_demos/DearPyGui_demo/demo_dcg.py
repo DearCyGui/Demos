@@ -2480,7 +2480,7 @@ def show_demo(C : dcg.Context):
                             t_digital_plot = plot_digital.user_data
                             if t_digital_plot is None:
                                 t_digital_plot = 0
-                            t_digital_plot += C.viewport.metrics["delta_whole_frame"]
+                            t_digital_plot += C.viewport.metrics.delta_whole_frame
                             plot_digital.X1.min = t_digital_plot - 10
                             plot_digital.X1.max = t_digital_plot
                             digital_0.X = np.concatenate([digital_0.X, [t_digital_plot]], axis=None)

@@ -601,10 +601,10 @@ def _timed_updates(C: dcg.Context):
             await asyncio.sleep(0.5)  # Update every half-second
 
     async def update_fps_usage(sender, target: dcg.ProgressBar):
-        last_frame_count = C.viewport.metrics["frame_count"]
+        last_frame_count = C.viewport.metrics.frame_count
         while target.state.visible:
             # Update FPS
-            current_frame_count = C.viewport.metrics["frame_count"]
+            current_frame_count = C.viewport.metrics.frame_count
             fps = current_frame_count - last_frame_count  
             target.value = min(fps / 100., 1.0)  # Normalize to 100fps max
             target.overlay = f"{fps} FPS"

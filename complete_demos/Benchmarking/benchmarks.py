@@ -965,7 +965,7 @@ async def event_loop_callback_performance(C: dcg.Context):
 
     while True:
         # For the asyncio test, we need to use the event loop
-        start_frame = C.viewport.metrics["frame_count"]
+        start_frame = C.viewport.metrics.frame_count
         async_start_time = monotonic()
 
         try:
@@ -977,7 +977,7 @@ async def event_loop_callback_performance(C: dcg.Context):
             print(f"Asyncio test error: {e}")
             
         async_end_time = monotonic()
-        stop_frame = C.viewport.metrics["frame_count"]
+        stop_frame = C.viewport.metrics.frame_count
         frames = stop_frame - start_frame
         asyncio_calls = frames * 500  # 500 callbacks per frame
         value_feedback.value = num_callbacks
