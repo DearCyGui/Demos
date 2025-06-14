@@ -18,6 +18,7 @@ def _config(sender, target : dcg.uiItem):
 
     if isinstance(sender, dcg.RadioButton):
         value = True
+        keyword = target.value
     else:
         keyword = target.label
         value = target.value
@@ -71,7 +72,7 @@ class ConfigureOptions(dcg.Layout):
                                          user_data=item, 
                                          value=getattr(item, names[i*columns + j]))
 
-def add_help_symbol(target, message):
+def add_help_symbol(target: dcg.baseItem, message: str):
     C = target.context
     with dcg.HorizontalLayout(C, parent=target.parent) as hl:
         target.parent = hl
@@ -198,7 +199,7 @@ def show_demo(C : dcg.Context):
                     "Hold SHIFT/ALT for faster/slower edit.\n"
                     "Double-click or CTRL+click to input value.")
                 
-                dcg.Slider(C, label="drag int 0..100", print_format="%.0f", print_format="%d%%", drag=True, callback=_log)
+                dcg.Slider(C, label="drag int 0..100", print_format="%.0f%%", drag=True, callback=_log)
                 dcg.Slider(C, label="drag float", drag=True, callback=_log)
                 dcg.Slider(C, label="drag small float",
                            print_format="%.06f ns", drag=True, value=0.0067, callback=_log)
@@ -208,7 +209,7 @@ def show_demo(C : dcg.Context):
                 
                 dcg.Slider(C, label="slider float", print_format="ratio = %.3f", max_value=1.0, callback=_log)
                 dcg.Slider(C, label="slider double", print_format="ratio = %.14f", max_value=1.0, callback=_log)
-                dcg.Slider(C, label="slider angle", print_format="%.0f", print_format="%d deg", min_value=-360, max_value=360, callback=_log)
+                dcg.Slider(C, label="slider angle",  print_format="%.0f deg", min_value=-360, max_value=360, callback=_log)
 
                 add_help_symbol(dcg.ColorEdit(C, label="color edit 4", value=(102, 179, 0, 128), callback=_log),
                     "Click on the colored square to open a color picker.\n"
@@ -305,7 +306,7 @@ def show_demo(C : dcg.Context):
 
                 with dcg.HorizontalLayout(C):
                     dcg.Text(C, value="display_type:")
-                    dcg.RadioButton(C, value=("uint8",
+                    dcg.RadioButton(C, items=("uint8",
                                               "float"),
                                     callback=_color_picker_configs, 
                                     user_data=color_picker, horizontal=True)
@@ -382,18 +383,19 @@ def show_demo(C : dcg.Context):
                     dcg.Text(C, value="2. I am not selectable") 
 
                 with dcg.TreeNode(C, label="Selection State: Single"):
-                    items = []
-                    def _selection(sender, target, _):
-                        for item in items:
+                    selectables : list[dcg.Selectable] = []
+                    # unselect the other selectables
+                    def _selection(sender):
+                        for item in selectables:
                             if item != sender:
                                 item.value = False
                     
                     for i in range(5):
-                        items.append(
+                        selectables.append(
                             dcg.Selectable(C, label=f"{i+1}. I am selectable", callback=_selection)
                         )
-                    for sel in items:
-                        sel.user_data = items
+                    for sel in selectables:
+                        sel.user_data = selectables
 
             with dcg.TreeNode(C, label="Bullets"):
 
@@ -566,7 +568,7 @@ def show_demo(C : dcg.Context):
                     with dcg.VerticalLayout(C):
                         dcg.Text(C, value="Date Range Controls:")
                         
-                        def update_date_range(sender, target, value):
+                        def update_date_range(sender: dcg.InputText, target, value):
                             try:
                                 new_date = datetime.datetime.strptime(value, "%Y-%m-%d")
                                 if sender.label == "min_date":
@@ -2054,8 +2056,8 @@ def show_demo(C : dcg.Context):
                         with dcg.Plot(C, label="Filled Line Plot", height=400, width=-1):
                             filled_line_series = dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
                         
-                        fill_checkbox.callbacks = lambda s, t, d: filled_line_series.configure(shaded=d)
-                        segment_checkbox.callbacks = lambda s, t, d: filled_line_series.configure(segments=d)
+                        fill_checkbox.callback = lambda s, t, d: filled_line_series.configure(shaded=d)
+                        segment_checkbox.callback = lambda s, t, d: filled_line_series.configure(segments=d)
                                 
                     with dcg.TreeNode(C, label="Text"):                
                         # create plot
@@ -2107,7 +2109,7 @@ def show_demo(C : dcg.Context):
                             alpha_theme = dcg.ThemeStyleImPlot(C, fill_alpha=value)
                             shaded_plot_1.theme = alpha_theme
 
-                        alpha_slider.callbacks = _cb_alpha
+                        alpha_slider.callback = _cb_alpha
 
                         stock_datax = np.arange(100)
                         stock_data_y2 = np.zeros(100)
@@ -2143,7 +2145,7 @@ def show_demo(C : dcg.Context):
                     with dcg.TreeNode(C, label="Scatter Series"):
                         scatter_theme = dcg.ThemeStyleImPlot(C, marker=dcg.PlotMarker.CIRCLE)
                         def change_marker(sender, target, marker_name):
-                            scatter_theme.Marker = getattr(dcg.PlotMarker, marker_name.upper())
+                            scatter_theme.marker = getattr(dcg.PlotMarker, marker_name.upper())
 
                         def change_size(sender, target, size):
                             scatter_theme.marker_size = size
@@ -2179,8 +2181,8 @@ def show_demo(C : dcg.Context):
                             plot_stair.X1.label = "X"
                             plot_stair.Y1.label = "Y"
                             stair_series = dcg.PlotStairs(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
-                        pre_step_cb.callbacks = lambda s, t, d: stair_series.configure(pre_step=d)
-                        filled_stairs_cb.callbacks = lambda s, t, d: stair_series.configure(shaded=d)
+                        pre_step_cb.callback = lambda s, t, d: stair_series.configure(pre_step=d)
+                        filled_stairs_cb.callback = lambda s, t, d: stair_series.configure(shaded=d)
 
                     with dcg.TreeNode(C, label="Bar Series"):
                         horizontal_bar_cb = dcg.Checkbox(C, label="horizontal", value=False)
@@ -2206,7 +2208,7 @@ def show_demo(C : dcg.Context):
                             bar_series = dcg.PlotBars(C, X=[10, 20, 30], Y=[100, 75, 90], label="Final Exam", weight=1)
                             dcg.PlotBars(C, X=[11, 21, 31], Y=[83, 75, 72], label="Midterm Exam", weight=1)
                             dcg.PlotBars(C, X=[12, 22, 32], Y=[42, 68, 23], label="Course Grade", weight=1)
-                        horizontal_bar_cb.callbacks = lambda s, t, d: bar_series.configure(horizontal=d)
+                        horizontal_bar_cb.callback = lambda s, t, d: bar_series.configure(horizontal=d)
                                 
 
                     with dcg.TreeNode(C, label="Bar Group Series"):
@@ -2253,9 +2255,9 @@ def show_demo(C : dcg.Context):
                         def _callback_width(sender, target, data):
                             bar_group_series.group_size = data
 
-                        horizontal_bar_group_cb.callbacks = _set_horizontal
-                        stacked_bar_group_cb.callbacks = _callback_stacked
-                        slider_bar_group_width.callbacks = _callback_width
+                        horizontal_bar_group_cb.callback = _set_horizontal
+                        stacked_bar_group_cb.callback = _callback_stacked
+                        slider_bar_group_width.callback = _callback_width
 
                     with dcg.TreeNode(C, label="Bar Stacks"):
                         politicians = (("Trump", 0), ("Bachman", 1), ("Cruz", 2), ("Gingrich", 3), ("Palin", 4), ("Santorum", 5),
@@ -2298,7 +2300,7 @@ def show_demo(C : dcg.Context):
                                 bars_groups.configure(values=data_div, labels=labels_div)
                             else:
                                 bars_groups.configure(values=data_reg, labels=labels_reg)
-                        divergent_stack_checkbox.callbacks = divergent_stack_cb
+                        divergent_stack_checkbox.callback = divergent_stack_cb
 
                     with dcg.TreeNode(C, label="Error Series"):
                         error1_x = [1, 2, 3, 4, 5]
@@ -2395,7 +2397,7 @@ def show_demo(C : dcg.Context):
                             # TODO colormap: dpg.add_colormap_scale(min_scale=0, max_scale=10, height=400)
                             heat_series = dcg.PlotHeatmap(C, values=values, label="heat_series", scale_min=0, scale_max=6.3)
 
-                        major_col_heat_cb.callbacks = lambda s, t, d: heat_series.configure(col_major=d)
+                        major_col_heat_cb.callback = lambda s, t, d: heat_series.configure(col_major=d)
 
                     with dcg.TreeNode(C, label="Histogram Series"):
                         x_data = np.random.rand(10000) * 10 + 1
@@ -2412,8 +2414,8 @@ def show_demo(C : dcg.Context):
                             plot_hist_series.Y1.auto_fit = True
                             hist_series = dcg.PlotHistogram(C, X=x_data, label="histogram")
 
-                        density_histograms_cb.callbacks = lambda s, t, d: hist_series.configure(density=d)
-                        cumulative_histograms_cb.callbacks = lambda s, t, d: hist_series.configure(cumulative=d)
+                        density_histograms_cb.callback = lambda s, t, d: hist_series.configure(density=d)
+                        cumulative_histograms_cb.callback = lambda s, t, d: hist_series.configure(cumulative=d)
 
                     with dcg.TreeNode(C, label="Histogram 2D Series"):
                         slider_hist_count = dcg.Slider(C, print_format="%.0f", width=300, min_value=100, max_value=100000, value=1000)
@@ -2454,10 +2456,10 @@ def show_demo(C : dcg.Context):
                         update_count(None, None, 1000)
                         update_bins(None, None, (50, 50))
 
-                        slider_hist_count.callbacks = update_count
-                        slider_hist_bins.callbacks = update_bins
+                        slider_hist_count.callback = update_count
+                        slider_hist_bins.callback = update_bins
                         # TODO colormap scale
-                        checkbox_hist_density.callbacks = update_density
+                        checkbox_hist_density.callback = update_density
 
                     with dcg.TreeNode(C, label="Digital Plots"):
                         dcg.Text(C, value="Digital plots do not respond to Y drag and zoom, so that", marker="bullet")
@@ -2587,12 +2589,12 @@ def show_demo(C : dcg.Context):
                             multi_axes_plot.Y3.label = "y3"
                             multi_axes_plot.Y3.enabled = True
                             dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
-                        show_y1.callbacks = lambda s, t, d: multi_axes_plot.Y1.configure(enabled=d)
-                        show_y2.callbacks = lambda s, t, d: multi_axes_plot.Y2.configure(enabled=d)
-                        show_y3.callbacks = lambda s, t, d: multi_axes_plot.Y3.configure(enabled=d)
-                        show_x1.callbacks = lambda s, t, d: multi_axes_plot.X1.configure(enabled=d)
-                        show_x2.callbacks = lambda s, t, d: multi_axes_plot.X2.configure(enabled=d)
-                        show_x3.callbacks = lambda s, t, d: multi_axes_plot.X3.configure(enabled=d)
+                        show_y1.callback = lambda s, t, d: multi_axes_plot.Y1.configure(enabled=d)
+                        show_y2.callback = lambda s, t, d: multi_axes_plot.Y2.configure(enabled=d)
+                        show_y3.callback = lambda s, t, d: multi_axes_plot.Y3.configure(enabled=d)
+                        show_x1.callback = lambda s, t, d: multi_axes_plot.X1.configure(enabled=d)
+                        show_x2.callback = lambda s, t, d: multi_axes_plot.X2.configure(enabled=d)
+                        show_x3.callback = lambda s, t, d: multi_axes_plot.X3.configure(enabled=d)
 
                     with dcg.TreeNode(C, label="Ordering Axes Plot"):
                         opposite_x = dcg.Checkbox(C, label="Opposite X", value=False)
@@ -2605,10 +2607,10 @@ def show_demo(C : dcg.Context):
                             ordering_axes_plot.Y1.label = "y"
                             dcg.PlotLine(C, X=sindatax, Y=sindatay)
 
-                        opposite_x.callbacks = lambda s, t, d: ordering_axes_plot.X1.configure(opposite=d)
-                        invert_x.callbacks = lambda s, t, d: ordering_axes_plot.X1.configure(invert=d)
-                        opposite_y.callbacks = lambda s, t, d: ordering_axes_plot.Y1.configure(opposite=d)
-                        invert_y.callbacks = lambda s, t, d: ordering_axes_plot.Y1.configure(invert=d)
+                        opposite_x.callback = lambda s, t, d: ordering_axes_plot.X1.configure(opposite=d)
+                        invert_x.callback = lambda s, t, d: ordering_axes_plot.X1.configure(invert=d)
+                        opposite_y.callback = lambda s, t, d: ordering_axes_plot.Y1.configure(opposite=d)
+                        invert_y.callback = lambda s, t, d: ordering_axes_plot.Y1.configure(invert=d)
 
                     with dcg.TreeNode(C, label="Log Axis Scale"):
                         xs = np.linspace(0.1, 100, 1000)
@@ -2694,7 +2696,7 @@ def show_demo(C : dcg.Context):
                             plot.X1.label = "x"
                             plot.Y1.label = "y"
                             with dcg.DrawInPlot(C):
-                                interactable_area = dcg.DrawInvisibleButton(C, p1=(0, 0), p2=(0.5, 0.5), button=0)
+                                interactable_area = dcg.DrawInvisibleButton(C, p1=(0, 0), p2=(0.5, 0.5), button=dcg.MouseButtonMask.LEFT)
                                 interactable_rect = dcg.DrawRect(C, pmin=(0, 0), pmax=(0.5, 0.5), color=(255, 0, 0), thickness=-1)
                                 d1 = dcg.utils.DragPoint(C, label="dpoint1", color=[255, 0, 255, 255], x=0.25, y=0.25)
                                 d2 = dcg.utils.DragPoint(C, label="dpoint2", color=[255, 0, 255, 255], clamp_inside=True, x=0.75, y=0.75)
@@ -2768,13 +2770,13 @@ def show_demo(C : dcg.Context):
                                 # West | East will raise this and will be ignored
                                 pass
 
-                        north_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.NORTH, d)
-                        east_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.EAST, d)
-                        west_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.WEST, d)
-                        south_legend.callbacks = lambda s, t, d: add_remove_location(dcg.LegendLocation.SOUTH, d)
-                        horizontal_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(horizontal=d)
-                        outside_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(outside=d)
-                        sort_legend.callbacks = lambda s, t, d: plot_with_legend.legend_config.configure(sorted=d)
+                        north_legend.callback = lambda s, t, d: add_remove_location(dcg.LegendLocation.NORTH, d)
+                        east_legend.callback = lambda s, t, d: add_remove_location(dcg.LegendLocation.EAST, d)
+                        west_legend.callback = lambda s, t, d: add_remove_location(dcg.LegendLocation.WEST, d)
+                        south_legend.callback = lambda s, t, d: add_remove_location(dcg.LegendLocation.SOUTH, d)
+                        horizontal_legend.callback = lambda s, t, d: plot_with_legend.legend_config.configure(horizontal=d)
+                        outside_legend.callback = lambda s, t, d: plot_with_legend.legend_config.configure(outside=d)
+                        sort_legend.callback = lambda s, t, d: plot_with_legend.legend_config.configure(sorted=d)
 
                     with dcg.TreeNode(C, label="Legend Popups"):
                         x = np.linspace(0, 100, 101)
@@ -2795,7 +2797,7 @@ def show_demo(C : dcg.Context):
                                 amplitude_slider = dcg.Slider(C, label="Amplitude",
                                                               value=amplitude, min_value=0.01, max_value=5.0)
                                 dcg.Separator(C)
-                        frequency_slider.callbacks = \
+                        frequency_slider.callback = \
                             lambda: plot_bars_with_legend.configure(Y=amplitude_slider.value * np.sin(frequency_slider.value * x))
                         amplitude_slider.callbacks = frequency_slider.callbacks
 
