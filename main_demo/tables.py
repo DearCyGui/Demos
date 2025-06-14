@@ -1044,7 +1044,7 @@ def _filtering(C: dcg.Context):
         for i in range(table.num_rows):
             # Check if any cell in this row contains the filter text
             row_matches = any(
-                filter_text in str(table[i, j].content).lower() 
+                filter_text in str(table[i, j].content.value).lower() 
                 for j in range(table.num_cols)
             )
             
@@ -1398,7 +1398,7 @@ def _column_handlers(C: dcg.Context):
         for i in range(table.num_rows):
             cell = table[i, 1]
             # Create new text with red color
-            new_text = dcg.Text(C, value=cell.content, color=(255, 0, 0))
+            new_text = dcg.Text(C, value=cell.content.value, color=(255, 0, 0))
             # Replace old content
             table[i, 1] = new_text
         C.viewport.wake()

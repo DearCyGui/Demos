@@ -63,7 +63,7 @@ class DemoSection(dcg.Layout):
         # Header with show source checkbox
         with dcg.HorizontalLayout(self.context, parent=self, alignment_mode=dcg.Alignment.RIGHT):
             self.show_source_checkbox = dcg.Checkbox(self.context, label="Show Source")
-            self.show_source_checkbox.callbacks = self._toggle_source_view
+            self.show_source_checkbox.callback = self._toggle_source_view
         
         # Create source editor (initially hidden)
         self._create_source_editor()
@@ -595,7 +595,7 @@ class DemoWindow(dcg.Window):
                 ItemDocumentation(self.context, target.user_data, modal=True)
             for link in doc_links:
                 dcg.Button(self.context, label=link.__name__, small=True,
-                           callbacks=_show_documentation, user_data=link)
+                           callback=_show_documentation, user_data=link)
         self.context.viewport.wake() # Wake the viewport to refresh the display
 
     def _create_tabs_from_hierarchy(self,
@@ -951,7 +951,7 @@ class ItemDocumentation(dcg.Window):
         self.configure(**kwargs)
         self._object_class = item_class
         with self:
-            dcg.Checkbox(self.context, label="Show all inherited properties", callbacks=self._toggle_inherited)
+            dcg.Checkbox(self.context, label="Show all inherited properties", callback=self._toggle_inherited)
             display_item_documentation(self.context, item_class)
 
     def _toggle_inherited(self, sender, target, value):

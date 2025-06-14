@@ -6,6 +6,7 @@ from math import cos, sin
 import os
 import numpy as np
 import time
+import typing
 
 # This file is a direct DearCyGui equivalent to the original DearPyGui demo.py
 
@@ -1339,7 +1340,7 @@ def show_demo(C : dcg.Context):
                 dcg.Separator(C)
                 dcg.Text(C, value="Table iteration and clearing:")
 
-                table_output = None
+                table_output: dcg.InputText | None = None
                 def update_table_output(table=table):
                     nonlocal table_output
                     output = "Table contents:\n"
@@ -1352,6 +1353,7 @@ def show_demo(C : dcg.Context):
                         else:
                             value = str(content)
                         output += f"({i},{j}): {value}\n"
+                    assert table_output is not None
                     table_output.value = output
 
                 dcg.Button(C, label="Show table contents", callback=update_table_output)
@@ -1405,7 +1407,7 @@ def show_demo(C : dcg.Context):
                     table[1, 1] = table_element
                     # Alternative syntax:
                     table[2, 2] = {"content": "Row2 Column2", "bg_color": (0, 0, 255, 100)}
-                    table[3, 3] = dcg.TableElement(C, content="Row3 Column3", bg_color=(255, 0, 0, 100))
+                    table[3, 3] = dcg.TableElement(content="Row3 Column3", bg_color=(255, 0, 0, 100))
 
                 with dcg.TreeNode(C, label="Combining colors"):
                     dcg.Text(C, value="It is possible to combine the different color settings.")
@@ -1572,13 +1574,13 @@ def show_demo(C : dcg.Context):
                     def update_color(sender, table=table, i=i):
                         nonlocal bg_color
                         bg_color = np.random.randint(0, 255, 3).tolist() + [100]
-                        if table.col_config[i].hovered:
+                        if table.col_config[i].state.hovered:
                             for j in range(3):
                                 element = table[j, i]
                                 element.bg_color = bg_color
                                 table[j, i] = element
                     def toggle_open(sender, table=table, i=i):
-                        table.col_config[i].num_rows_visible = i
+                        table.num_rows_visible = i
                     table.col_config[i].handlers += [
                         dcg.GotHoverHandler(C,
                                             callback=update_color_on_hover),
@@ -1830,7 +1832,7 @@ def show_demo(C : dcg.Context):
                     if table is None:
                         return
                     for i in range(table.num_rows):
-                        table.row_config[i].show = value in table[i, 2].content.value
+                        table.row_config[i].show = value in typing.cast(dcg.uiItem, table[i, 2].content).value
                 dcg.InputText(C, label="Filter", decimal=True, before=table, callback=_filter_rows)
 
             with dcg.TreeNode(C, label="Sorting"):
@@ -1883,7 +1885,7 @@ def show_demo(C : dcg.Context):
                     # table[i, 2].ordering_value = ... won't work because
                     # it modified the table element but doesn't set it again.
                     table_element = table[i, 2]
-                    table_element.ordering_value = int(table_element.content.value)
+                    table_element.ordering_value = int(typing.cast(dcg.uiItem, table_element.content).value)
                     table[i, 2] = table_element
 
                 # Extend the table with interesting elements for sorting
@@ -1897,7 +1899,7 @@ def show_demo(C : dcg.Context):
                         for j in range(table.num_cols):
                             table_element = table[i, j]
                             if value == "integer":
-                                table_element.ordering_value = int(table_element.ordering_value)
+                                table_element.ordering_value = int(typing.cast(typing.SupportsInt, table_element.ordering_value))
                             else:
                                 table_element.ordering_value = str(table_element.ordering_value)
                             table[i, j] = table_element
