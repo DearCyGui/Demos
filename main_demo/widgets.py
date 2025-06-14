@@ -1869,9 +1869,10 @@ def _theme_colors(C: dcg.Context):
     )
     
     # Combine themes using ThemeList
-    with dcg.ThemeList(C) as combined_theme:
-        base_theme
+    combined_theme = dcg.ThemeList(C, children=[
+        base_theme,
         accent_theme
+    ])
     
     # Apply the combined theme
     with dcg.ChildWindow(C, width=500, height=150, border=True, theme=combined_theme):
@@ -1944,9 +1945,10 @@ def _theme_styles(C: dcg.Context):
     )
     
     # Combine style and color themes
-    with dcg.ThemeList(C) as modern_theme:
-        modern_color
+    modern_theme = dcg.ThemeList(C, children=[
+        modern_color,
         rounded_style
+    ])
     
     # Apply the combined theme
     with dcg.ChildWindow(C, width=500, height=350, border=True, theme=modern_theme):

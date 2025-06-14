@@ -1,4 +1,6 @@
+import asyncio
 import dearcygui as dcg
+from dearcygui.utils.asyncio_helpers import run_viewport_loop
 import numpy as np
 from demo_utils import documented, democode, push_group, pop_group,\
     launch_demo, demosection, display_item_documentation
@@ -489,9 +491,10 @@ def _theme_implot(C: dcg.Context):
                                       minor_alpha=0.25)              # Minor grid alpha
     
     # Combine plot colors and styles
-    with dcg.ThemeList(C) as plot_theme:
-        plot_colors
+    plot_theme = dcg.ThemeList(C, children=[
+        plot_colors,
         plot_styles
+    ])
     
     # Apply custom theme to plot
     with dcg.Plot(C, label="Custom Plot Style", height=300, width=-1, theme=plot_theme):
@@ -727,6 +730,292 @@ def _style_editor(C: dcg.Context):
 
 
 pop_group()  # End Global Theme Management
+
+push_group("Viewport styling")
+
+@demosection(dcg.Viewport)
+@documented
+def _viewport_styling(C: dcg.Context):
+    """
+    # Viewport Styling
+
+    The viewport is the main window of your application and provides several styling options
+    to customize its appearance. This section covers the key styling properties of the Viewport
+    object.
+    
+    ## Background Color and Transparency
+    
+    ### Clear Color
+    
+    The `clear_color` property sets the background color of the viewport:
+    
+    ```python
+    C.viewport.clear_color = (50, 50, 60)       # RGB
+    C.viewport.clear_color = (50, 50, 60, 255)  # RGBA (fully opaque)
+    C.viewport.clear_color = (50, 50, 60, 200)  # RGBA (semi-transparent)
+    ```
+    
+    ### Transparency
+    
+    To create a transparent window, set the `transparent` property to `True` before initializing:
+    
+    ```python
+    viewport = dcg.Viewport(context)
+    viewport.transparent = True
+    viewport.clear_color = (50, 50, 60, 180)  # Alpha < 255 for transparency
+    viewport.initialize()
+    ```
+    
+    ## Window Appearance
+    
+    ### Window Decorations
+    
+    Control whether the window shows standard OS decorations (title bar, borders, etc.):
+    
+    ```python
+    C.viewport.decorated = False  # Create a borderless window
+    ```
+
+    ### Custom Window Borders
+    
+    For borderless windows, you can define custom hit regions using `hit_test_surface`:
+    
+    ```python
+    import numpy as np
+    
+    # Create a custom border with resize handles
+    border_width = 5
+    hit_test = np.zeros((2 * border_width + 1, 2 * border_width + 1), dtype=np.uint8)
+    
+    for i in range(hit_test.shape[0]):
+        for j in range(hit_test.shape[1]):
+            if i < border_width:  # Top border
+                hit_test[i, j] |= 1
+            elif i >= hit_test.shape[0] - border_width:  # Bottom border
+                hit_test[i, j] |= 4
+            if j < border_width:  # Left border
+                hit_test[i, j] |= 2
+            elif j >= hit_test.shape[1] - border_width:  # Right border
+                hit_test[i, j] |= 8
+                
+    # Add draggable area at the top
+    hit_test[0:border_width, :] = 15  # Top area is draggable
+    
+    C.viewport.decorated = False
+    C.viewport.hit_test_surface = hit_test
+    ```
+    
+    ### Window Icon
+    
+    Set a custom icon for your application window:
+    
+    ```python
+    import PIL.Image
+    
+    # Load an image
+    icon = PIL.Image.open("icon.png").convert("RGBA")
+    icon_array = np.array(icon)
+    
+    # Must be set before initializing the viewport
+    viewport = dcg.Viewport(context)
+    viewport.icon = [icon_array]
+    viewport.initialize()
+    ```
+    
+    ## Global Theme and Font
+    
+    Apply themes and fonts to the entire application:
+    by setting the `theme` and `font` properties of the viewport:
+    
+    ## Window Presentation States
+    
+    Control how the window is displayed:
+    
+    ```python
+    # Make the window fullscreen
+    C.viewport.fullscreen = True
+    
+    # Keep the window on top of others
+    C.viewport.always_on_top = True
+    
+    # Maximize or minimize the window
+    C.viewport.maximized = True
+    C.viewport.minimized = True
+    ```
+    
+    ## Window Size and Position
+    
+    Control the size and position of the viewport window:
+    
+    ```python
+    # Set window size (DPI-independent)
+    C.viewport.width = 800
+    C.viewport.height = 600
+    
+    # Get actual pixel size (accounting for DPI)
+    pixel_width = C.viewport.pixel_width
+    pixel_height = C.viewport.pixel_height
+    
+    # Position the window
+    C.viewport.x_pos = 100
+    C.viewport.y_pos = 100
+    
+    # Set size constraints
+    C.viewport.min_width = 400
+    C.viewport.min_height = 300
+    C.viewport.max_width = 1600
+    C.viewport.max_height = 1200
+    
+    # Allow or prevent resizing
+    C.viewport.resizable = True
+    ```
+    
+    ## Visual Quality Settings
+    
+    Control rendering behavior:
+    
+    ```python
+    # Get the display scaling factor
+    dpi_scale = C.viewport.dpi
+    
+    # Apply additional scaling on top of system DPI
+    C.viewport.scale = 1.25  # Make everything 25% larger
+    ```
+    """
+    pass
+
+
+@demosection(dcg.Viewport)
+@documented
+@democode
+def _custom_viewport_decorations(C: dcg.Context):
+    """
+    ## Custom Viewport Decorations
+    
+    This example shows how to create a viewport with custom decorations instead of using
+    the operating system's window decorations. You can create:
+    
+    - Custom title bars with draggable areas
+    - Custom resize borders
+    - Custom close/minimize/maximize buttons
+    
+    The key components to achieve this are:
+    
+    1. Setting `decorated=False` to remove OS decorations
+    2. Using `hit_test_surface` to define draggable and resizable regions
+    3. Using Window to draw custom decorations
+    """
+    async def create_custom_viewport():
+        # Create a new viewport context
+        try:
+            new_context = dcg.Context()
+            new_context.viewport.decorated = False  # Turn off OS decorations
+            new_context.viewport.clear_color = (0, 0, 0, 0)  # transparent background
+            new_context.viewport.initialize(width=500, height=400, title="Custom Decorated Window")
+        except Exception as e:
+            with dcg.Window(C, modal=True):
+                dcg.Text(C, value=f"Error creating viewport: {e}")
+            return
+        
+        # Define dimensions
+        border_width = 5
+        title_bar_height = 30
+        center_width = 50
+        
+        # Create hit test surface that defines draggable and resizable areas
+        # Values: 0=normal, 1=top resize, 2=left resize, 4=bottom resize, 8=right resize
+        # 15=draggable area, 3/6/9/12=corners
+        hit_test = np.zeros((border_width + title_bar_height + center_width, 2 * border_width + 1), dtype=np.uint8)
+        
+        # Set title bar as draggable area (value 15)
+        hit_test[border_width:title_bar_height, border_width:-border_width] = 15
+        
+        # Set resizable borders
+        for i in range(hit_test.shape[0]):
+            for j in range(hit_test.shape[1]):
+                if i < border_width:  # Top border (top of title bar)
+                    hit_test[i, j] |= 1
+                elif i >= hit_test.shape[0] - border_width:  # Bottom border
+                    hit_test[i, j] |= 4
+
+                if j < border_width:  # Left border
+                    hit_test[i, j] |= 2
+                elif j >= hit_test.shape[1] - border_width:  # Right border
+                    hit_test[i, j] |= 8
+        
+        # Apply the hit test surface to define window behavior
+        new_context.viewport.hit_test_surface = hit_test
+
+        # Create the title bar area
+        no_border_theme = dcg.ThemeStyleImGui(
+            new_context,
+            window_border_size=0,
+            window_padding=(0, 0),
+            window_rounding=0,
+            window_min_size=(0, 0),
+            frame_border_size=0,
+            frame_padding=(0, 0),
+            frame_rounding=0,
+            child_border_size=0,
+            child_rounding=0,
+            item_spacing=(0, 0),
+            item_inner_spacing=(0, 0),
+            indent_spacing=0,
+        )
+        # We apply str on title_bar_height to ensure unscaled height is used
+        with dcg.Window(new_context, no_title_bar=True,
+                        y="0", x="0",
+                        width="fillx",
+                        height=str(title_bar_height),
+                        no_resize=True,
+                        no_scrollbar=True,
+                        no_scroll_with_mouse=True,
+                        no_mouse_inputs=True,
+                        no_bring_to_front_on_focus=True,
+                        no_move=True,
+                        no_collapse=True,
+                        no_saved_settings=True,
+                        no_background=True,
+                        theme=no_border_theme) as w:
+            # Sadly currently the window seems to have a minimum height larger
+            # that the title bar height, so as workaround we have to set
+            # the height again in the widget
+            with dcg.DrawInWindow(new_context,
+                                  width="fullx",
+                                  height=str(title_bar_height),
+                                  relative=True):
+                dcg.DrawRect(new_context, pmin=(0, 0), pmax=(1, 1),
+                             fill=(80, 80, 90), color=0)
+                dcg.DrawTextQuad(new_context, p1=(0, 1), p2=(1, 1),
+                                 p3=(1, 0), p4=(0, 0),
+                                 text="Custom Title Bar",
+                                 color=(220, 220, 220),
+                                 preserve_ratio=True)
+
+        # Create primary window below title bar
+        with dcg.Window(new_context, no_title_bar=True,
+                        y=str(title_bar_height), x=0,
+                        width="fillx", height="filly",
+                        no_resize=True,
+                        no_bring_to_front_on_focus=True,
+                        no_move=True,
+                        no_collapse=True,
+                        no_saved_settings=True):
+            with dcg.VerticalLayout(new_context, alignment_mode=dcg.Alignment.CENTER):
+                with dcg.HorizontalLayout(new_context, alignment_mode=dcg.Alignment.CENTER):
+                    def close_window():
+                        new_context.running = False
+                    dcg.Button(new_context, label="Close Window", callback=close_window)
+        
+        await run_viewport_loop(new_context.viewport)
+        
+        # Clean up
+        new_context.viewport.visible = False
+        new_context.viewport.wait_events(0)
+    
+    # Button to create the custom viewport
+    dcg.Button(C, label="Create Custom Decorated Window", 
+              callback=lambda: create_custom_viewport())
 
 
 if __name__ == "__main__":

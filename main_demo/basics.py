@@ -840,7 +840,7 @@ def _multiviewport(C: dcg.Context):
         )
         # Hide the viewport right away rather than wait garbage collection
         new_context.viewport.visible = False
-        new_context.viewport.wait_events(0.) # process the visibility change
+        new_context.viewport.wait_events(0) # process the visibility change
 
     # Create a button to trigger the creation of a new viewport
     dcg.Button(C, label="Create New Viewport", callback=lambda: create_viewport())

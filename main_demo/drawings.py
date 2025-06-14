@@ -666,9 +666,9 @@ def _advanced_combinations(C: dcg.Context):
             return self._value
         
         @value.setter
-        def value(self, new_value):
+        def value(self, value):
             # Update the value with validation
-            self._value = max(0.0, min(100.0, new_value))
+            self._value = max(0.0, min(100.0, value))
             # Update the visual elements
             self._update_gauge_elements()
         
@@ -1037,6 +1037,8 @@ def _draw_pattern(C: dcg.Context):
                     shape.color = color
                     shape.thickness = thickness
                     shape.pattern = pattern
+            else:
+                assert False, "Unknown shape type"
         else:
             # Create new shape based on shape type
             if shape_type.value == "circle":
@@ -1052,6 +1054,8 @@ def _draw_pattern(C: dcg.Context):
                                      num_points=5, inner_radius=20,
                                      color=color, thickness=thickness, 
                                      pattern=pattern)
+            else:
+                assert False, "Unknown shape type"
         
         # Store shape for future updates
         pattern_shapes[pattern_name] = shape
@@ -1573,7 +1577,7 @@ def _draw_texture_advanced_example(C: dcg.Context):
     except ImportError:
         dcg.Text(C, value="This example requires the moderngl and pyrr packages.\n"
                           "Please install them using 'pip install moderngl pyrr'.",
-                          color=(255, 255, 255), size=-16)
+                          color=(255, 255, 255))
         return
     
     class CubeDemo(dcg.ChildWindow):
@@ -1820,7 +1824,7 @@ def _draw_texture_advanced_example(C: dcg.Context):
                 self.current_time = dcg.TextValue(
                     invisible_context, 
                     print_format="Current time: %.1f s",
-                    shareable_value=dcg.SharedDouble(invisible_context, 0.0),
+                    shareable_value=dcg.SharedFloat(invisible_context, 0.0),
                     scaling_factor=1.3
                 )
                 
@@ -1859,6 +1863,9 @@ def _draw_texture_advanced_example(C: dcg.Context):
                     b = int(127 + 127 * math.sin(t * 0.3))
                     item.color = (r, g, b)
                 if hasattr(item, 'fill'):
+                    r = int(127 + 127 * math.sin(t * 0.7))
+                    g = int(127 + 127 * math.sin(t * 0.5))
+                    b = int(127 + 127 * math.sin(t * 0.3))
                     item.fill = (r//2, g//2, b//2, 150)
                  
                 # Update time display

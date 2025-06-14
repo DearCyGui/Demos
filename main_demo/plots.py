@@ -1335,7 +1335,7 @@ def _histogram(C: dcg.Context):
         hist_series = dcg.PlotHistogram(C, 
                                       label="Distribution", 
                                       X=data,
-                                      bins=bins_slider.value,
+                                      bins=int(bins_slider.value),
                                       density=density_cb.value,
                                       cumulative=cumulative_cb.value)
         
@@ -1346,7 +1346,7 @@ def _histogram(C: dcg.Context):
         
         # Set callback functions to update histogram when controls change
         def update_histogram(sender, target, data):
-            hist_series.bins = bins_slider.value
+            hist_series.bins = int(bins_slider.value)
             hist_series.density = density_cb.value
             hist_series.cumulative = cumulative_cb.value
             plot.Y1.label = "Density" if density_cb.value else "Frequency"
@@ -1354,9 +1354,9 @@ def _histogram(C: dcg.Context):
                 plot.Y1.label += " (Cumulative)"
             C.viewport.wake()
         
-        density_cb.callbacks = update_histogram
-        cumulative_cb.callbacks = update_histogram
-        bins_slider.callbacks = update_histogram
+        density_cb.callback = update_histogram
+        cumulative_cb.callback = update_histogram
+        bins_slider.callback = update_histogram
         
         dcg.Text(C, value="Histograms are useful for visualizing distributions and identifying patterns in data")
 
@@ -1401,8 +1401,8 @@ def _histogram_2d(C: dcg.Context):
         hist_2d = dcg.PlotHistogram2D(C, 
                                      label="Joint Distribution", 
                                      X=x, Y=y,
-                                     x_bins=bin_slider.value,
-                                     y_bins=bin_slider.value)
+                                     x_bins=int(bin_slider.value),
+                                     y_bins=int(bin_slider.value))
         
         # Configure axes
         plot.X1.label = "X Value"
@@ -1541,7 +1541,7 @@ def _heatmaps(C: dcg.Context):
             heatmap.col_major = data
             C.viewport.wake()
             
-        col_major_cb.callbacks = toggle_col_major
+        col_major_cb.callback = toggle_col_major
         
         dcg.Text(C, value="Heatmaps are useful for visualizing patterns in matrix data")
         dcg.Text(C, value="Applications include: correlation matrices, geographical data, image processing")
@@ -1920,17 +1920,17 @@ def _basic_axes_customization(C: dcg.Context):
             y_labels = dcg.Checkbox(C, label="Show Tick Labels", value=True)
             
         # Connect controls to axis properties
-        x_min_slider.callbacks = lambda s, t, d: plot.X1.configure(min=d)
-        x_max_slider.callbacks = lambda s, t, d: plot.X1.configure(max=d)
-        x_gridlines.callbacks = lambda s, t, d: plot.X1.configure(no_gridlines=not d)
-        x_ticks.callbacks = lambda s, t, d: plot.X1.configure(no_tick_marks=not d)
-        x_labels.callbacks = lambda s, t, d: plot.X1.configure(no_tick_labels=not d)
+        x_min_slider.callback = lambda s, t, d: plot.X1.configure(min=d)
+        x_max_slider.callback = lambda s, t, d: plot.X1.configure(max=d)
+        x_gridlines.callback = lambda s, t, d: plot.X1.configure(no_gridlines=not d)
+        x_ticks.callback = lambda s, t, d: plot.X1.configure(no_tick_marks=not d)
+        x_labels.callback = lambda s, t, d: plot.X1.configure(no_tick_labels=not d)
             
-        y_min_slider.callbacks = lambda s, t, d: plot.Y1.configure(min=d)
-        y_max_slider.callbacks = lambda s, t, d: plot.Y1.configure(max=d)
-        y_gridlines.callbacks = lambda s, t, d: plot.Y1.configure(no_gridlines=not d)
-        y_ticks.callbacks = lambda s, t, d: plot.Y1.configure(no_tick_marks=not d)
-        y_labels.callbacks = lambda s, t, d: plot.Y1.configure(no_tick_labels=not d)
+        y_min_slider.callback = lambda s, t, d: plot.Y1.configure(min=d)
+        y_max_slider.callback = lambda s, t, d: plot.Y1.configure(max=d)
+        y_gridlines.callback = lambda s, t, d: plot.Y1.configure(no_gridlines=not d)
+        y_ticks.callback = lambda s, t, d: plot.Y1.configure(no_tick_marks=not d)
+        y_labels.callback = lambda s, t, d: plot.Y1.configure(no_tick_labels=not d)
 
     def on_plot_interaction(sender, target, data):
         ((x_min, x_max, x_scale), (y_min, y_max, y_scale)) = data
@@ -2015,7 +2015,7 @@ def _axis_scales(C: dcg.Context):
             C.viewport.wake()
                 
         # Connect the callback
-        scale_options.callbacks = update_scale
+        scale_options.callback = update_scale
         
         # Add explanatory text
         dcg.Text(C, value="Linear scale: Best for most datasets where values change proportionally")
@@ -2085,10 +2085,10 @@ def _time_axis_formatting(C: dcg.Context):
             C.viewport.wake()
         
         # Connect controls to plot properties
-        use_local.callbacks = lambda s, t, d: plot.configure(use_local_time=d)
-        use_iso.callbacks = lambda s, t, d: plot.configure(use_ISO8601=d)
-        use_24h.callbacks = lambda s, t, d: plot.configure(use_24hour_clock=d)
-        time_range.callbacks = update_time_range
+        use_local.callback = lambda s, t, d: plot.configure(use_local_time=d)
+        use_iso.callback = lambda s, t, d: plot.configure(use_ISO8601=d)
+        use_24h.callback = lambda s, t, d: plot.configure(use_24hour_clock=d)
+        time_range.callback = update_time_range
         
         # Add annotations to mark specific dates
         month_ago = now - 86400 * 30
@@ -2166,9 +2166,9 @@ def _multiple_axes(C: dcg.Context):
         y3_visible = dcg.Checkbox(C, label="Show Y3 (exp)", value=True)
     
     # Connect controls to axis properties
-    y1_visible.callbacks = lambda s, t, d: plot.Y1.configure(enabled=d)
-    y2_visible.callbacks = lambda s, t, d: plot.Y2.configure(enabled=d)
-    y3_visible.callbacks = lambda s, t, d: plot.Y3.configure(enabled=d)
+    y1_visible.callback = lambda s, t, d: plot.Y1.configure(enabled=d)
+    y2_visible.callback = lambda s, t, d: plot.Y2.configure(enabled=d)
+    y3_visible.callback = lambda s, t, d: plot.Y3.configure(enabled=d)
     
     # Add explanation
     dcg.Text(C, value="This example demonstrates using multiple Y axes to display data with different scales.")
@@ -2214,11 +2214,11 @@ def _axis_orientation(C: dcg.Context):
             y_invert = dcg.Checkbox(C, label="Invert Y Direction", value=False)
     
     # Connect controls to axis properties
-    x_opposite.callbacks = lambda s, t, d: plot.X1.configure(opposite=d)
-    x_invert.callbacks = lambda s, t, d: plot.X1.configure(invert=d)
+    x_opposite.callback = lambda s, t, d: plot.X1.configure(opposite=d)
+    x_invert.callback = lambda s, t, d: plot.X1.configure(invert=d)
     
-    y_opposite.callbacks = lambda s, t, d: plot.Y1.configure(opposite=d)
-    y_invert.callbacks = lambda s, t, d: plot.Y1.configure(invert=d)
+    y_opposite.callback = lambda s, t, d: plot.Y1.configure(opposite=d)
+    y_invert.callback = lambda s, t, d: plot.Y1.configure(invert=d)
     
     # Add reference lines to make the orientation changes more obvious
     theme = dcg.ThemeColorImPlot(C, line=(150, 150, 150, 100))
@@ -2283,17 +2283,17 @@ def _axis_constraints_locking(C: dcg.Context):
             y_pan_stretch = dcg.Checkbox(C, label="Y Pan Stretch", value=False)
     
     # Connect controls to axis properties
-    x_lock_min.callbacks = lambda s, t, d: plot.X1.configure(lock_min=d)
-    x_lock_max.callbacks = lambda s, t, d: plot.X1.configure(lock_max=d)
-    x_constraint_min.callbacks = lambda s, t, d: plot.X1.configure(constraint_min=d)
-    x_constraint_max.callbacks = lambda s, t, d: plot.X1.configure(constraint_max=d)
-    x_pan_stretch.callbacks = lambda s, t, d: plot.X1.configure(pan_stretch=d)
+    x_lock_min.callback = lambda s, t, d: plot.X1.configure(lock_min=d)
+    x_lock_max.callback = lambda s, t, d: plot.X1.configure(lock_max=d)
+    x_constraint_min.callback = lambda s, t, d: plot.X1.configure(constraint_min=d)
+    x_constraint_max.callback = lambda s, t, d: plot.X1.configure(constraint_max=d)
+    x_pan_stretch.callback = lambda s, t, d: plot.X1.configure(pan_stretch=d)
     
-    y_lock_min.callbacks = lambda s, t, d: plot.Y1.configure(lock_min=d)
-    y_lock_max.callbacks = lambda s, t, d: plot.Y1.configure(lock_max=d)
-    y_constraint_min.callbacks = lambda s, t, d: plot.Y1.configure(constraint_min=d)
-    y_constraint_max.callbacks = lambda s, t, d: plot.Y1.configure(constraint_max=d)
-    y_pan_stretch.callbacks = lambda s, t, d: plot.Y1.configure(pan_stretch=d)
+    y_lock_min.callback = lambda s, t, d: plot.Y1.configure(lock_min=d)
+    y_lock_max.callback = lambda s, t, d: plot.Y1.configure(lock_max=d)
+    y_constraint_min.callback = lambda s, t, d: plot.Y1.configure(constraint_min=d)
+    y_constraint_max.callback = lambda s, t, d: plot.Y1.configure(constraint_max=d)
+    y_pan_stretch.callback = lambda s, t, d: plot.Y1.configure(pan_stretch=d)
     
     # Add instructions and explanations
     dcg.Text(C, value="Try panning and zooming the plot with different constraint settings.")
@@ -2362,8 +2362,8 @@ def _axis_custom_ticks_labels(C: dcg.Context):
         C.viewport.wake()
     
     # Connect controls
-    keep_default_ticks.callbacks = lambda s, t, d: update_labels()
-    show_quarters.callbacks = lambda s, t, d: update_labels()
+    keep_default_ticks.callback = lambda s, t, d: update_labels()
+    show_quarters.callback = lambda s, t, d: update_labels()
     
     # Create a second example for numeric formatting
     with dcg.Plot(C, label="Custom Value Formatting", height=350, width=-1) as format_plot:
@@ -2398,7 +2398,7 @@ def _axis_custom_ticks_labels(C: dcg.Context):
             format_plot.Y1.tick_format = "%.1f%%"
         C.viewport.wake()
     
-    format_options.callbacks = update_format
+    format_options.callback = update_format
     
     # Add explanations
     dcg.Text(C, value="Custom labels let you display categorical data or special marker positions.")
@@ -2844,7 +2844,7 @@ def _legend_basic(C: dcg.Context):
     show_legend = dcg.Checkbox(C, label="Show Legend", value=True)
     
     # Connect checkbox to plot property
-    show_legend.callbacks = lambda s, t, d: plot.configure(no_legend=not d)
+    show_legend.callback = lambda s, t, d: plot.configure(no_legend=not d)
     
     dcg.Text(C, value="Try toggling the legend visibility with the checkbox above.")
     dcg.Text(C, value="Note that the gray line doesn't appear in the legend because it has an empty label.")
@@ -2935,9 +2935,9 @@ def _legend_position(C: dcg.Context):
             C.viewport.wake()
         
         # Connect controls to update function
-        location_combo.callbacks = update_legend_pos
-        outside_cb.callbacks = update_legend_pos
-        horizontal_cb.callbacks = update_legend_pos
+        location_combo.callback = update_legend_pos
+        outside_cb.callback = update_legend_pos
+        horizontal_cb.callback = update_legend_pos
     
     dcg.Text(C, value="Try different combinations of location, outside, and horizontal settings.")
     dcg.Text(C, value="Outside legends can be useful to maximize the data display area.")
@@ -2998,9 +2998,9 @@ def _legend_styling(C: dcg.Context):
         no_highlight_cb = dcg.Checkbox(C, label="Disable Highlight on Hover", value=False)
     
     # Connect controls
-    sort_cb.callbacks = lambda s, t, d: plot.legend_config.configure(sorted=d)
-    no_buttons_cb.callbacks = lambda s, t, d: plot.legend_config.configure(no_buttons=d)
-    no_highlight_cb.callbacks = lambda s, t, d: plot.legend_config.configure(no_highlight_item=d)
+    sort_cb.callback = lambda s, t, d: plot.legend_config.configure(sorted=d)
+    no_buttons_cb.callback = lambda s, t, d: plot.legend_config.configure(no_buttons=d)
+    no_highlight_cb.callback = lambda s, t, d: plot.legend_config.configure(no_highlight_item=d)
     
     dcg.Text(C, value="Legend entries can be clicked to show/hide the corresponding plot item.")
     dcg.Text(C, value="Hover over a legend entry to highlight the corresponding data in the plot.")
@@ -3067,17 +3067,17 @@ def _legend_popup_menus(C: dcg.Context):
             sine_series.configure(Y=amplitude_slider.value * np.sin(frequency_slider.value * x))
             C.viewport.wake()
         
-        frequency_slider.callbacks = update_sine_wave
-        amplitude_slider.callbacks = update_sine_wave
+        frequency_slider.callback = update_sine_wave
+        amplitude_slider.callback = update_sine_wave
         
         # Color control callbacks
-        color_red.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0)))
-        color_green.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 255, 0)))
-        color_blue.callbacks = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 0, 255)))
+        color_red.callback = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(255, 0, 0)))
+        color_green.callback = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 255, 0)))
+        color_blue.callback = lambda s, t, d: cosine_series.configure(theme=dcg.ThemeColorImPlot(C, line=(0, 0, 255)))
         
         # Visibility toggle callbacks
-        sine_toggle.callbacks = lambda s, t, d: sine_series.configure(show=d)
-        cosine_toggle.callbacks = lambda s, t, d: cosine_series.configure(show=d)
+        sine_toggle.callback = lambda s, t, d: sine_series.configure(show=d)
+        cosine_toggle.callback = lambda s, t, d: cosine_series.configure(show=d)
     
     dcg.Text(C, value="Right-click on any legend entry to access its interactive menu")
     dcg.Text(C, value="Try adjusting the sine wave parameters or changing the cosine wave color")
