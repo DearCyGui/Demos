@@ -60,7 +60,7 @@ def _text_widgets(C: dcg.Context):
     dcg.Text(C, value="Indented text", x=20)
 
     # Text with default indentation (TreeNode, etc)
-    dcg.Text(C, value="Default indentation", x="parent.x1 + theme.item_spacing.x")
+    dcg.Text(C, value="Default indentation", x="parent.x1 + theme.indent_spacing.x")
 
     # Text with wrapping
     dcg.Text(C, value="This is a long text that will wrap to the next line if it exceeds the available width. You can control the wrapping behavior with the 'wrap' parameter.", wrap=300)
@@ -215,12 +215,12 @@ def _input_fields(C: dcg.Context):
     dcg.Separator(C)
     
     # Numeric inputs
-    dcg.InputValue(C, label="Age", print_format="%.0f", callback=input_callback)
+    dcg.InputValue(C, label="Age", print_format="%.0f", callback=input_callback, step=1)
     
     dcg.InputValue(C, label="Price", print_format="$%.2f", callback=input_callback)
     
     # Input with min/max constraints
-    dcg.InputValue(C, label="Rating (1-5)", print_format="%.0f", 
+    dcg.InputValue(C, label="Rating (1-5)", print_format="%.0f", step=1,
                   min_value=1, max_value=5, callback=input_callback)
     
     # Vector input (multiple values)
@@ -2073,7 +2073,7 @@ def _shared_values(C: dcg.Context):
                   min_value=0, max_value=100, shareable_value=int_value)
         
         # Input that modifies the same integer
-        dcg.InputValue(C, label="Integer Input", print_format="%.0f", shareable_value=int_value)
+        dcg.InputValue(C, label="Integer Input", print_format="%.0f", shareable_value=int_value, step=1)
 
         
         # Shared float value

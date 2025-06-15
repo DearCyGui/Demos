@@ -3265,9 +3265,11 @@ def _style_demo(C: dcg.Context):
             dcg.Text(C, value=f"Dummy entry for {element.label}")
 
     with plot:
-        dcg.PlotAnnotation(C, label="Annotation", x=x[50], y=np.sin(x[50]), text="Peak")
+        dcg.PlotAnnotation(C, label="Annotation", x=x[50], y=np.sin(x[50]),
+                           offset=(10, 10), text="This is an annotation",
+                           bg_color=(255, 255, 0, 100))
         with plot.X1:
-            dcg.AxisTag(C, coord=x[50], text="Peak")
+            dcg.AxisTag(C, coord=x[50], text="I", bg_color=(255, 0, 255, 100))
 
 pop_group()  # End Plot Styling
 

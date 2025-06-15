@@ -109,7 +109,7 @@ def show_demo(C : dcg.Context):
                             dcg.Text(C, value=f"Scolling Text{i}")
 
                     dcg.Slider(C, label="Slider Float")
-                    dcg.InputValue(C, label="Input Int", print_format="%.0f")
+                    dcg.InputValue(C, label="Input Int", print_format="%.0f", step=1)
                     dcg.Combo(C, items=("Yes", "No", "Maybe"), label="Combo")
 
             with dcg.Menu(C, label="Tools"):
@@ -186,7 +186,7 @@ def show_demo(C : dcg.Context):
                 """
                 add_help_symbol(input_text_hello, help_text)
                 dcg.InputText(C, label="input text (w/ hint)", hint="enter text here", callback=_log)
-                dcg.InputValue(C, label="input int", print_format="%.0f", callback=_log)
+                dcg.InputValue(C, label="input int", print_format="%.0f", callback=_log, step=1)
                 dcg.InputValue(C, label="input float", print_format="%.3f", callback=_log)
                 dcg.InputValue(C, label="input scientific", print_format="%e", callback=_log)
 
@@ -372,7 +372,7 @@ def show_demo(C : dcg.Context):
                 items = ("A","B","C","D","E","F","G","H","I","J","K","L","M" "O","P","Q","R","S","T","U","V","W","X","Y","Z")
                 listbox_1 = dcg.ListBox(C, items=items, label="listbox 1 (full)")
                 listbox_2 = dcg.ListBox(C, items=items, label="listbox 2", width=200)
-                dcg.InputValue(C, print_format="%.0f", label="num_items",
+                dcg.InputValue(C, print_format="%.0f", label="num_items", step=1,
                                callback=_config, user_data=[listbox_1, listbox_2], before = listbox_1)
                 dcg.Slider(C, print_format="%.0f", label="width",
                            value=200, callback=_config, user_data=listbox_2,
@@ -498,7 +498,7 @@ def show_demo(C : dcg.Context):
                         int_source = \
                             dcg.utils.InputValueN(
                                 C,
-                                label=f"input int {i}",
+                                label=f"input int {i}", step=1,
                                 min_value=0, max_value=100,
                                 print_format="%.0f")
                         dcg.utils.SliderN(C, label=f"drag int {i}",
@@ -579,14 +579,11 @@ def show_demo(C : dcg.Context):
                         dcg.Text(C, value="Date Range Controls:")
                         
                         def update_date_range(sender: dcg.InputText, target, value):
-                            try:
-                                new_date = datetime.datetime.strptime(value, "%Y-%m-%d")
-                                if sender.label == "min_date":
-                                    date_picker.min_date = new_date
-                                else:
-                                    date_picker.max_date = new_date
-                            except ValueError:
-                                print("Invalid date format. Use YYYY-MM-DD")
+                            new_date = datetime.datetime.strptime(value, "%Y-%m-%d")
+                            if sender.label == "min_date":
+                                date_picker.min_date = new_date
+                            else:
+                                date_picker.max_date = new_date
 
                         dcg.InputText(C, label="min_date", value="1970-01-01",
                                     callback=update_date_range)

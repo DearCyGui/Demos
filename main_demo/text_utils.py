@@ -174,7 +174,7 @@ class MarkDownText(dcg.Layout):
         elif block_type == BlockType.UL or block_type == BlockType.OL:
             # Lists
             vl = dcg.VerticalLayout(self.C,
-                                    x="parent.x1 + theme.item_spacing.x")
+                                    x="parent.x1 + theme.indent_spacing.x")
             self._push_container(vl)
             if block_type == BlockType.OL:
                 # Ordered list
@@ -214,7 +214,7 @@ class MarkDownText(dcg.Layout):
             
             window = dcg.ChildWindow(
                 self.C,
-                x="parent.x1 + theme.item_spacing.x", 
+                x="parent.x1 + theme.indent_spacing.x", 
                 auto_resize_y=True, 
                 theme=self.no_spacing
             )
