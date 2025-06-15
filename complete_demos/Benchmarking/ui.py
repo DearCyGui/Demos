@@ -12,6 +12,24 @@ benchmarks_running = False
 summary_window: dcg.Window | None = None
 plot_window: dcg.Window | None = None
 
+if not hasattr(asyncio, 'TaskGroup'):
+    # Fallback for Python versions < 3.11
+    class TaskGroup:
+        def __init__(self):
+            self.tasks = []
+
+        def create_task(self, coro):
+            task = asyncio.create_task(coro)
+            self.tasks.append(task)
+            return task
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            await asyncio.gather(*self.tasks, return_exceptions=True)
+    asyncio.TaskGroup = TaskGroup
+
 class TerminateTaskGroup(Exception):
        """Exception raised to terminate a task group."""
 

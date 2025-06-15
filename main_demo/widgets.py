@@ -3,7 +3,10 @@ from demo_utils import documented, democode, push_group, pop_group,\
 import dearcygui as dcg
 
 import datetime
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    raise ImportError("Numpy is required for this demo. Please install it with 'pip install numpy'.")
 import time
 
 # decorators:

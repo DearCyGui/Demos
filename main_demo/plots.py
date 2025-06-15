@@ -1,6 +1,9 @@
 from demo_utils import documented, democode, push_group, pop_group, launch_demo, demosection
 import dearcygui as dcg
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    raise ImportError("DearCyGui plots require numpy to be installed. Please install it using 'pip install numpy'.")
 import random
 import time
 import datetime

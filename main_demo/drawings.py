@@ -3,9 +3,13 @@ from demo_utils import documented, democode,\
     push_group, pop_group, launch_demo, demosection,\
     display_item_documentation
 import math
-import numpy as np
-import os
-from PIL import Image
+try:
+    import numpy as np
+    import os
+    from PIL import Image
+except ImportError:
+    raise ImportError("DearCyGui's drawings demo requires numpy and Pillow (PIL) to run. "
+                        "Please install them using 'pip install numpy pillow'.")
 import time
 
 # decorators:

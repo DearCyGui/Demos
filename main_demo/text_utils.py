@@ -4,10 +4,14 @@
 import dearcygui as dcg
 from dearcygui import make_bold, make_bold_italic, make_italic
 
-import md4c
-from md4c import BlockType, SpanType, TextType
-import os
-import imageio
+try:
+    import md4c
+    from md4c import BlockType, SpanType, TextType
+    import os
+    import imageio
+except ImportError as e:
+    raise ImportError("This module requires pymd4c and imageio to be installed. "
+                      "Please install them using 'pip install pymd4c imageio'") from e
 import typing
 
 ##### Set of utilities that will probably one day
