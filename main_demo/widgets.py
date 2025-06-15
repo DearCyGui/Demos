@@ -224,8 +224,9 @@ def _input_fields(C: dcg.Context):
                   min_value=1, max_value=5, callback=input_callback)
     
     # Vector input (multiple values)
-    dcg.InputValue(C, label="RGB Color", size=3, 
-                  value=[1.0, 0.5, 0.2], callback=input_callback)
+    dcg.utils.InputValueN(C, label="RGB Color",
+                          value=[1.0, 0.5, 0.2],
+                          callback=input_callback)
 
 @demosection(dcg.Slider)
 @documented
@@ -268,14 +269,14 @@ def _sliders(C: dcg.Context):
                 logarithmic=True, callback=slider_callback)
 
     # Multi-component slider (vector). Max 4 components
-    dcg.Slider(C, label="Position", size=2,
-                min_value=-10.0, max_value=10.0,
-                value=[3.0, 0.0], callback=slider_callback)
+    dcg.utils.SliderN(C, label="Position",
+                      min_value=-10.0, max_value=10.0,
+                      value=[3.0, 0.0], callback=slider_callback)
 
     # Vertical slider
     with dcg.HorizontalLayout(C):
         dcg.Text(C, value="Vertical slider:")
-        dcg.Slider(C, format="int", vertical=True, width=50, height=150, 
+        dcg.Slider(C, vertical=True, width=50, height=150, 
                   min_value=0, max_value=100, value=25,
                   callback=slider_callback)
 

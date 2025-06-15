@@ -190,9 +190,9 @@ def show_demo(C : dcg.Context):
                 dcg.InputValue(C, label="input float", print_format="%.3f", callback=_log)
                 dcg.InputValue(C, label="input scientific", print_format="%e", callback=_log)
 
-                dcg.InputValue(C, label="input floatx", size=4, callback=_log, value=[1,2,3,4])
+                dcg.utils.InputValueN(C, label="input floatx", callback=_log, value=[1,2,3,4], width="fillx")
                 dcg.InputValue(C, label="input double", print_format="%.14f", callback=_log)
-                dcg.InputValue(C, label="input doublex", print_format="%.14f", size=4, callback=_log, value=[1,2,3,4])
+                dcg.utils.InputValueN(C, label="input doublex", print_format="%.14f", callback=_log, values=[1,2,3,4], width="fillx")
 
                 drag_int = dcg.Slider(C, label="drag int", print_format="%.0f", drag=True, callback=_log)
                 add_help_symbol(drag_int, 
@@ -482,22 +482,31 @@ def show_demo(C : dcg.Context):
 
                 for i in range(2, 5):
                     with dcg.VerticalLayout(C):
-                        float_source = dcg.InputValue(C, label=f"input float {i}",
-                                                      min_value=0.0, max_value=100.0,
-                                                      size=i)
-                        dcg.Slider(C, label=f"drag float {i}", shareable_value=float_source.shareable_value,
-                                   size=i, drag=True)
-                        dcg.Slider(C, label=f"slider float {i}", shareable_value=float_source.shareable_value,
-                                   size=i)
+                        float_source = \
+                            dcg.utils.InputValueN(
+                                C,
+                                label=f"input float {i}",
+                                min_value=0.0, max_value=100.0,
+                                value=[0.0] * i)
+                        dcg.utils.SliderN(C, label=f"drag float {i}",
+                                          shareable_values=float_source.shareable_values,
+                                          drag=True)
+                        dcg.utils.SliderN(C, label=f"slider float {i}",
+                                          shareable_values=float_source.shareable_values)
 
                     with dcg.VerticalLayout(C):
-                        int_source = dcg.InputValue(C, label=f"input int {i}",
-                                                    min_value=0, max_value=100,
-                                                    print_format="%.0f", size=i)
-                        dcg.Slider(C, label=f"drag int {i}", shareable_value=int_source.shareable_value,
-                                   print_format="%.0f", size=i, drag=True)
-                        dcg.Slider(C, label=f"slider int {i}", shareable_value=int_source.shareable_value,
-                                   print_format="%.0f", size=i)
+                        int_source = \
+                            dcg.utils.InputValueN(
+                                C,
+                                label=f"input int {i}",
+                                min_value=0, max_value=100,
+                                print_format="%.0f")
+                        dcg.utils.SliderN(C, label=f"drag int {i}",
+                                          shareable_values=int_source.shareable_values,
+                                          print_format="%.0f", drag=True)
+                        dcg.utils.SliderN(C, label=f"slider int {i}",
+                                          shareable_values=int_source.shareable_values,
+                                          print_format="%.0f")
 
                     dcg.Spacer(C, height=10)
 
@@ -1800,10 +1809,10 @@ def show_demo(C : dcg.Context):
                         dcg.Checkbox(C, label=option, value=True, callback=_table_flag_config, user_data=(table, getattr(dcg.TableFlag, option.upper())))
                 with dcg.HorizontalLayout(C):
                     def _table_frozen_rows(sender, target, value, table=table):
-                        table.num_rows_frozen = value
+                        table.num_rows_frozen = int(value)
                     dcg.Slider(C, label="Number of frozen rows", print_format="%.0f", value=0, min_value=0, max_value=25, callback=_table_frozen_rows)
                     def _table_frozen_cols(sender, target, value, table=table):
-                        table.num_cols_frozen = value
+                        table.num_cols_frozen = int(value)
                     dcg.Slider(C, label="Number of frozen columns", print_format="%.0f", value=0, min_value=0, max_value=3, callback=_table_frozen_cols)
 
             with dcg.TreeNode(C, label="Filtering"):
@@ -2421,7 +2430,7 @@ def show_demo(C : dcg.Context):
 
                     with dcg.TreeNode(C, label="Histogram 2D Series"):
                         slider_hist_count = dcg.Slider(C, print_format="%.0f", width=300, min_value=100, max_value=100000, value=1000)
-                        slider_hist_bins = dcg.Slider(C, print_format="%.0f", width=300, size=2, min_value=1, max_value=500, value=(50, 50))
+                        slider_hist_bins = dcg.utils.SliderN(C, print_format="%.0f", width=300, min_value=1, max_value=500, values=(50, 50))
                         checkbox_hist_density = dcg.Checkbox(C, label="density", value=False)
 
                         with dcg.Plot(C, label="Histogram 2D Plot", height=400, width=650) as plot_hist_2d:
