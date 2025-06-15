@@ -52,7 +52,9 @@ async def update_plotline(plotline: dcg.PlotLine,
     """
     Frequently update the plot line with new data.
     """
-    x_axis = plotline.parent.X1
+    plot = plotline.parent
+    assert plot is not None
+    x_axis = plot.X1
     while True:
         times = buffer_x.get()
         if len(times) == 0:
@@ -106,13 +108,14 @@ async def run_benchmark(
     finally:
         benchmarks_running = False
 
-async def start_benchmark(sender):
+async def start_benchmark(sender: dcg.baseItem):
     """
     Start a benchmark when the button is clicked.
     """
+    C = None
+    bench_C = None
     try:
         global benchmarks_running, summary_window, plot_window
-        bench_C = None
         if benchmarks_running:
             return  # A benchmark is already running
 
@@ -252,7 +255,7 @@ async def start_benchmark(sender):
                         global benchmarks_should_stop
                         await asyncio.wrap_future(dcg.utils.handler.future_from_handlers(stop_handler))
                         # Release X axis
-                        plot.X1.lock_max = False
+                        plot.X1.lock_max = False # type: ignore
                         raise TerminateTaskGroup()
                     tg.create_task(stop_benchmark())
             except* TerminateTaskGroup:
@@ -260,9 +263,10 @@ async def start_benchmark(sender):
     except asyncio.TimeoutError:
         pass
     except Exception as e:
-        with dcg.Window(C, modal=True):
-            dcg.Text(C, value=f"Error starting benchmark: {e}")
-            dcg.Text(C, value=traceback.format_exc())
+        if C is not None:
+            with dcg.Window(C, modal=True):
+                dcg.Text(C, value=f"Error starting benchmark: {e}")
+                dcg.Text(C, value=traceback.format_exc())
         pass
     finally:
         if bench_C is not None:

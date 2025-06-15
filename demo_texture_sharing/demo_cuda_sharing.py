@@ -54,8 +54,8 @@ def check_cuda_errors(err):
 
 def demo_cuda_sharing():
     C = dcg.Context()
-    blur_width = dcg.SharedInt(C, 1)
-    blur_height = dcg.SharedInt(C, 1)
+    blur_width = dcg.SharedFloat(C, 1)
+    blur_height = dcg.SharedFloat(C, 1)
     C.viewport.initialize(vsync=True,
                         wait_for_input=True,
                         title="CUDA-GL sharing")
@@ -95,14 +95,14 @@ def demo_cuda_sharing():
         options = [f'-DKERNEL_SIZE_X={blur_w}', f'-DKERNEL_SIZE_Y={blur_h}']
         return cuda.cuModuleLoadData(cuda.cuLinkCreate(options, cuda_kernel))
 
-    module = compile_kernel(blur_width.value, blur_height.value)
+    module = compile_kernel(int(blur_width.value), int(blur_height.value))
     kernel = module.get_function('blur')
 
     def refresh_image():
         nonlocal module, kernel
         
         # Recompile kernel with new sizes
-        module = compile_kernel(blur_width.value, blur_height.value)
+        module = compile_kernel(int(blur_width.value), int(blur_height.value))
         kernel = module.get_function('blur')
 
         # Register GL texture with CUDA
@@ -144,8 +144,8 @@ def demo_cuda_sharing():
     with dcg.Window(C, primary=True):
         dcg.Image(C, texture=texture, width=512, height=512)
         with dcg.ChildWindow(C, width=0, height=0):
-            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
-            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, print_format="%.0f", max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, print_format="%.0f", max_value=10, width=100, callback=refresh_image)
 
     while C.running:
         C.viewport.render_frame()

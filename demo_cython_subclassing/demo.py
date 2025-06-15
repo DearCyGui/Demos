@@ -55,7 +55,7 @@ def create_demo_window(C : dcg.Context):
     benchmark_results = benchmark_circles(C)
 
     with dcg.Window(C, primary=True, label="Demo window") as window:
-        with dcg.VerticalLayout(C, indent=-1):
+        with dcg.VerticalLayout(C, x="parent.x1 + theme.indent_spacing.x"):
             # Fun animated button to demonstrate the use of
             # cython subclassing with custom draw() override for dynamic content
             dcg.Text(C, value="This button is made with a custom draw() method in Cython")

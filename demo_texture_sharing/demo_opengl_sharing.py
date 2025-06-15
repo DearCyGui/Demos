@@ -68,8 +68,8 @@ def demo_opengl_sharing(use_dcg_context=True):
     # a dcg Texture into the Opengl context
     # and render to it.
     C = dcg.Context()
-    blur_width = dcg.SharedInt(C, 1)
-    blur_height = dcg.SharedInt(C, 1)
+    blur_width = dcg.SharedFloat(C, 1)
+    blur_height = dcg.SharedFloat(C, 1)
     C.viewport.initialize(vsync=True,
                           wait_for_input=True,
                           title="OpenGL sharing")
@@ -361,8 +361,8 @@ def demo_opengl_sharing(use_dcg_context=True):
         gl.glBindVertexArray(vao)
         
         # Set uniforms
-        gl.glUniform1i(gl.glGetUniformLocation(program, "blurWidth"), blur_width.value)
-        gl.glUniform1i(gl.glGetUniformLocation(program, "blurHeight"), blur_height.value)
+        gl.glUniform1i(gl.glGetUniformLocation(program, "blurWidth"), int(blur_width.value))
+        gl.glUniform1i(gl.glGetUniformLocation(program, "blurHeight"), int(blur_height.value))
         gl.glUniform1i(gl.glGetUniformLocation(program, "tex"), 0)
         
         # Bind texture
@@ -394,8 +394,8 @@ def demo_opengl_sharing(use_dcg_context=True):
     with dcg.Window(C, primary=True):
         dcg.Image(C, texture=texture, width=512, height=512)
         with dcg.ChildWindow(C, width=0, height=0):
-            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
-            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, print_format='%.0f', max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, print_format='%.0f', max_value=10, width=100, callback=refresh_image)
     while C.running:
         C.viewport.render_frame()
 

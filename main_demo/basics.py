@@ -867,9 +867,11 @@ def Programing(C: dcg.Context):
     reduced_height = 1
     reduced_glyphset = dcg.GlyphSet(glyphset.height, glyphset.origin_y)
     for i in range(10):
-        reduced_glyphset.add_glyph(ord(str(i)), *glyphset[ord(str(i))])
+        glyph_data = glyphset[ord(str(i))]
+        reduced_glyphset.add_glyph(ord(str(i)), *glyph_data)
         # This works because the digits bottom and top are aligned
-        reduced_height = max(reduced_height, glyphset[ord(str(i))][0].shape[0])
+        glyph_array = glyph_data[0]
+        reduced_height = max(reduced_height, glyph_array.shape[0]) # type: ignore
     reduced_glyphset.center_on_glyph(ord("0"))
     reduced_glyphset.fit_to_new_height(reduced_height)
     font_texture = dcg.FontTexture(C)
@@ -878,7 +880,7 @@ def Programing(C: dcg.Context):
     font = font_texture[0]
 
     # 1. Animation loop using asyncio in a callback
-    def create_asyncio_callback_clock(width=200, running=threading.Event()):
+    def create_asyncio_callback_clock(width: dcg.DynamicSizeT = 200, running=threading.Event()):
         with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
             # Create the railroad pattern
             railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)
@@ -926,7 +928,7 @@ def Programing(C: dcg.Context):
         return draw_window
 
     # 2. Animation loop using a normal callback to start a thread
-    def create_threaded_clock(width=200):
+    def create_threaded_clock(width: dcg.DynamicSizeT = 200):
         with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
             # Create the railroad pattern
             railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)
@@ -980,7 +982,7 @@ def Programing(C: dcg.Context):
     
     # 3. Animation loop using a normal callback and class-based item
     class ClockWidget(dcg.DrawInWindow):
-        def __init__(self, context, width=200, height="self.width", **kwargs):
+        def __init__(self, context, width: dcg.DynamicSizeT = 200, height="self.width", **kwargs):
             super().__init__(context, width=width, height=height, relative=True, **kwargs)
             
             # Create the railroad pattern
@@ -1024,7 +1026,7 @@ def Programing(C: dcg.Context):
             self.context.viewport.wake()
 
     # 4. Animation loop using asyncio not in a callback
-    def create_async_generator_clock(width=200):
+    def create_async_generator_clock(width: dcg.DynamicSizeT = 200):
         with dcg.DrawInWindow(C, width=width, height=width, relative=True) as draw_window:
             # Create the railroad pattern
             railroad_pattern = dcg.Pattern.railroad(C, scale_factor=5)

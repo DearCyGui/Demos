@@ -1,5 +1,5 @@
 import dearcygui as dcg
-from dearcygui.font import make_bold, make_bold_italic, make_italic
+from dearcygui import make_bold, make_bold_italic, make_italic
 import pydoc
 
 from pygments import highlight
@@ -180,8 +180,7 @@ def make_color(text : str, color : str | list = "white"):
     if isinstance(color, str):
         transformed = f"{escape}[{color_to_ansi[color]}m{text}{escape}[39m"
     else:
-        color = dcg.color_as_ints(color)
-        (r, g, b, _) = color
+        (r, g, b, _) = dcg.color_as_ints(color)
         transformed = f"{escape}[38;2;{r};{g};{b}m{text}{escape}[39m"
     return transformed
 
@@ -199,8 +198,7 @@ def make_bg_color(text : str, color : str | list = "white"):
     if isinstance(color, str):
         transformed = f"{escape}[{str(int(color_to_ansi[color])+10)}m{text}{escape}[49m"
     else:
-        color = dcg.color_as_ints(color)
-        (r, g, b, _) = color
+        (r, g, b, _) = dcg.color_as_ints(color)
         transformed = f"{escape}[48;2;{r};{g};{b}m{text}{escape}[49m"
     return transformed
 
@@ -256,11 +254,11 @@ class MarkDownText(dcg.Layout, marko.Renderer):
         return self._text
 
     @value.setter
-    def value(self, text):
-        if not(isinstance(text, str)):
+    def value(self, value):
+        if not(isinstance(value, str)):
             raise ValueError("Expected a string as text")
-        self._text = text
-        parsed_text = marko.Markdown().parse(text)
+        self._text = value
+        parsed_text = marko.Markdown().parse(value)
         with self:
             self.render(parsed_text)
 
@@ -390,7 +388,7 @@ class MarkDownText(dcg.Layout, marko.Renderer):
             image_path = element.dest
             if not(os.path.exists(image_path)):
                 alternate_text = self.render_children_if_not_str(element)
-                dcg.Text(self.context, alternate_text)
+                dcg.Text(self.context, value=alternate_text)
             else:
                 image_content = imageio.v3.imread(image_path)
                 image_texture = dcg.Texture(self.context)
@@ -462,7 +460,7 @@ def display_docstring(C, object):
         else:
             markdown_end = markdown.split("MARKDOWNSTOP")
             assert(len(markdown_end) <= 2)
-            MarkDownText(C, markdown_end[0])
+            MarkDownText(C, value=markdown_end[0])
             in_markdown = False
             if len(markdown_end) == 2:
                 lines_of_text = markdown_end[1].split("\n")
@@ -664,7 +662,7 @@ class DocumentationWindow(dcg.Window):
                     docname = "".join([str.upper(docname[0]), docname[1:]])
                     with open(docpath, 'r') as fp:
                         text = fp.read()
-                    selection[docname] = MarkDownText(C, show=False, value=text)
+                    selection[docname] = MarkDownText(C, show=False, value=text) # type: ignore
 
             radio_button.items = list(selection.keys())
             def pick_selection(sender, target, value):

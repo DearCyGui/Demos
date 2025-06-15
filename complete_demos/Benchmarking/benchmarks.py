@@ -840,7 +840,7 @@ async def sync_callback_performance(C: dcg.Context):
     C.queue = ThreadPoolExecutor(max_workers=1)
 
     with dcg.Window(C, label="Sync Callbacks", width=300, height=300) as window:
-        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %d", shareable_value=dcg.SharedInt(C, 0))
+        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %0.f", shareable_value=dcg.SharedFloat(C, 0))
         
     window.handlers = [
         dcg.RenderHandler(C, callback=empty_callback) for _ in range(500)
@@ -879,7 +879,7 @@ async def thread_pool_callback_performance(C: dcg.Context):
     C.queue = AsyncThreadPoolExecutor()
     
     with dcg.Window(C, label="Thread Pool Callbacks", width=300, height=300) as window:
-        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %d", shareable_value=dcg.SharedInt(C, 0))
+        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %.0f", shareable_value=dcg.SharedFloat(C, 0))
         
     window.handlers = [
         dcg.RenderHandler(C, callback=empty_callback) for _ in range(500)
@@ -918,7 +918,7 @@ async def coroutine_callback_performance(C: dcg.Context):
     C.queue = AsyncThreadPoolExecutor()
 
     with dcg.Window(C, label="Coroutine Callbacks", width=300, height=300) as window:
-        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %d", shareable_value=dcg.SharedInt(C, 0))
+        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %.0f", shareable_value=dcg.SharedFloat(C, 0))
         
     window.handlers = [
         dcg.RenderHandler(C, callback=empty_async_callback) for _ in range(500)
@@ -957,7 +957,7 @@ async def event_loop_callback_performance(C: dcg.Context):
     C.queue = AsyncPoolExecutor()
 
     with dcg.Window(C, label="Event Loop Callbacks", width=300, height=300) as window:
-        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %d", shareable_value=dcg.SharedInt(C, 0))
+        value_feedback = dcg.TextValue(C, print_format="Number of callbacks called: %.0f", shareable_value=dcg.SharedFloat(C, 0))
     
     window.handlers = [
         dcg.RenderHandler(C, callback=empty_async_callback) for _ in range(500)
@@ -986,7 +986,7 @@ async def event_loop_callback_performance(C: dcg.Context):
         await asyncio.sleep(0.)
 
 
-async def run_benchmark_with_timeout(benchmark_info, duration=10):
+async def run_benchmark_with_timeout(benchmark_info, duration=10.):
     """Run a benchmark for a specified duration and return metrics."""
     # Create a context for the benchmark
     C = dcg.Context()
@@ -1042,7 +1042,7 @@ def format_number(value):
     else:
         return f"{value/1_000_000_000:.1f}B"
 
-async def run_all_benchmarks(duration_per_benchmark=10):
+async def run_all_benchmarks(duration_per_benchmark=10.):
     """Run all benchmarks sequentially and print results."""
     total_benchmarks = len(benchmarks_list)
     

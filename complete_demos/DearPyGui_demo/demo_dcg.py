@@ -73,7 +73,7 @@ class ConfigureOptions(dcg.Layout):
                                          user_data=item, 
                                          value=getattr(item, names[i*columns + j]))
 
-def add_help_symbol(target: dcg.baseItem, message: str):
+def add_help_symbol(target: dcg.uiItem, message: str):
     C = target.context
     with dcg.HorizontalLayout(C, parent=target.parent) as hl:
         target.parent = hl
@@ -998,7 +998,10 @@ def show_demo(C : dcg.Context):
                     # Note: C.viewport.font is filled during initialize()
                     # if you didn't set one.
                     dcg.Text(C, value="Current font Texture")
-                    dcg.Image(C, texture=C.viewport.font.texture)
+                    current_font = typing.cast(dcg.AutoFont, C.viewport.font)
+                    one_font_level = current_font.fonts[0]
+                    font_texture = one_font_level.texture
+                    dcg.Image(C, texture=font_texture.texture)
 
                 dcg.Text(C, value="Textures in a plot:")
                 with dcg.Plot(C, width=500, height=300, equal_aspects=True) as plot_1:
@@ -1164,7 +1167,7 @@ def show_demo(C : dcg.Context):
             with dcg.Tooltip(C):
                 dcg.Text(C, value="This tooltip is for the text below")
             text_target2 = dcg.Text(C, value="I'm the target")
-            text_target2.previous_sibling.target = text_target2
+            text_target2.previous_sibling.target = text_target2 # type: ignore
 
             dcg.Separator(C)
 
@@ -2907,7 +2910,7 @@ def show_demo(C : dcg.Context):
 
 if __name__ == "__main__":
     C = dcg.Context()
-    show_demo(C)
     C.viewport.initialize(title="DearCyGui Demo")
+    show_demo(C)
     while C.running:
         C.viewport.render_frame()

@@ -2,12 +2,13 @@
 
 
 import dearcygui as dcg
-from dearcygui.font import make_bold, make_bold_italic, make_italic
+from dearcygui import make_bold, make_bold_italic, make_italic
 
 import md4c
 from md4c import BlockType, SpanType, TextType
 import os
 import imageio
+import typing
 
 ##### Set of utilities that will probably one day
 ##### end up in dearcygui.utils
@@ -50,7 +51,7 @@ class MarkDownText(dcg.Layout):
         self._text_buffer = []
         self._strikethrough = False
         self._underline = False
-        self._text_processor = [self._process_text_normal]
+        self._text_processor : list[typing.Callable[[str], tuple[str, dcg.Color]]] = [self._process_text_normal]
         self._in_code_block = False
         self._code_buffer = []
         self._code_lang = None
@@ -65,10 +66,10 @@ class MarkDownText(dcg.Layout):
         return self._text
 
     @value.setter
-    def value(self, text):
-        if not(isinstance(text, str)):
+    def value(self, value):
+        if not(isinstance(value, str)):
             raise ValueError("Expected a string as text")
-        self._text = text
+        self._text = value
         
         # Clear children and reset state
         self.children = []
@@ -82,7 +83,7 @@ class MarkDownText(dcg.Layout):
                 no_html_blocks=True,
                 no_html_spans=True)
             parser.parse(
-                text, 
+                value, 
                 self._enter_block,
                 self._leave_block,
                 self._enter_span,
@@ -401,7 +402,7 @@ class MarkDownText(dcg.Layout):
         
         if hasattr(self, '_img_alt_pending'):
             # Use text as image alt text
-            dcg.Text(self.C, text)
+            dcg.Text(self.C, value=text)
             delattr(self, '_img_alt_pending')
             return
         

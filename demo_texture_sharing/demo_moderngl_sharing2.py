@@ -151,13 +151,13 @@ class CubeDemo:
         model_matrix = pyrr.matrix44.multiply(model_matrix, rotation)
 
         # Set uniform values
-        self.program['model'].write(model_matrix.astype('f4').tobytes())
-        self.program['view'].write(pyrr.matrix44.create_look_at(
+        self.program['model'].write(model_matrix.astype('f4').tobytes()) # type: ignore
+        self.program['view'].write(pyrr.matrix44.create_look_at( # type: ignore
             eye=[3.0, 3.0, 3.0],
             target=[0.0, 0.0, 0.0],
             up=[0.0, 1.0, 0.0]
         ).astype('f4').tobytes())
-        self.program['projection'].write(pyrr.matrix44.create_perspective_projection(
+        self.program['projection'].write(pyrr.matrix44.create_perspective_projection( # type: ignore
             fovy=45.0, aspect=1.0, near=0.1, far=100.0
         ).astype('f4').tobytes())
 
@@ -260,7 +260,7 @@ def demo_moderngl_sharing():
         dcg.Text(C, value="This is embedded moderngl rendering using DCG")
         rendering_type = dcg.Combo(C, items=["glFinish", "numpy", "no syncs", "with syncs"])
         rendering_type.value = "glFinish"
-        text = dcg.TextValue(C, print_format="FPS: %.2f", shareable_value=dcg.SharedDouble(C, 0))
+        text = dcg.TextValue(C, print_format="FPS: %.2f", shareable_value=dcg.SharedFloat(C, 0))
         # rotating angles of the cube
         angle1 = dcg.Slider(C, min_value=0, max_value=360, value=0)
         angle2 = dcg.Slider(C, min_value=0, max_value=360, value=0)

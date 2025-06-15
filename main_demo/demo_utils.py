@@ -159,8 +159,8 @@ class DemoSection(dcg.Layout):
             
             # Add control buttons
             with dcg.HorizontalLayout(self.context, alignment_mode=dcg.Alignment.RIGHT):
-                dcg.Button(self.context, label="Reset", callbacks=self._reset_code)
-                dcg.Button(self.context, label="Run", callbacks=self._run_edited_code)
+                dcg.Button(self.context, label="Reset", callback=self._reset_code)
+                dcg.Button(self.context, label="Run", callback=self._run_edited_code)
     
     def _toggle_source_view(self):
         """Show or hide the source code editor."""
@@ -203,7 +203,7 @@ class DemoSection(dcg.Layout):
             exec(complete_code, namespace)
             
             # Extract function name from definition
-            func_name = re.search(r'def\s+(\w+)', self.clean_func_def).group(1)
+            func_name = re.search(r'def\s+(\w+)', self.clean_func_def).group(1) #type: ignore
             
             if func_name in namespace:
                 self.current_function = namespace[func_name]
@@ -480,7 +480,7 @@ class DemoWindow(dcg.Window):
                 C.queue.submit(update_max_fps, max_fps_stat)
 
 
-    def _build_item_tree(self, section_tree: OrderedDict):
+    def _build_item_tree(self, section_tree: OrderedDict) -> tuple[OrderedDict, OrderedDict]:
         """Run the demo sections and put them in containers"""
         text_dict = OrderedDict()
         code_dict = OrderedDict()
@@ -497,7 +497,7 @@ class DemoWindow(dcg.Window):
                     func(self.context)
                 items = placeholder.children
                 if len(items) == 0:
-                    return
+                    return OrderedDict(), OrderedDict()
                 text = None
                 if isinstance(items[0], MarkDownText):
                     text = items[0]
@@ -637,7 +637,7 @@ class PropertyInfo:
     name: str
     
     # Documentation string describing the property
-    docstring: str
+    docstring: str | None
     
     # Whether the property can be modified
     writable: bool

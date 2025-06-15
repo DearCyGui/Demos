@@ -1765,13 +1765,13 @@ def _draw_texture_advanced_example(C: dcg.Context):
             model_matrix = pyrr.matrix44.multiply(model_matrix, rotation)
             
             # Set uniform values
-            self.program['model'].write(model_matrix.astype('f4').tobytes())
-            self.program['view'].write(pyrr.matrix44.create_look_at(
+            self.program['model'].write(model_matrix.astype('f4').tobytes()) # type: ignore
+            self.program['view'].write(pyrr.matrix44.create_look_at(  # type: ignore
                 eye=[3.0, 3.0, 3.0],
                 target=[0.0, 0.0, 0.0],
                 up=[0.0, 1.0, 0.0]
             ).astype('f4').tobytes())
-            self.program['projection'].write(pyrr.matrix44.create_perspective_projection(
+            self.program['projection'].write(pyrr.matrix44.create_perspective_projection(  # type: ignore
                 fovy=45.0, aspect=1.0, near=0.1, far=100.0
             ).astype('f4').tobytes())
             

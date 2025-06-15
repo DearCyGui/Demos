@@ -1414,7 +1414,7 @@ def _histogram_2d(C: dcg.Context):
             hist_2d.y_bins = data
             C.viewport.wake()
         
-        bin_slider.callbacks = update_bins
+        bin_slider.callback = update_bins
         
         dcg.Text(C, value="2D histograms reveal patterns in bivariate data that might be missed in separate 1D histograms")
 

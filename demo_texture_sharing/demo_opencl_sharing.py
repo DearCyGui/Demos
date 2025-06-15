@@ -64,8 +64,8 @@ def demo_opencl_sharing():
     # a dcg Texture into the OpenCL context
     # and render to it.
     C = dcg.Context()
-    blur_width = dcg.SharedInt(C, 1)
-    blur_height = dcg.SharedInt(C, 1)
+    blur_width = dcg.SharedFloat(C, 1)
+    blur_height = dcg.SharedFloat(C, 1)
     C.viewport.initialize(vsync=True,
                           wait_for_input=True,
                           title="OpenGL sharing")
@@ -127,7 +127,7 @@ def demo_opencl_sharing():
 
     def refresh_image():
         # Rebuild program with new kernel size
-        build_flags = f"-DKERNEL_SIZE_X={blur_width.value} -DKERNEL_SIZE_Y={blur_height.value}"
+        build_flags = f"-DKERNEL_SIZE_X={int(blur_width.value)} -DKERNEL_SIZE_Y={int(blur_height.value)}"
         program = cl.Program(ctx, blur_kernel).build(options=build_flags)
             
         # Run the kernel
@@ -152,8 +152,8 @@ def demo_opencl_sharing():
     with dcg.Window(C, primary=True):
         dcg.Image(C, texture=texture, width=512, height=512)
         with dcg.ChildWindow(C, width=0, height=0):
-            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
-            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, format='int', max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur width", shareable_value=blur_width, min_value=1, print_format="%.0f", max_value=10, width=100, callback=refresh_image)
+            dcg.Slider(C, label="Blur height", shareable_value=blur_height, min_value=1, print_format="%.0f", max_value=10, width=100, callback=refresh_image)
     while C.running:
         C.viewport.render_frame()
 
