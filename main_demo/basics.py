@@ -1072,7 +1072,7 @@ def Programing(C: dcg.Context):
                     C.viewport.wake()
             
             # Submit the async animation task
-            C.queue.submit(run_animation())
+            C.queue.submit(run_animation()) # type: ignore
         
         return draw_window
 
@@ -1161,7 +1161,14 @@ def _positioning(C: dcg.Context):
     - `self.width`: Reference to the width of the current item
     - `self.height`: Reference to the height of the current item
     - `item.width`/`item.height`: Reference to another item's size (item must be in globals()/locals())
-    - `{self, parent, item}.{x1, x2, xc, y1, y2, yc}`: Reference to left/center/right/top/bottom of the current, parent, or a target item.
+   - `{self, parent, item}.{x0, x1, x2, x3, xc, y0, y1, y2, y3, yc}`:
+            Reference to left/center/right/top/bottom of the current, parent, or a target item.
+            x0: left-most position
+            x1: left position (=left-most if does not accept children. left of children area else)
+            x2: right position (=right-most if does not accept children. right of children area else)
+            x3: right-most position (right edge of the item, including borders)
+            For most items, x0 == x1 and x2 == x3. width = x3 - x0.
+            Same for y0, y1, y2, y3 (top-most/top/bottom/bottom-most)
     - `+`, `-`, `*`, `/`, `//`, `%`, `**`: Arithmetic operators. Parentheses can be used for grouping.
     - `abs()`: Absolute value function
     - Numbers: Fixed size in pixels (NOT dpi scaled. Use dpi keyword for that)
@@ -1251,6 +1258,108 @@ def _positioning(C: dcg.Context):
         dcg.Button(C, label="Button 1", width=100)
         dcg.Button(C, label="Button 2", width=100)
         dcg.Button(C, label="Button 3", width=100)
+
+    dcg.Spacer(C, height=20)
+    dcg.Text(C, value="Understanding x0/x1/x2/x3")
+
+    with dcg.ChildWindow(C, width="fillx", height=500, no_scrollbar=True, no_scroll_with_mouse=True):
+        button = \
+            dcg.Button(C, label="Item with no children (Button)",
+                       x="parent.x1 + 0.1 * parent.width",
+                       y="parent.y1 + 0.3 * parent.height",
+                       width="0.4 * parent.width",
+                       height="0.1 * parent.height")
+    
+        with dcg.ChildWindow(C,
+                             x="parent.x1 + 0.6 * parent.width",
+                             y="parent.y1 + 0.2 * parent.height",
+                             width="0.3 * parent.width",
+                             height="0.3 * parent.height",
+                             border=True, no_scrollbar=True,
+                             no_scroll_with_mouse=True) as child_window:
+            text1 = dcg.Text(C, value="First item in a child window")
+            dcg.Text(C, value="Last Item", 
+                     x="parent.x2 - self.width", y="parent.y2 - self.height")
+
+        dashes = dcg.Pattern.dash_dot(C, scale_factor=64, x_mode="points")
+
+        with dcg.DrawInWindow(C, x=button.x - 0.5 * button.width,
+                              y=button.y - 0.5 * button.height,
+                              width=button.width * 2,
+                              height=button.height * 2,
+                              relative=True):
+            # Draw the x0/x1/x2/x3 lines for the button
+            dcg.DrawLine(C, p1=(0.25, 0), p2=(0.25, 1),
+                         color=(255, 0, 0), thickness=-2.0)  # x0 and x1
+            dcg.DrawText(C, text="x0/x1", pos=(0.27, 0.8), color=(255, 0, 0))
+
+            dcg.DrawLine(C, p1=(0.75, 0), p2=(0.75, 1),
+                            color=(0, 255, 0), thickness=-2.0)  # x2 and x3
+            dcg.DrawText(C, text="x2/x3", pos=(0.77, 0.8), color=(0, 255, 0))
+
+        with dcg.DrawInWindow(C, x=child_window.x - 0.5 * child_window.width,
+                                y=child_window.y - 0.5 * child_window.height,
+                                width=child_window.width * 2,
+                                height=child_window.height * 2,
+                                relative=True):
+                # Draw the x0/x3 lines for the child window
+                dcg.DrawLine(C, p1=(0.25, 0), p2=(0.25, 1),
+                             color=(255, 0, 0), thickness=-2.0,
+                             pattern=dashes) # x0
+                dcg.DrawText(C, text="x0", pos=(0.27, 0.8), color=(255, 0, 0))
+                dcg.DrawLine(C, p1=(0.75, 0), p2=(0.75, 1),
+                                color=(0, 255, 0), thickness=-2.0,
+                                pattern=dashes)
+                dcg.DrawText(C, text="x3", pos=(0.77, 0.7), color=(0, 255, 0))
+
+        with dcg.DrawInWindow(C, x=child_window.x.x1 - 0.5 * child_window.x.content_width,
+                              y=child_window.y.y1 - 0.5 * child_window.y.content_height,
+                              width=child_window.x.content_width * 2,
+                              height=child_window.y.content_height * 2,
+                              relative=True):
+            # Draw the x1/x2 lines for the child window
+            dcg.DrawLine(C, p1=(0.25, 0), p2=(0.25, 1),
+                         color=(255, 0, 0), thickness=-2.0,
+                         pattern=dashes)
+            dcg.DrawText(C, text="x1", pos=(0.27, 0.7), color=(255, 0, 0))
+            dcg.DrawLine(C, p1=(0.75, 0), p2=(0.75, 1),
+                            color=(0, 255, 0), thickness=-2.0,
+                            pattern=dashes)
+            dcg.DrawText(C, text="x2", pos=(0.77, 0.8), color=(0, 255, 0))
+            
+        with dcg.DrawInWindow(C, x=text1.x.x2,
+                              y=text1.y.y1 - 0.5 * text1.height,
+                              width=dcg.Size.MAX(0, child_window.x.x2 - text1.x.x2),
+                              height=2*text1.height,
+                              relative=True):
+            # Show fillx
+            dcg.DrawLine(C, p2=(0, 0.5), p1=(1, 0.5),
+                          color=(0, 255, 255), thickness=-2.0)
+            dcg.DrawText(C, text="fillx", pos=(0.1, 0.6), color=(0, 255, 255))
+
+        with dcg.DrawInWindow(C, x=child_window.x.x1,
+                              y=child_window.y.y1,
+                              width=child_window.width.content_width,
+                              height=child_window.height.content_height,
+                              relative=True):
+            # Show fullx
+            dcg.DrawLine(C, p2=(0, 0.5), p1=(1, 0.5),
+                          color=(255, 0, 255), thickness=-2.0)
+            dcg.DrawText(C, text="fullx", pos=(0.1, 0.6), color=(255, 0, 255))
+
+        with dcg.DrawInWindow(C, x=child_window.x,
+                                y=child_window.y,
+                                width=child_window.width,
+                                height=child_window.height * 2,
+                                relative=True):
+            # Show width
+            dcg.DrawLine(C, p1=(0, 0.8), p2=(1., 0.8),
+                         color=(255, 255, 0), thickness=-2.0,
+                         pattern=dashes)
+            dcg.DrawText(C, text="width", pos=(0.3, 0.85), color=(255, 255, 0))
+
+    dcg.Spacer(C, height=20)
+    dcg.Text(C, value="The same applies for y0/y1/y2/y3, but for vertical positioning (y0 = top, y3 = bottom).")
 
 
 @demosection(dcg.Text, dcg.Button, dcg.ThemeColorImGui, dcg.ThemeStyleImGui, dcg.ChildWindow)
