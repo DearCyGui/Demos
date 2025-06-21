@@ -89,10 +89,10 @@ cdef class BenchmarkDrawInWindow(dcg.DrawInWindow):
     takes to render its children """
             
     def __cinit__(self):
-        self._value = dcg.SharedDouble(self.context, 0.0) # running time average in ms
+        self._value = dcg.SharedFloat(self.context, 0.0) # running time average in ms
 
     @property
-    def value(self) -> dcg.SharedDouble:
+    def value(self) -> dcg.SharedFloat:
         return self._value
 
     cdef void draw(self) noexcept nogil:
@@ -100,7 +100,7 @@ cdef class BenchmarkDrawInWindow(dcg.DrawInWindow):
         start_time = time()
         dcg.DrawInWindow.draw(self)
         end_time = time()
-        cdef double cur = dcg.SharedDouble.get(<dcg.SharedDouble>self._value)
+        cdef double cur = dcg.SharedFloat.get(<dcg.SharedFloat>self._value)
         cur = cur * 0.9 + 0.1 * (end_time - start_time) * 1000
-        dcg.SharedDouble.set(<dcg.SharedDouble>self._value, cur)
+        dcg.SharedFloat.set(<dcg.SharedFloat>self._value, cur)
 
