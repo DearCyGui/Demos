@@ -2671,46 +2671,24 @@ def show_demo(C : dcg.Context):
                             dcg.PlotLine(C, X=xs, Y=ys2, label="y2")
 
                 with dcg.Tab(C, label="Tools"):
-                    """
-                    with dpg.tree_node(label="Querying"):
-
-                        dpg.add_text("Right click to box select and then click using the cancel button (standard to Left click)")
-                        dpg.add_text("Double left click to delete the last drag rect drawn.")
-                        dpg.add_slider_int(min_value=0, max_value=100, default_value=1, label="Min query rects", callback=lambda _, val: dpg.configure_item("query_plot_1", min_query_rects=val))
-                        dpg.add_slider_int(min_value=0, max_value=100, default_value=1, label="Max query rects", callback=lambda _, val: dpg.configure_item("query_plot_1", max_query_rects=val))
-
-                        def query(sender, app_data, user_data):
-                            if not len(app_data):
-                                return
-                            dpg.set_axis_limits(user_data[0], app_data[0][0], app_data[0][2])
-                            dpg.set_axis_limits(user_data[1], app_data[0][3], app_data[0][1])
-
-                        # plot 1
-                        with dpg.plot(no_title=True, height=400, tag="query_plot_1", callback=query, query=True, no_menus=True, width=-1) as plot_id:
-                            dpg.add_plot_axis(dpg.mvXAxis, label="x")
-                            with dpg.plot_axis(dpg.mvYAxis, label="y"):
-                                dpg.add_line_series(sindatax, sindatay)
-                                
-                        dpg.add_text("This plot takes care only of the first query rect")
-                        # plot 2
-                        with dpg.plot(no_title=True, height=400, no_menus=True, width=-1, tag="plot2"):          
-                            xaxis_id2 = dpg.add_plot_axis(dpg.mvXAxis, label="x")
-                            yaxis_id2 = dpg.add_plot_axis(dpg.mvYAxis, label="y")
-                            dpg.add_line_series(sindatax, sindatay, parent=yaxis_id2)
-
-                            # set plot 1 user data to axis so the query callback has access
-                            dpg.configure_item(plot_id, user_data=(xaxis_id2,yaxis_id2))
-                    """
-
                     with dcg.TreeNode(C, label="Interactables and dragging items"):
-                        with dcg.Plot(C, label="Drag Points", height=400, width=-1) as plot:
+                        with dcg.Plot(C, label="Dragging elements", height=400, width=-1) as plot:
                             plot.X1.label = "x"
                             plot.Y1.label = "y"
                             with dcg.DrawInPlot(C):
-                                interactable_area = dcg.DrawInvisibleButton(C, p1=(0, 0), p2=(0.5, 0.5), button=dcg.MouseButtonMask.LEFT)
-                                interactable_rect = dcg.DrawRect(C, pmin=(0, 0), pmax=(0.5, 0.5), color=(255, 0, 0), thickness=-1)
-                                d1 = dcg.utils.DragPoint(C, label="dpoint1", color=[255, 0, 255, 255], x=0.25, y=0.25)
-                                d2 = dcg.utils.DragPoint(C, label="dpoint2", color=[255, 0, 255, 255], clamp_inside=True, x=0.75, y=0.75)
+                                interactable_area = dcg.DrawInvisibleButton(C, p1=(-1, 0), p2=(-0.5, 0.5), min_side=50)
+                                interactable_rect = dcg.DrawRect(C, pmin=(-1, 0), pmax=(-0.5, 0.5), fill=(220, 170, 170), thickness=-1)
+                                dcg.DrawTextQuad(C, text="Hover me!",
+                                                 p1=(-0.95, 0.05), p2=(-0.55, 0.05),
+                                                 p3=(-0.55, 0.45), p4=(-0.95, 0.45),
+                                                 color=(0, 0, 0),
+                                                 preserve_ratio=True)
+
+                                d1 = dcg.utils.DragPoint(C, color=(255, 0, 255), x=0.25, y=0.25)
+                                d2 = dcg.utils.DragPoint(C, color=(255, 0, 255), clamp_inside=True, x=0.75, y=0.75)
+                                l1 = dcg.utils.DragHLine(C, color=(0, 255, 0), y=0.5)
+                                l2 = dcg.utils.DragVLine(C, color=(0, 255, 0), x=0.5)
+                                r1 = dcg.utils.DragRect(C, color=(0, 0, 255), rect=(0.1, 0.1, 0.4, 0.4), on_dragged=lambda s, t, d: print(f"DragRect was dragged at {d}"))
                         drag_text = dcg.Text(C, value="")
                         d1.on_dragging = lambda s, t, d: drag_text.configure(value=f"dpoint1 is being dragged at {d}")
                         d1.on_dragged = lambda s, t, d: drag_text.configure(value=f"dpoint1 was dragged at {d}")
@@ -2719,9 +2697,51 @@ def show_demo(C : dcg.Context):
                         d2.on_dragged = lambda s, t, d: drag_text.configure(value=f"dpoint2 was dragged at {d}")
                         d2.handlers += [dcg.LostHoverHandler(C, callback=lambda: drag_text.configure(value="dpoint2 lost hover"))]
                         interactable_area.handlers += [
-                            dcg.GotHoverHandler(C, callback=lambda:interactable_rect.configure(color=(0, 255, 0))),
-                            dcg.LostHoverHandler(C, callback=lambda:interactable_rect.configure(color=(255, 0, 0))),
+                            dcg.GotHoverHandler(C, callback=lambda: interactable_rect.configure(fill=(170, 220, 220))),
+                            dcg.LostHoverHandler(C, callback=lambda: interactable_rect.configure(fill=(220, 170, 170))),
                         ]
+                    with dcg.TreeNode(C, label="Querying"):
+                        dcg.Text(C, value="Make your custom query behaviour out of interactable items")
+                        dcg.Text(C, value="In this example the commands are:")
+                        # If you need another button than left click you should copy paste the
+                        # DragRect implementation and change the button parameter for the Dragging handlers
+                        dcg.Text(C, marker=dcg.TextMarker.BULLET, value="Left click to box select and then double click on the item to delete")
+
+                        with dcg.Plot(C, label="Query Plot", height=400, width=-1, no_menus=True, pan_button=dcg.MouseButton.RIGHT) as query_plot:
+                            query_plot.X1.label = "x"
+                            query_plot.Y1.label = "y"
+                            # add a line series to the plot
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+
+                        with dcg.Plot(C, label="Zoom view", height=400, width=-1, no_menus=True) as query_plot_2:
+                            query_plot_2.X1.label = "x"
+                            query_plot_2.Y1.label = "y"
+                            # add a line series to the plot
+                            dcg.PlotLine(C, X=sindatax, Y=sindatay, label="0.5 + 0.5 * sin(x)")
+
+                        # Define commands:
+                        def set_zoom_limits(sender, target, data):
+                            rect = target.rect
+                            x1, y1, x2, y2 = rect
+                            # Set the axis limits based on the rectangle coordinates
+                            query_plot_2.X1.min = min(x1, x2)
+                            query_plot_2.X1.max = max(x1, x2)
+                            query_plot_2.Y1.min = min(y1, y2)
+                            query_plot_2.Y1.max = max(y1, y2)
+
+                        def create_query_rect(sender, target, data):
+                            x = query_plot.X1.mouse_coord
+                            y = query_plot.Y1.mouse_coord
+                            drag_container = dcg.DrawInPlot(C, parent=query_plot, ignore_fit=True)
+                            drag_rect = dcg.utils.DragRect(C, color=(255, 0, 255), rect=(x, y, x, y),
+                                                           on_dragging=set_zoom_limits,
+                                                           capture_mouse=True,
+                                                           parent=drag_container)
+                            drag_rect.handlers += [
+                                dcg.DoubleClickedHandler(C, button=dcg.MouseButton.LEFT, callback=lambda s, t, d: drag_container.delete_item()),
+                            ]
+
+                        query_plot.handlers += [dcg.ClickedHandler(C, button=dcg.MouseButton.LEFT, callback=create_query_rect)]
 
                     with dcg.TreeNode(C, label="Annotations"):
                         with dcg.Plot(C, label="Annotations", height=400, width=-1) as plot:
