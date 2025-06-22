@@ -196,7 +196,21 @@ async def start_benchmark(sender: dcg.baseItem):
         plot_lines = []
         # Create a plot window with subplots for each benchmark result
         if plot_window is None:
-            plot_window = dcg.Window(C, label="Benchmark stats")
+            def constrain_window_below_title_bar(sender, target: dcg.Window):
+                """Constrain the plot window to be below the custom title bar."""
+                # Ensure the plot window is below the title bar
+                # At some point we will likely add an API for that.
+                title_bar = C.viewport.children[0]  # Assuming the title bar is the first child
+                min_y = title_bar.state.rect_size.y + title_bar.state.pos_to_viewport.y
+                # This doesn't work very well with dragging and will have to be improved.
+                if target.state.pos_to_viewport.y < min_y:
+                    target.y = min_y / target.context.viewport.dpi
+                    target.x = target.state.pos_to_viewport.x / target.context.viewport.dpi
+                
+            plot_window = dcg.Window(C, label="Benchmark stats", handlers=\
+                                     [dcg.MotionHandler(C,
+                                                        callback=constrain_window_below_title_bar,
+                                                        pos_policy=(dcg.Positioning.DEFAULT, dcg.Positioning.REL_VIEWPORT))])
         else:
             # Reuse the previous plot window
             plot_window.show = True
