@@ -119,6 +119,7 @@ def show_demo(C : dcg.Context):
 
             with dcg.Menu(C, label="Settings"):
                 dcg.MenuItem(C, label="Wait For Input", check=True, callback=lambda s, t, d: C.viewport.configure(wait_for_input=d))
+                dcg.MenuItem(C, label="Vsync", check=True, callback=lambda s, t, d: C.viewport.configure(vsync=d))
                 dcg.MenuItem(C, label="Toggle Fullscreen", callback=lambda: C.viewport.configure(fullscreen=not C.viewport.fullscreen))
 
         with dcg.CollapsingHeader(C, label="Window Options"):
