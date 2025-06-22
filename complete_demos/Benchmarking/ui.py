@@ -524,12 +524,27 @@ def setup_ui(C: dcg.Context):
         # Create need to recreate it when the dpi changes.
         # Before viewport initialization, dpi may not be known.
         prev_dpi = getattr(make_hit_map, 'prev_dpi', None)
-        if prev_dpi is not None and prev_dpi == C.viewport.dpi:
+        prev_maximized = getattr(make_hit_map, 'prev_maximized', None)
+        if prev_dpi is not None and prev_dpi == C.viewport.dpi and prev_maximized == C.viewport.maximized:
             return # up to date
         make_hit_map.prev_dpi = C.viewport.dpi
+        make_hit_map.prev_maximized = C.viewport.maximized
 
         # target is title_bar
-        border_width = int(target.state.pos_to_viewport.x)
+        if C.viewport.maximized:
+            border_width = 0
+            if prev_maximized is not True:
+                target.x = "0"
+                target.y = "0"
+                target.width = "viewport.width"
+        else:
+            border_width = int(3 * C.viewport.dpi)
+            border_size = "3*dpi"
+            if prev_maximized is not False:
+                target.x = border_size
+                target.y = border_size
+                target.width = "viewport.width - 2 * "+border_size
+
         title_bar_height = int(target.state.rect_size.y)
         # center_width doesn't matter as long as it is large enough
         center_width = 2 * (title_bar_height + border_width)
@@ -537,7 +552,7 @@ def setup_ui(C: dcg.Context):
         hit_test = np.zeros((border_width + title_bar_height + center_width,
                                   2 * border_width + center_width + 1), dtype=np.uint8)
         # Set title bar as draggable area (value 15)
-        hit_test[border_width:(border_width+title_bar_height), border_width:-border_width] = 15
+        hit_test[border_width:(border_width+title_bar_height), border_width:hit_test.shape[1]-border_width] = 15
         
         # Set resizable borders
         for i in range(hit_test.shape[0]):
@@ -572,9 +587,9 @@ def setup_ui(C: dcg.Context):
 
     dcg.os.set_application_metadata(name="DCG Performance Benchmarks")
 
-    main_window = dcg.Window(C, x=border_size, y=title_bar.y.y3,
-                             width="viewport.width - 2 *"+border_size,
-                             height="viewport.height-self.y0 -"+border_size,
+    main_window = dcg.Window(C, x=title_bar.x.x0, y=title_bar.y.y3,
+                             width=title_bar.width,
+                             height="viewport.height-self.y0-self.x0", # x0 is equal to border_size is any.
                              no_scrollbar=True, no_move=True,
                              no_resize=True, no_title_bar=True,
                              theme=dcg.ThemeStyleImGui(C, window_rounding=0, window_border_size=0))
