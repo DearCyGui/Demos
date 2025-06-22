@@ -468,13 +468,13 @@ def create_benchmark_theme(C: dcg.Context):
 
 def setup_ui(C: dcg.Context):
     """Setup the UI visuals"""
-    main_window = dcg.Window(C, label="Benchmarking Suite", primary=True)
+    main_window = dcg.Window(C, label="Benchmarking Suite", primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
     # Header section with title and description
     header = dcg.VerticalLayout(C, parent=main_window)
     selection = dcg.ChildWindow(C, parent=main_window, border=True, width=-1)
     footnotes = dcg.VerticalLayout(C, parent=main_window)
 
-    selection.height = "filly-footnotes.height+self.y2-footnotes.y1"
+    selection.height = "filly-footnotes.height-theme.item_spacing.y"
 
     with header:
         with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.CENTER):
@@ -513,8 +513,8 @@ def setup_ui(C: dcg.Context):
     with footnotes:
         dcg.Separator(C)
         with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
-            dcg.Text(C, value="2025, DCG Development Team", color=(180, 180, 190))
-            dcg.Text(C, value="Version 1.0", color=(160, 160, 180))
+            dcg.Text(C, value=" 2025, DCG Development Team", color=(180, 180, 190))
+            dcg.Text(C, value="Version 1.0 ", color=(160, 160, 180))
 
 
 def start_ui(**kwargs):
