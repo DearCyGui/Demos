@@ -3,6 +3,7 @@ import asyncio
 import dearcygui as dcg
 from dearcygui.utils.asyncio_helpers import AsyncThreadPoolExecutor, run_viewport_loop
 import math
+import numpy as np
 import time
 import traceback
 
@@ -468,7 +469,117 @@ def create_benchmark_theme(C: dcg.Context):
 
 def setup_ui(C: dcg.Context):
     """Setup the UI visuals"""
-    main_window = dcg.Window(C, label="Benchmarking Suite", primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
+    ## For a simple viewport visual
+    #main_window = dcg.Window(C, label="Benchmarking Suite", primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
+
+    ## Custom viewport visual
+    # Here we demonstrate a custom viewport decoration
+    C.viewport.decorated = False
+    C.viewport.clear_color = (30, 30, 35, 100)  # Transparent Dark background color -> will be used for borders
+    border_size = "3*dpi"
+    title_theme = dcg.ThemeList(C)
+    with title_theme:
+        # Title bar theme
+        dcg.ThemeColorImGui(C,
+            window_bg=(30, 30, 35, 255),  # Dark background for title bar
+            text=(230, 240, 255),         # Light text color for title
+        )
+        dcg.ThemeStyleImGui(C,
+            window_border_size=0,
+            window_rounding=0
+        )
+    title_bar = dcg.Window(C, x=border_size, y=border_size,
+                           width="viewport.width - 2 *"+border_size,
+                           height="80*dpi",
+                           no_scrollbar=True, no_move=True, no_resize=True, no_title_bar=True,
+                           theme=title_theme)
+    with title_bar:
+        with dcg.DrawInWindow(C, x=0, y=0, width="fillx", height="filly", relative=True):
+            dcg.DrawTextQuad(C, text="DearCyGui Performance Benchmarks",
+                             p1=(0, 1), p2=(1, 1), p3=(1, 0), p4=(0, 0),
+                             preserve_ratio=True)
+        # attach a large font to the title bar
+        glyphset = dcg.make_extended_latin_font(size=55)
+        font_texture = dcg.FontTexture(C)
+        font_texture.add_custom_font(glyphset)
+        font_texture.build()
+        title_bar.font = font_texture[0]
+        # Close button
+        def close(sender):
+            """Close the application when the close button is clicked."""
+            sender.context.running = False
+        with dcg.DrawInWindow(C, x="parent.x3 - 30*dpi", y="10*dpi",
+                              width="20*dpi", height="20*dpi", relative=True, button=True,
+                              callback=close) as close_button:
+            # dark X
+            dcg.DrawLine(C, p1=(0, 0), p2=(1, 1), color=(0, 0, 0), thickness=-2)
+            dcg.DrawLine(C, p1=(0, 1), p2=(1, 0), color=(0, 0, 0), thickness=-2)
+
+    def make_hit_map(sender, target: dcg.Window, close_button=close_button) :
+        """Create a hit map for custom decoration."""
+        # Create hit test surface that defines draggable and resizable areas
+        # Values: 0=normal, 1=top resize, 2=left resize, 4=bottom resize, 8=right resize
+        # 15=draggable area, 3/6/9/12=corners
+
+        # Create need to recreate it when the dpi changes.
+        # Before viewport initialization, dpi may not be known.
+        prev_dpi = getattr(make_hit_map, 'prev_dpi', None)
+        if prev_dpi is not None and prev_dpi == C.viewport.dpi:
+            return # up to date
+        make_hit_map.prev_dpi = C.viewport.dpi
+
+        # target is title_bar
+        border_width = int(target.state.pos_to_viewport.x)
+        title_bar_height = int(target.state.rect_size.y)
+        # center_width doesn't matter as long as it is large enough
+        center_width = 2 * (title_bar_height + border_width)
+
+        hit_test = np.zeros((border_width + title_bar_height + center_width,
+                                  2 * border_width + center_width + 1), dtype=np.uint8)
+        # Set title bar as draggable area (value 15)
+        hit_test[border_width:(border_width+title_bar_height), border_width:-border_width] = 15
+        
+        # Set resizable borders
+        for i in range(hit_test.shape[0]):
+            for j in range(hit_test.shape[1]):
+                if i < border_width:  # Top border (top of title bar)
+                    hit_test[i, j] |= 1
+                elif i >= hit_test.shape[0] - border_width:  # Bottom border
+                    hit_test[i, j] |= 4
+
+                if j < border_width:  # Left border
+                    hit_test[i, j] |= 2
+                elif j >= hit_test.shape[1] - border_width:  # Right border
+                    hit_test[i, j] |= 8
+
+        # Remove the close button area from the draggable area
+        button_size = close_button.state.rect_size
+        close_button_x = int(close_button.state.pos_to_viewport.x)
+        close_button_y = int(close_button.state.pos_to_viewport.y)
+        close_button_width = int(button_size.x)
+        close_button_height = int(button_size.y)
+        # Reposition x (we use a smaller hit test surface)
+        pixels_to_border = C.viewport.pixel_width - close_button_x - close_button_width
+        if pixels_to_border >= 0:
+            close_button_x = hit_test.shape[1] - close_button_width - pixels_to_border
+            if close_button_x >= 0:
+                hit_test[close_button_y:close_button_y+close_button_height,
+                         close_button_x:close_button_x+close_button_width] = 0
+    
+        # Apply the hit test surface to define window behavior
+        target.context.viewport.hit_test_surface = hit_test
+    title_bar.handlers = [dcg.ResizeHandler(C, callback=make_hit_map)]
+
+    dcg.os.set_application_metadata(name="DCG Performance Benchmarks")
+
+    main_window = dcg.Window(C, x=border_size, y=title_bar.y.y3,
+                             width="viewport.width - 2 *"+border_size,
+                             height="viewport.height-self.y0 -"+border_size,
+                             no_scrollbar=True, no_move=True,
+                             no_resize=True, no_title_bar=True,
+                             theme=dcg.ThemeStyleImGui(C, window_rounding=0, window_border_size=0))
+    ## End of custom viewport decoration
+
     # Header section with title and description
     header = dcg.VerticalLayout(C, parent=main_window)
     selection = dcg.ChildWindow(C, parent=main_window, border=True, width=-1)
@@ -533,7 +644,7 @@ def start_ui(**kwargs):
         return C
 
     # Start the Context in an async thread pool executor.
-    initialize_future = context_pool.submit(initialize_context)
+    initialize_future = context_pool.submit(initialize_context, **kwargs)
     C = initialize_future.result()
     
     context_pool.submit(ui_loop, C.viewport).result()
