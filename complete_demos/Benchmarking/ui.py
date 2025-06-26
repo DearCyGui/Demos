@@ -196,21 +196,14 @@ async def start_benchmark(sender: dcg.baseItem):
         plot_lines = []
         # Create a plot window with subplots for each benchmark result
         if plot_window is None:
-            def constrain_window_below_title_bar(sender, target: dcg.Window):
-                """Constrain the plot window to be below the custom title bar."""
-                # Ensure the plot window is below the title bar
-                # At some point we will likely add an API for that.
-                title_bar = C.viewport.children[0]  # Assuming the title bar is the first child
-                min_y = title_bar.state.rect_size.y + title_bar.state.pos_to_viewport.y
-                # This doesn't work very well with dragging and will have to be improved.
-                if target.state.pos_to_viewport.y < min_y:
-                    target.y = min_y / target.context.viewport.dpi
-                    target.x = target.state.pos_to_viewport.x / target.context.viewport.dpi
+            title_bar = C.viewport.children[0]
+            # Constrain the window outside the decorations
+            constrained_area = dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
+                                                width=title_bar.width,
+                                                height="viewport.height-self.y0-self.x0",
+                                                clip=True)
                 
-            plot_window = dcg.Window(C, label="Benchmark stats", handlers=\
-                                     [dcg.MotionHandler(C,
-                                                        callback=constrain_window_below_title_bar,
-                                                        pos_policy=(dcg.Positioning.DEFAULT, dcg.Positioning.REL_VIEWPORT))])
+            plot_window = dcg.Window(C, label="Benchmark stats", parent=constrained_area)
         else:
             # Reuse the previous plot window
             plot_window.show = True
@@ -297,9 +290,14 @@ async def start_benchmark(sender: dcg.baseItem):
         pass
     except Exception as e:
         if C is not None:
-            with dcg.Window(C, modal=True):
-                dcg.Text(C, value=f"Error starting benchmark: {e}")
-                dcg.Text(C, value=traceback.format_exc())
+            title_bar = C.viewport.children[0]
+            with dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
+                                  width=title_bar.width,
+                                  height="viewport.height-self.y0-self.x0",
+                                  clip=True):
+                with dcg.Window(C, modal=True):
+                    dcg.Text(C, value=f"Error starting benchmark: {e}")
+                    dcg.Text(C, value=traceback.format_exc())
         pass
     finally:
         if bench_C is not None:
@@ -328,7 +326,12 @@ async def start_benchmark(sender: dcg.baseItem):
                 # Create a modal window with the results
                 C = sender.context
                 if summary_window is None:
-                    summary_window = dcg.Window(C, label="Benchmark Summary", modal=True, autosize=True, no_open_over_existing_popup=False)
+                    title_bar = C.viewport.children[0]
+                    with dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
+                                          width=title_bar.width,
+                                          height="viewport.height-self.y0-self.x0",
+                                          clip=True):
+                        summary_window = dcg.Window(C, label="Benchmark Summary", modal=True, autosize=True, no_open_over_existing_popup=False)
                 else:
                     # Append to previous results
                     summary_window.show = True

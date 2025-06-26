@@ -1231,6 +1231,7 @@ def show_demo(C : dcg.Context):
                         dcg.Text(C, value="Targets:")
 
                         def on_drop(sender, target, data):
+                            print(data)
                             source = data[1]
                             target.value = source.user_data
 
@@ -1238,7 +1239,7 @@ def show_demo(C : dcg.Context):
                         dcg.InputValue(C, label="Int Target", width=100, print_format="%.0f", step=0,
                                        handlers=dcg.DragDropTargetHandler(C, accepted_types="item_int", callback=on_drop))
                         dcg.InputValue(C, label="Float Target", width=100, print_format="%f", step=0,
-                                       handlers=dcg.DragDropTargetHandler(C, accepted_types="item_float", callback=on_drop))
+                                       handlers=dcg.DragDropTargetHandler(C, callback=on_drop))
 
         with dcg.CollapsingHeader(C, label="Tables"):
             with dcg.TreeNode(C, label="Basic"):
