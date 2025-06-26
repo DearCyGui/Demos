@@ -1182,6 +1182,64 @@ def show_demo(C : dcg.Context):
                     dcg.Text(C, value=f"Tooltip creation time: {datetime.datetime.now()}")
             text_dynamic.handlers += [dcg.GotHoverHandler(C, callback=create_tooltip)]
 
+        with dcg.CollapsingHeader(C, label="Drag & Drop"):
+           with dcg.TreeNode(C, label="Help"):
+                dcg.Text(C, value="Use a DragDropSourceHandler to make a widget source.", marker="bullet")
+                dcg.Text(C, value="Adding a DragDropTargetHandler to a widget makes it target.", marker="bullet")
+                dcg.Text(C, value="Compatibility is determined by the 'drag_type'.", marker="bullet")
+                dcg.Text(C, value="The 'drag_type' must be less than 30 characters.", marker="bullet")
+
+           with dcg.TreeNode(C, label="Examples"):
+
+                with dcg.HorizontalLayout(C, x=200):
+                    with dcg.VerticalLayout(C):
+
+                        dcg.Text(C, value="Int Sources:")
+                        with dcg.ConditionalHandler(C) as on_press_int:
+                            dcg.DragDropSourceHandler(C, drag_type="int")
+                            dcg.ActivatedHandler(C)
+
+                        source1 = dcg.Button(C, label="Source 1: 25", handlers=on_press_int, user_data=25)
+                        source2 = dcg.Button(C, label="Source 2: 33", handlers=on_press_int, user_data=33)
+                        source3 = dcg.Button(C, label="Source 3: 111", handlers=on_press_int, user_data=111)
+
+                        with dcg.Tooltip(C, target=source1, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="25")
+                        with dcg.Tooltip(C, target=source2, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="33")
+                        with dcg.Tooltip(C, target=source3, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="111")
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Float Sources:")
+                        with dcg.ConditionalHandler(C) as on_press_float:
+                            dcg.DragDropSourceHandler(C, drag_type="float")
+                            dcg.ActivatedHandler(C)
+
+                        source1 = dcg.Button(C, label="Source 1: 43.7", handlers=on_press_float, user_data=43.7)
+                        source2 = dcg.Button(C, label="Source 2: 99.8", handlers=on_press_float, user_data=99.8)
+                        source3 = dcg.Button(C, label="Source 3: -23.4", handlers=on_press_float, user_data=-23.4)
+
+                        with dcg.Tooltip(C, target=source1, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="43.7")
+                        with dcg.Tooltip(C, target=source2, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="99.8")
+                        with dcg.Tooltip(C, target=source3, condition_from_handler=dcg.DragDropActiveHandler(C)):
+                            dcg.Text(C, value="-23.4")
+
+                    with dcg.VerticalLayout(C):
+                        dcg.Text(C, value="Targets:")
+
+                        def on_drop(sender, target, data):
+                            source = data[1]
+                            target.value = source.user_data
+
+                        #item_ is appended to all events from DragDropSourceHandler
+                        dcg.InputValue(C, label="Int Target", width=100, print_format="%.0f", step=0,
+                                       handlers=dcg.DragDropTargetHandler(C, accepted_types="item_int", callback=on_drop))
+                        dcg.InputValue(C, label="Float Target", width=100, print_format="%f", step=0,
+                                       handlers=dcg.DragDropTargetHandler(C, accepted_types="item_float", callback=on_drop))
+
         with dcg.CollapsingHeader(C, label="Tables"):
             with dcg.TreeNode(C, label="Basic"):
                 # basic usage of the table api
