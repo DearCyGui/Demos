@@ -1,3 +1,5 @@
+from ast import mod
+import colorsys
 from demo_utils import documented, democode, push_group, pop_group,\
     launch_demo, demosection, display_item_documentation
 import dearcygui as dcg
@@ -1772,9 +1774,503 @@ def _handlers_events(C: dcg.Context):
         dcg.CustomHandler,
         dcg.ConditionalHandler,
         dcg.HandlerList,
+
+        # Drag and drop handlers
+        dcg.DragDropSourceHandler,
+        dcg.DragDropActiveHandler,
+        dcg.DragDropTargetHandler,
     ]:
         with dcg.TreeNode(C, label=handler.__name__):
             display_item_documentation(C, handler)
+
+push_group("Drag and Drop")
+
+@demosection
+@documented
+def _drag_and_drop(C: dcg.Context):
+    """
+    ## Drag and Drop
+    
+    DearCyGui supports two drag and drop paradigms:
+
+    - `DraggingHandler` and `DraggedHandler`: These handlers enable fine-grained
+        control over a dragging operation of an item. They can be used to implement
+        motion of the dragged item in response to mouse movement. For instance, it
+        is the basis for interactable items inside plots.
+    - `DragDropSourceHandler`,  `DragDropActiveHandler` and `DragDropTargetHandler`:
+        These handlers provide a higher-level drag and drop interface that allows
+        to transfer data from a visual item to another (as well as handling drag
+        and drop operations originating from outside DearCyGui). `DragDropSourceHandler`
+        is used to register an item as a drag source, `DragDropActiveHandler` is used
+        to respond visually to a drag operation occuring, and `DragDropTargetHandler`
+        is used to register an item as a drop target that can accept data from a drag source.
+    
+    Drag and drop allows users to rearrange items, move data, and create interactive interfaces.
+    """
+
+
+@demosection(dcg.Button, dcg.ChildWindow, dcg.DraggingHandler, dcg.DraggedHandler)
+@documented
+@democode
+def _simple_draggable_button(C: dcg.Context):
+    """
+    ## Simple Draggable Button
+    
+    This example demonstrates the low-level drag handlers:
+    
+    - `DraggingHandler`: Triggers continuously while dragging
+    - `DraggedHandler`: Triggers once when dragging ends
+    
+    These handlers give direct control over item position based on mouse movement.
+    They're ideal for UI elements that need to be repositioned by users.
+    """
+    # Create a container for our draggable button
+    with dcg.ChildWindow(C, width="fillx", height=300, border=True, label="Drag Area"):
+        # Create our draggable button
+        button = dcg.Button(C, label="Drag Me!", width=100, height=40, x=150, y=130)
+        
+        # Variables to keep track of button state
+        button.user_data = {"dragging": False, "start_pos": (0, 0)}
+        
+        # Handler for when dragging starts/continues
+        def on_dragging(sender, target: dcg.uiItem, drag_deltas):
+            if not target.user_data["dragging"]:
+                # First drag event - store initial position
+                target.user_data["dragging"] = True
+                target.user_data["start_pos"] = (target.state.pos_to_parent.x,
+                                                 target.state.pos_to_parent.y)
+            
+            # Calculate new position based on initial position and drag deltas
+            new_x = target.user_data["start_pos"][0] + drag_deltas[0]
+            new_y = target.user_data["start_pos"][1] + drag_deltas[1]
+            
+            # Constrain to container bounds
+            bounds = target.parent.state.content_region_avail
+            new_x = max(0, min(new_x, bounds.x))  # 400 - button width
+            new_y = max(0, min(new_y, bounds.y))  # 300 - button height
+            
+            # Update button position
+            target.x = target.parent.x.x1 + new_x
+            target.y = target.parent.y.y1 + new_y
+            
+            # Update position display
+            update_position_text()
+        
+        # Handler for when dragging ends
+        def on_dragged(sender, target, drag_deltas):
+            target.user_data["dragging"] = False
+            # Final position update
+            update_position_text()
+        
+        # Add the drag handlers to the button
+        button.handlers += [
+            dcg.DraggingHandler(C, callback=on_dragging),
+            dcg.DraggedHandler(C, callback=on_dragged)
+        ]
+
+    # Text to show button position
+    position_text = dcg.Text(C, value=f"Button position: x={button.x}, y={button.y}", x=10)
+    
+    def update_position_text():
+        position_text.value = f"Button position: x={int(button.x)}, y={int(button.y)}"
+        C.viewport.wake()
+    
+    # Instructions
+    dcg.Text(C, value="Click and drag the button to move it around", y=10, x=10)
+
+
+@demosection(dcg.DragDropSourceHandler, dcg.DragDropActiveHandler, dcg.DragDropTargetHandler)
+@documented
+@democode
+def _drag_drop_options_demo(C: dcg.Context):
+    """
+    ## Drag and Drop Handler Options
+    
+    This example demonstrates the configuration options for the DragDrop* handlers:
+    
+    - `DragDropSourceHandler`: Configures items as drag sources
+    - `DragDropActiveHandler`: Detects active dragging
+    - `DragDropTargetHandler`: Receives dropped data
+    
+    These handlers support data transfer between UI elements and customizable behavior.
+    """
+    # Status display
+    status_text = dcg.Text(C, value="Drag and drop demonstration. Try dragging items.")
+    
+    # Create a horizontal layout with two sections
+    # Sources column
+    with dcg.ChildWindow(C, width="0.5*fillx", height=500, border=True, label="Drag Sources", no_newline=True):
+        dcg.Text(C, value="Drag Sources with Different Options:", color=(255, 255, 0))
+        
+        # Basic source - Integer type
+        with dcg.ConditionalHandler(C) as basic_source:
+            dcg.DragDropSourceHandler(C, drag_type="int")
+            dcg.ActivatedHandler(C)
+        
+        basic_button = \
+            dcg.Button(C, label="Basic Int Source (42)", 
+                       handlers=basic_source, user_data=42, width=280)
+
+        with dcg.Tooltip(C, target=basic_button,
+                         condition_from_handler=dcg.DragDropActiveHandler(C)):
+            dcg.Text(C, value="You are dragging the value 42 (item_int)")
+        
+        # Source with no_open_on_hold
+        with dcg.ConditionalHandler(C) as no_hold_source:
+            dcg.DragDropSourceHandler(C, drag_type="int", no_open_on_hold=True)
+            dcg.ActivatedHandler(C)
+
+        no_hold_button = \
+            dcg.Button(C, label="This source won't open tree nodes (150)", 
+                       handlers=no_hold_source, user_data=150, width=280)
+    
+        with dcg.Tooltip(C, target=no_hold_button,
+                         condition_from_handler=dcg.DragDropActiveHandler(C)):
+            dcg.Text(C, value="This source will not open tree nodes when dragged.")
+            dcg.Text(C, value="You are dragging the value 150 (item_int)")
+        
+        # Source with overwrite and hover activation
+        with dcg.ConditionalHandler(C) as no_hold_source:
+            dcg.DragDropSourceHandler(C, drag_type="int", overwrite=True, no_open_on_hold=True)
+            dcg.MouseOverHandler(C) # Basically HoveredHandler without any blocking behaviour
+
+        no_hold_button = \
+            dcg.Button(C, label="Source with activation on hover (200)",
+                       handlers=no_hold_source, user_data=200, width=280)
+        with dcg.Tooltip(C, target=no_hold_button,
+                         condition_from_handler=dcg.MouseOverHandler(C)):
+            dcg.Text(C, value="This source will activate on hover, however")
+            dcg.Text(C, value="a left click is still required to maintain the drag state.")
+            dcg.Text(C, value="Try to click outside this item and drag your mouse over it.")
+            dcg.Text(C, value="This item will take priority over other drags (overwrite=True).")
+
+        with dcg.Tooltip(C, target=no_hold_button,
+                            condition_from_handler=dcg.DragDropActiveHandler(C)):
+            dcg.Text(C, value="You are dragging the value 200 (item_int)")
+
+        
+        dcg.Separator(C, height=10)
+        
+        # String data source
+        with dcg.ConditionalHandler(C) as str_source:
+            dcg.DragDropSourceHandler(C, drag_type="text")
+            dcg.ActivatedHandler(C)
+        
+        button_text = \
+            dcg.Button(C, label="String Source", 
+                       handlers=str_source, user_data="Dragged text", width=280)
+
+        with dcg.Tooltip(C, target=button_text,
+                            condition_from_handler=dcg.DragDropActiveHandler(C)):
+            dcg.Text(C, value="You are dragging the text: 'Dragged text' (item_text)")
+        
+        # Float data source
+        with dcg.ConditionalHandler(C) as float_source:
+            dcg.DragDropSourceHandler(C, drag_type="float")
+            dcg.ActivatedHandler(C)
+        
+        button_float = \
+            dcg.Button(C, label="Float Source (3.14159)", 
+                       handlers=float_source, user_data=3.14159, width=280)
+
+        with dcg.Tooltip(C, target=button_float,
+                            condition_from_handler=dcg.DragDropActiveHandler(C)):
+            dcg.Text(C, value="You are dragging the float: 3.14159 (item_float)")
+        
+        # Source with active handler - changes appearance during drag
+        with dcg.ConditionalHandler(C) as active_source:
+            dcg.DragDropSourceHandler(C, drag_type="custom")
+            dcg.ActivatedHandler(C)
+        
+        active_btn = dcg.Button(C, label="With custom visual feedback", 
+                                handlers=active_source, user_data={"name": "Custom Object"},
+                                width=280,
+                                theme=dcg.ThemeColorImGui(C))
+        
+        # Add visual feedback during drag
+        def color_animation(sender, target, data):
+            # Change button color when dragging
+            cur_time = time.monotonic()
+            color = colorsys.hsv_to_rgb((cur_time % 1.0), 1.0, 1.0)
+            active_btn.theme.button = color
+            C.viewport.wake(delay=0.033) # update at least at 30 FPS
+        active_btn.handlers += [dcg.DragDropActiveHandler(C, callback=color_animation)]
+
+        transparent_tooltip = \
+            dcg.ThemeColorImGui(C,
+                                border=0,  # No border
+                                popup_bg=0,  # Transparent background
+            )
+
+        with dcg.Tooltip(C, target=active_btn, 
+                        condition_from_handler=dcg.DragDropActiveHandler(C),
+                        theme=transparent_tooltip):
+            dcg.Button(C, label="With custom visual feedback", 
+                       width=280, theme=active_btn.theme)
+    
+        # Button for color data
+        dcg.ColorEdit(C, label="Drag Color")
+    
+    # Targets column
+    with dcg.ChildWindow(C, width="fillx", height=500, border=True, label="Drop Targets"):
+        dcg.Text(C, value="Drop Targets with Different Options:", color=(255, 255, 0))
+        
+        # Basic target - accepts int types
+        def on_drop_int(sender, target, data):
+            status_text.value = f"Dropped integer: {data[1].user_data}"
+            target.value = data[1].user_data
+            C.viewport.wake()
+        
+        dcg.Text(C, value="Integer Target:")
+        dcg.InputValue(C, label="Int Value", width=280, print_format="%.0f", step=0,
+                       handlers=dcg.DragDropTargetHandler(C, 
+                                                          accepted_types="item_int", 
+                                                          callback=on_drop_int))
+        
+        # Float target
+        def on_drop_float(sender, target, data):
+            status_text.value = f"Dropped float: {data[1].user_data}"
+            target.value = data[1].user_data
+            C.viewport.wake()
+        
+        dcg.Text(C, value="Float Target:")
+        dcg.InputValue(C, label="Float Value", width=280, print_format="%.5f", step=0,
+                       handlers=dcg.DragDropTargetHandler(C, 
+                                                          accepted_types="item_float", 
+                                                          callback=on_drop_float))
+
+        # Tree node:
+        with dcg.TreeNode(C, label="hold drag to open"):
+            dcg.Text(C, value="Holding while dragging will open this node")
+        
+        # Text target
+        def on_drop_text(sender, target, data):
+            status_text.value = f"Dropped text: {data[1].user_data}"
+            target.value = data[1].user_data
+            C.viewport.wake()
+        
+        dcg.Text(C, value="Text Target:")
+        dcg.InputText(C, label="Text Value", width=280,
+                      handlers=dcg.DragDropTargetHandler(C, 
+                                                         accepted_types="item_text", 
+                                                         callback=on_drop_text))
+        
+        # Target with custom appearance
+        def on_drop_custom(sender, target, data):
+            status_text.value = f"Dropped custom object: {data[1].user_data}"
+            C.viewport.wake()
+        
+        dcg.Text(C, value="Custom Target with No Default Rectangle:")
+        custom_target = dcg.ChildWindow(C, height=80, border=True, width=280,
+                                        handlers=dcg.DragDropTargetHandler(C, 
+                                                                        accepted_types="item_custom",
+                                                                        no_draw_default_rect=True,
+                                                                        callback=on_drop_custom))
+        
+        with custom_target:
+            dcg.Text(C, value="Drop custom data here")
+        
+        # Multi-type target that accepts any drag types
+        def on_drop_multi(sender, target, data):
+            (payload_type, payload, states, mouse_pos) = data
+            if payload_type.startswith("item"):
+                status_text.value = \
+                    f"Dropped on multi-target: {payload} ({payload_type}) with value: {payload.user_data}"
+            elif payload_type == "text" or payload_type == "file":
+                status_text.value = f"OS drag and drop ({payload_type}): {payload}"
+            elif payload_type == "_COL3F" or payload_type == "_COL4F":
+                status_text.value = f"Color dropped: {payload} ({payload_type})"
+            else:
+                status_text.value = f"Unknown type dropped: {payload} ({payload_type})"
+            sender.context.viewport.wake()
+        
+        dcg.Text(C, value="Multi-Type Target (accepts any type, even from outside this demo window):")
+        multi_target = dcg.ChildWindow(C, height=80, border=True, width=280,
+                                        handlers=dcg.DragDropTargetHandler(C, 
+                                                                        callback=on_drop_multi))
+        
+        with multi_target:
+            dcg.Text(C, value="Drop any data type here")
+
+
+@demosection(dcg.DrawInWindow, dcg.DragDropSourceHandler, dcg.DragDropTargetHandler)
+@documented
+@democode
+def _shape_canvas_drag_drop(C: dcg.Context):
+    """
+    ### Shape Canvas with Drag and Drop
+    
+    This example demonstrates advanced drag and drop capabilities:
+    
+    - Drag shapes from the toolbar to the canvas
+    - Drag shapes around within the canvas
+    - Change the canvas background by dragging the color button
+    - Clear all shapes with the reset button
+    
+    This combines both high-level drag and drop handlers for transferring objects 
+    and low-level drag handlers for precise positioning after placement.
+    """
+    
+    # Create the draggable shape class
+    class DraggableShape(dcg.DrawingList):
+        """A shape that can be dragged around the canvas"""
+        def __init__(self, context, num_points, color, position, **kwargs):
+            super().__init__(context, **kwargs)
+            color = dcg.color_as_ints(color)
+            # Create an invisible button for interaction
+            with self:
+                self._shape = dcg.DrawRegularPolygon(context, center=position, radius=-20, 
+                           num_points=num_points, color=color, 
+                           fill=(color[0], color[1], color[2], 150))
+                self._button = dcg.DrawInvisibleButton(context,
+                                                       p1=position,
+                                                       p2=position,
+                                                       min_side=40)
+            
+            # Setup drag behavior
+            self._backup_pos = position
+            self._was_dragging = False
+            self._setup_drag_handlers()
+        
+        def _setup_drag_handlers(self):
+            """Setup handlers for dragging the shape"""
+            
+            def on_dragging(sender, target, drag_deltas):
+                # Start tracking if not already dragging
+                if not self._was_dragging:
+                    self._backup_pos = self._shape.center
+                    self._was_dragging = True
+                
+                # Update position
+                new_x = self._backup_pos[0] + drag_deltas[0]
+                new_y = self._backup_pos[1] + drag_deltas[1]
+                
+                # Update visual position
+                self._shape.center = (new_x, new_y)
+                self._button.p1 = (new_x, new_y)
+                self._button.p2 = (new_x, new_y)
+                
+                self.context.viewport.wake()
+            
+            def on_dragged(sender, target, drag_deltas):
+                self._was_dragging = False
+                
+                # Final position update
+                new_x = self._backup_pos[0] + drag_deltas[0]
+                new_y = self._backup_pos[1] + drag_deltas[1]
+                
+                # Update visual position
+                self._shape.center = (new_x, new_y)
+                self._button.p1 = (new_x, new_y)
+                self._button.p2 = (new_x, new_y)
+                
+                self.context.viewport.wake()
+            
+            # Add drag handlers to button
+            self._button.handlers += [
+                dcg.DraggingHandler(self.context, callback=on_dragging),
+                dcg.DraggedHandler(self.context, callback=on_dragged)
+            ]
+    
+    # Create horizontal toolbar
+    with dcg.HorizontalLayout(C, width="fillx", alignment_mode=dcg.Alignment.JUSTIFIED):
+        color_button = \
+            dcg.ColorEdit(C, width="self.height",
+                          label="Color", 
+                          value=(100, 150, 200, 255))
+        
+        # Create shape buttons - these will be drag sources
+        shapes = [
+            {"num_points": 3, "name": "Triangle"},
+            {"num_points": 4, "name": "Square"},
+            {"num_points": 5, "name": "Pentagon"},
+            {"num_points": 6, "name": "Hexagon"},
+            {"num_points": 8, "name": "Octagon"}
+        ]
+        
+        for shape in shapes:
+            # Create a drag source for each shape
+            with dcg.ConditionalHandler(C) as source_handler:
+                dcg.DragDropSourceHandler(C, drag_type="shape")
+                dcg.ActivatedHandler(C)
+            
+            # Button with shape preview
+            with dcg.DrawInWindow(C, width=60, height=60, button=True, 
+                               handlers=source_handler, 
+                               user_data=shape["num_points"]):
+                dcg.DrawRegularPolygon(C, center=(30, 30), radius=-20, 
+                                    num_points=shape["num_points"],
+                                    color=(255, 255, 255), 
+                                    fill=(255, 255, 255, 150))
+                dcg.DrawTextQuad(C, text=shape["name"],
+                                 p1=(0, 60),
+                                 p2=(60, 60),
+                                 p3=(60, 0),
+                                 p4=(0, 0),
+                                 color=(255, 255, 255),
+                                 preserve_ratio=True)
+        
+        # Clear button
+        def clear_canvas():
+            nonlocal canvas_background
+            # Remove all shapes from the canvas
+            # Keep only the background
+            for child in list(canvas.children):
+                if child is not canvas_background:
+                    child.delete_item()
+            canvas_background.fill = (30, 30, 40)  # Reset background color
+            canvas.context.viewport.wake()
+        
+        dcg.Button(C, label="Clear Canvas", callback=clear_canvas)
+    
+    # Create canvas for shapes
+    canvas = dcg.DrawInWindow(C, width="fillx", height="max(500, filly)", 
+                              relative=False, no_global_scaling=True,
+                              button=False)
+    
+    # Create background rectangle for the canvas
+    with canvas:
+        canvas_background = dcg.DrawRect(C, pmin=(0, 0), 
+                                         pmax=(4*float(C.viewport.pixel_width),
+                                               4*float(C.viewport.pixel_height)),
+                                         color=(50, 50, 60),
+                                         fill=(30, 30, 40)) 
+    
+    # Handle drops on canvas
+    def on_drop_item(sender, target, data):
+        # Extract data from the drop event
+        payload_type: str
+        states: dcg.ItemStateCopy
+        mouse_pos: tuple[float, float]
+        payload_type, payload, states, mouse_pos = data
+        
+        if payload_type == "item_shape":
+            # Get shape parameters
+            num_points = payload.user_data
+            color = color_button.value
+            
+            # Calculate position relative to canvas
+            canvas_pos = (mouse_pos[0] - states.pos_to_viewport.x, 
+                       mouse_pos[1] - states.pos_to_viewport.y)
+            
+            # Create draggable shape at drop position
+            DraggableShape(C, num_points=num_points, color=color, 
+                           position=canvas_pos, parent=canvas)
+        
+        elif payload_type == "_COL4F":
+            # Change canvas background color when color is dropped
+            canvas_background.fill = payload
+        
+        C.viewport.wake()
+    
+    # Make canvas a drop target for both shapes and colors
+    canvas.handlers += [
+        dcg.DragDropTargetHandler(C, accepted_types=["item_shape", "_COL4F"], 
+                               callback=on_drop_item)
+    ]
+
+
+pop_group() # End Drag and Drop
 
 pop_group()  # End Interactivity Features
 
