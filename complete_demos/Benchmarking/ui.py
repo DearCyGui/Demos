@@ -12,6 +12,7 @@ from benchmarks import benchmarks_list, BenchmarkInfo
 benchmarks_running = False
 summary_window: dcg.Window | None = None
 plot_window: dcg.Window | None = None
+window_parent: dcg.Viewport | dcg.WindowLayout | None = None
 
 if not hasattr(asyncio, 'TaskGroup'):
     # Fallback for Python versions < 3.11
@@ -196,14 +197,10 @@ async def start_benchmark(sender: dcg.baseItem):
         plot_lines = []
         # Create a plot window with subplots for each benchmark result
         if plot_window is None:
-            title_bar = C.viewport.children[0]
-            # Constrain the window outside the decorations
-            constrained_area = dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
-                                                width=title_bar.width,
-                                                height="viewport.height-self.y0-self.x0",
-                                                clip=True)
-                
-            plot_window = dcg.Window(C, label="Benchmark stats", parent=constrained_area)
+            plot_window = dcg.Window(C, label="Benchmark stats",
+                                     x="parent.x1 + 0.1*parent.width", y="parent.y1 + 0.1*parent.height",
+                                     height="0.8*parent.height", width="0.8*parent.width",
+                                     parent=window_parent)
         else:
             # Reuse the previous plot window
             plot_window.show = True
@@ -290,14 +287,9 @@ async def start_benchmark(sender: dcg.baseItem):
         pass
     except Exception as e:
         if C is not None:
-            title_bar = C.viewport.children[0]
-            with dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
-                                  width=title_bar.width,
-                                  height="viewport.height-self.y0-self.x0",
-                                  clip=True):
-                with dcg.Window(C, modal=True):
-                    dcg.Text(C, value=f"Error starting benchmark: {e}")
-                    dcg.Text(C, value=traceback.format_exc())
+            with dcg.Window(C, modal=True, parent=window_parent):
+                dcg.Text(C, value=f"Error starting benchmark: {e}")
+                dcg.Text(C, value=traceback.format_exc())
         pass
     finally:
         if bench_C is not None:
@@ -326,12 +318,10 @@ async def start_benchmark(sender: dcg.baseItem):
                 # Create a modal window with the results
                 C = sender.context
                 if summary_window is None:
-                    title_bar = C.viewport.children[0]
-                    with dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
-                                          width=title_bar.width,
-                                          height="viewport.height-self.y0-self.x0",
-                                          clip=True):
-                        summary_window = dcg.Window(C, label="Benchmark Summary", modal=True, autosize=True, no_open_over_existing_popup=False)
+                    summary_window = dcg.Window(C, label="Benchmark Summary",
+                                                parent=window_parent,
+                                                modal=True, autosize=True,
+                                                no_open_over_existing_popup=False)
                 else:
                     # Append to previous results
                     summary_window.show = True
@@ -483,14 +473,8 @@ def create_benchmark_theme(C: dcg.Context):
         )
     return theme
 
-
-def setup_ui(C: dcg.Context):
-    """Setup the UI visuals"""
-    ## For a simple viewport visual
-    #main_window = dcg.Window(C, label="Benchmarking Suite", primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
-
-    ## Custom viewport visual
-    # Here we demonstrate a custom viewport decoration
+def make_custom_decorated_viewport(C: dcg.Context):
+    global window_parent
     C.viewport.decorated = False
     C.viewport.clear_color = (30, 30, 35, 100)  # Transparent Dark background color -> will be used for borders
     border_size = "3*dpi"
@@ -531,6 +515,12 @@ def setup_ui(C: dcg.Context):
             # dark X
             dcg.DrawLine(C, p1=(0, 0), p2=(1, 1), color=(0, 0, 0), thickness=-2)
             dcg.DrawLine(C, p1=(0, 1), p2=(1, 0), color=(0, 0, 0), thickness=-2)
+
+    # Clip all windows to the new decoration
+    window_parent = dcg.WindowLayout(C, x=title_bar.x.x0, y=title_bar.y.y3,
+                                     width=title_bar.width,
+                                     height="viewport.height-self.y0-self.x0",
+                                     clip=True)
 
     def make_hit_map(sender, target: dcg.Window, close_button=close_button) :
         """Create a hit map for custom decoration."""
@@ -602,14 +592,24 @@ def setup_ui(C: dcg.Context):
         target.context.viewport.hit_test_surface = hit_test
     title_bar.handlers = [dcg.ResizeHandler(C, callback=make_hit_map)]
 
+def setup_ui(C: dcg.Context):
+    """Setup the UI visuals"""
+    global window_parent
     dcg.os.set_application_metadata(name="DCG Performance Benchmarks")
 
-    main_window = dcg.Window(C, x=title_bar.x.x0, y=title_bar.y.y3,
-                             width=title_bar.width,
-                             height="viewport.height-self.y0-self.x0", # x0 is equal to border_size is any.
-                             no_scrollbar=True, no_move=True,
-                             no_resize=True, no_title_bar=True,
-                             theme=dcg.ThemeStyleImGui(C, window_rounding=0, window_border_size=0))
+    ## For a simple viewport visual
+    #main_window = dcg.Window(C, label="Benchmarking Suite", primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
+
+    ## Custom viewport visual
+    # Here we demonstrate a custom viewport decoration
+
+    custom_decorations = True
+    if custom_decorations:
+        make_custom_decorated_viewport(C)
+    else:
+        # Use the default viewport without custom decorations
+        window_parent = C.viewport
+    main_window = dcg.Window(C, parent=window_parent, primary=True, no_scrollbar=True, no_scroll_with_mouse=True)
     ## End of custom viewport decoration
 
     # Header section with title and description
