@@ -2197,7 +2197,7 @@ def _shape_canvas_drag_drop(C: dcg.Context):
             # Button with shape preview
             with dcg.DrawInWindow(C, width=60, height=60, button=True, 
                                handlers=source_handler, 
-                               user_data=shape["num_points"]):
+                               user_data=shape["num_points"]) as shape_button:
                 dcg.DrawRegularPolygon(C, center=(30, 30), radius=-20, 
                                     num_points=shape["num_points"],
                                     color=(255, 255, 255), 
@@ -2209,6 +2209,27 @@ def _shape_canvas_drag_drop(C: dcg.Context):
                                  p4=(0, 0),
                                  color=(255, 255, 255),
                                  preserve_ratio=True)
+
+            with dcg.Tooltip(C, target=shape_button,
+                                condition_from_handler=dcg.DragDropActiveHandler(C)) as tooltip:
+                with dcg.DrawInWindow(C, width=60, height=60, button=True, 
+                            handlers=source_handler, 
+                            user_data=shape["num_points"]):
+                    shape_preview = \
+                        dcg.DrawRegularPolygon(C, center=(30, 30), radius=-20, 
+                                               num_points=shape["num_points"],
+                                               color=(255, 255, 255), 
+                                               fill=(255, 255, 255, 150))
+            # Update item color
+            def update_shape_color(*, shape_preview=shape_preview):
+                # Update the shape preview color based on the color button
+                # We will have one frame with the wrong color shown before
+                # refresh. Having the correct color from the start requires
+                # a bit more boilerplate.
+                shape_preview.color = color_button.value
+                shape_preview.fill = dcg.color_as_ints(color_button.value)[:3] + (150,)
+                C.viewport.wake()
+            tooltip.handlers = [dcg.GotRenderHandler(C, callback=update_shape_color)]
         
         # Clear button
         def clear_canvas():
