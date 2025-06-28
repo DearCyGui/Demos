@@ -1086,7 +1086,7 @@ def launch_demo(title="DearCyGui Demo"):
         url="https://github.com/DearCyGui/Demos",
         type="application")
     # Initialize the viewport
-    context.viewport.initialize(title=title, width=950, height=750)
+    context.viewport.initialize(title=title, width=950, height=750, keyboard_navigation=True)
 
     # Show a temporary centered window while the demo is loading
     with dcg.Window(context, x="viewport.width/2 - self.width/2",
