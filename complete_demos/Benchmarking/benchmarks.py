@@ -1,5 +1,6 @@
 import asyncio
 import colorsys
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 import dearcygui as dcg
@@ -8,11 +9,9 @@ import gc
 import inspect
 import math
 import numpy as np
-import random
 import sys
 import threading
 from time import monotonic, sleep
-from typing import Callable, List, Generator, Tuple, Any
 
 sys.setswitchinterval(1e-9)
 
@@ -28,7 +27,7 @@ class BenchmarkInfo:
     code: str
     run: Callable
 
-benchmarks_list: List[BenchmarkInfo] = []
+benchmarks_list: list[BenchmarkInfo] = []
 
 def benchmark(category: str, rendering_thread: bool = False):
     """
@@ -256,7 +255,7 @@ async def property_setting_speed(C: dcg.Context):
     )
     
     # Create the container and stars
-    stars = []
+    stars: list[dcg.DrawStar] = []
     num_stars_x = 200
     num_stars_y = 100
     radius = 0.45 / num_stars_x
@@ -1022,7 +1021,7 @@ async def run_benchmark_with_timeout(benchmark_info, duration=10.):
             except StopAsyncIteration:
                 break
                 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.)
     finally:
         # Clean up resources
         C.viewport.children = []
