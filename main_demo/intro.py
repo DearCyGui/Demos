@@ -23,19 +23,19 @@ def _welcome_to_dearcygui(C: dcg.Context):
     """
     # Welcome to DearCygui
 
-    DearCygui is a Python GUI library that allows you to create interactive
+    DearCygui is ~a Python GUI library~ that _allows you_ to create interactive
     applications with ease.
 
     It is built on top of:
-    - Cython: `https://cython.org/` for code execution
-    - Dear ImGui: `https://github.com/ocornut/imgui` for UI rendering
-    - Dear ImPlot: `https://github.com/epezent/implot` for plotting
-    - FreeType: `https://www.freetype.org/` for font rendering
-    - OpenGL: `https://www.opengl.org/` for rendering graphics
-    - SDL3: `https://www.libsdl.org/` for window management and input handling
-    - Delaunator `https://github.com/delfrrr/delaunator-cpp` and Constrainauthor `https://github.com/kninnug/Constrainautor`
+    * Cython: `https://cython.org/` for code execution
+    * Dear ImGui: `https://github.com/ocornut/imgui` for UI rendering
+    * Dear ImPlot: `https://github.com/epezent/implot` for plotting
+    * FreeType: `https://www.freetype.org/` for font rendering
+    + OpenGL: `https://www.opengl.org/` for rendering graphics
+    + SDL3: `https://www.libsdl.org/` for window management and input handling
+    + Delaunator `https://github.com/delfrrr/delaunator-cpp` and Constrainauthor `https://github.com/kninnug/Constrainautor`
         for concave polygon rendering.
-    - The Latin Modern Roman fonts from `https://www.gust.org.pl/projects/e-foundry/latin-modern`
+    + The Latin Modern Roman fonts from `https://www.gust.org.pl/projects/e-foundry/latin-modern`
 
     In this demo, we will explore the features of DearCygui and how to use it
     to create interactive applications.

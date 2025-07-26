@@ -144,18 +144,15 @@ class DemoSection(dcg.Layout):
                                                show=False, height=300, width=-1e-3)
         
         with self.source_container:
-            # Use monospace font if available
-            font = self.globals.get('mono_font', None)
-            
             # Add code editor with function body
             self.code_editor = dcg.InputText(self.context, 
                                             value=body_source,
                                             max_characters=len(body_source) * 2,
                                             multiline=True, 
                                             tab_input=True,
-                                            font=font,
                                             width=-1e-3, 
-                                            height=-30)
+                                            height=-30,
+                                            font=dcg.AutoFont.get_monospace(self.context))
             
             # Add control buttons
             with dcg.HorizontalLayout(self.context, alignment_mode=dcg.Alignment.RIGHT):

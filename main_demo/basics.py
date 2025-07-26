@@ -863,21 +863,7 @@ def Programing(C: dcg.Context):
     - Animation loop using asyncio not in a callback
     """
     # Make font with huge digits only
-    glyphset = dcg.make_extended_latin_font(200)
-    reduced_height = 1
-    reduced_glyphset = dcg.GlyphSet(glyphset.height, glyphset.origin_y)
-    for i in range(10):
-        glyph_data = glyphset[ord(str(i))]
-        reduced_glyphset.add_glyph(ord(str(i)), *glyph_data)
-        # This works because the digits bottom and top are aligned
-        glyph_array = glyph_data[0]
-        reduced_height = max(reduced_height, glyph_array.shape[0]) # type: ignore
-    reduced_glyphset.center_on_glyph(ord("0"))
-    reduced_glyphset.fit_to_new_height(reduced_height)
-    font_texture = dcg.FontTexture(C)
-    font_texture.add_custom_font(reduced_glyphset)
-    font_texture.build()
-    font = font_texture[0]
+    font = dcg.AutoFont.get_digits(C, base_size=200, monospace=True)
 
     # 1. Animation loop using asyncio in a callback
     def create_asyncio_callback_clock(width: 'dcg.DynamicSizeT' = 200, running=threading.Event()):

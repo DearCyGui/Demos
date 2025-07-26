@@ -4,20 +4,32 @@
 import dearcygui as dcg
 from dearcygui import make_bold, make_bold_italic, make_italic
 
+import os
+
 try:
-    import md4c
-    from md4c import BlockType, SpanType, TextType
-    import os
     import imageio
 except ImportError as e:
-    raise ImportError("This module requires pymd4c and imageio to be installed. "
-                      "Please install them using 'pip install pymd4c imageio'") from e
+    raise ImportError("This module requires imageio to be installed. "
+                      "Please install them using 'pip install imageio'") from e
 import typing
 
 ##### Set of utilities that will probably one day
 ##### end up in dearcygui.utils
 
-class MarkDownText(dcg.Layout):
+
+def import_md4c():
+    """Import pymd4c if not already imported"""
+    global md4c, BlockType, SpanType, TextType
+    if 'md4c' in globals():
+        return
+    try:
+        import md4c
+        from md4c import BlockType, SpanType, TextType
+    except ImportError as e:
+        raise ImportError("This module requires pymd4c to be installed. "
+                          "Please install it using 'pip install pymd4c'") from e
+
+class MarkDownText_(dcg.Layout):
     """
     Text displayed in DearCyGui using pymd4c to render
 
@@ -28,6 +40,7 @@ class MarkDownText(dcg.Layout):
         """
         C: the context
         """
+        import_md4c()
         self.C = C
 
         self.font = kwargs.pop("font", C.viewport.font)
@@ -436,3 +449,8 @@ class MarkDownText(dcg.Layout):
         elif text_type == TextType.LATEXMATH:
             # LaTeX math
             self._text_buffer.append((text, 0))
+
+try:
+    MarkDownText = dcg.MarkDownText
+except:
+    MarkDownText = MarkDownText_
