@@ -13,7 +13,7 @@ import numpy as np
 
 from text_utils import MarkDownText
 from dataclasses import dataclass
-from typing import Any, Optional, Dict
+from typing import Any
 
 def democode(f):
     """
@@ -44,7 +44,7 @@ class DemoSection(dcg.Layout):
     - Changes are executed in the original function's context
     """
     
-    def __init__(self, context: dcg.Context, function, **kwargs):
+    def __init__(self, context: dcg.Context, function, **kwargs) -> None:
         super().__init__(context, **kwargs)
         
         # Store function references
@@ -58,7 +58,7 @@ class DemoSection(dcg.Layout):
         self._create_ui()
         self._run_function()
     
-    def _create_ui(self):
+    def _create_ui(self) -> None:
         """Create all UI components for the demo section."""
         # Header with show source checkbox
         with dcg.HorizontalLayout(self.context, parent=self, alignment_mode=dcg.Alignment.RIGHT):
@@ -134,7 +134,7 @@ class DemoSection(dcg.Layout):
         except Exception as e:
             return f"def {self.func_name}(context):", "# Could not retrieve source code\npass"
     
-    def _create_source_editor(self):
+    def _create_source_editor(self) -> None:
         """Create the source code editor area."""
         # Get function code
         self.clean_func_def, body_source = self._extract_function_code(self.source_function)
@@ -152,14 +152,14 @@ class DemoSection(dcg.Layout):
                                             tab_input=True,
                                             width=-1e-3, 
                                             height=-30,
-                                            font=dcg.AutoFont.get_monospace(self.context))
+                                            font=dcg.AutoFont.get_monospaced(self.context))
             
             # Add control buttons
             with dcg.HorizontalLayout(self.context, alignment_mode=dcg.Alignment.RIGHT):
                 dcg.Button(self.context, label="Reset", callback=self._reset_code)
                 dcg.Button(self.context, label="Run", callback=self._run_edited_code)
     
-    def _toggle_source_view(self):
+    def _toggle_source_view(self) -> None:
         """Show or hide the source code editor."""
         self.source_container.show = self.show_source_checkbox.value
     
@@ -185,7 +185,7 @@ class DemoSection(dcg.Layout):
             except Exception as e:
                 self._show_error(f"Error executing function: {str(e)}\n{traceback.format_exc()}")
     
-    def _run_edited_code(self):
+    def _run_edited_code(self) -> None:
         """Execute the edited code and update the display."""
         body_code = self.code_editor.value
         
@@ -211,7 +211,7 @@ class DemoSection(dcg.Layout):
         except Exception as e:
             self._show_error(f"Error in code: {str(e)}\n{traceback.format_exc()}")
     
-    def _show_error(self, message):
+    def _show_error(self, message) -> None:
         """Display an error message in the content container."""
         self.content_container.children = []
         with self.content_container:
@@ -239,7 +239,7 @@ def documented(f):
 _demo_sections = OrderedDict()  # The full hierarchy of sections
 _current_path = []  # The current path in the hierarchy
 
-def push_group(name):
+def push_group(name) -> None:
     """
     Start a new group of sections.
     
@@ -259,7 +259,7 @@ def push_group(name):
     if _current_path[-1] not in current:
         current[_current_path[-1]] = OrderedDict()
 
-def pop_group():
+def pop_group() -> None:
     """
     End the current group of sections.
     """
@@ -312,7 +312,7 @@ class DemoContentContainer(dcg.ChildWindow):
     This container can be styled with different background colors and layout properties.
     """
     
-    def __init__(self, context, content_type="doc", doc_links=(), **kwargs):
+    def __init__(self, context, content_type="doc", doc_links=(), **kwargs) -> None:
         """
         Initialize a demo content container.
         
@@ -361,7 +361,7 @@ class DemoWindow(dcg.Window):
         TWO_COL_TEXT_LEFT = "two_col_text_left"  # Text left, code right
         TWO_COL_CODE_LEFT = "two_col_code_left"  # Code left, text right
     
-    def __init__(self, context, title="Demo", **kwargs):
+    def __init__(self, context, title="Demo", **kwargs) -> None:
         # Set default properties
         self.width = -1e-3  # Fill available width
         self.height = -1e-3  # Fill available height
@@ -393,14 +393,14 @@ class DemoWindow(dcg.Window):
                 self._code_sections
             )
     
-    def _setup_controls_and_status(self):
+    def _setup_controls_and_status(self) -> None:
         """Set up the controls bar for visual parameters, etc"""
         C = self.context
         with dcg.MenuBar(C, parent=self) as bar:
             self.doc_bar = dcg.Layout(C) # This will hold the documentation links
             # status widgets
             with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.RIGHT, no_wrap=True):
-                async def update_cpu_usage(target: dcg.ProgressBar):
+                async def update_cpu_usage(target: dcg.ProgressBar) -> None:
                     process = psutil.Process()
                     while C.running:
                         # Update CPU usage
@@ -531,7 +531,7 @@ class DemoWindow(dcg.Window):
         return self._layout_mode
     
     @layout_mode.setter
-    def layout_mode(self, value):
+    def layout_mode(self, value) -> None:
         """Set the layout mode and refresh the display"""
         if value in [self.Layout.SINGLE, self.Layout.TWO_COL_TEXT_LEFT, self.Layout.TWO_COL_CODE_LEFT]:
             self._layout_mode = value
@@ -543,7 +543,7 @@ class DemoWindow(dcg.Window):
         return self._use_colored_backgrounds
     
     @use_colored_backgrounds.setter
-    def use_colored_backgrounds(self, value):
+    def use_colored_backgrounds(self, value) -> None:
         """Set whether to use colored backgrounds"""
         self._use_colored_backgrounds = bool(value)
         # Will need to refresh the display here
@@ -565,14 +565,14 @@ class DemoWindow(dcg.Window):
         r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(hue, 0.3, 0.7)]  # Low saturation, moderate value
         return (r, g, b, 25)  # 25 alpha for semi-transparency
     
-    def setup_layout(self):
+    def setup_layout(self) -> None:
         """
         Configure the layout based on the current settings.
         This will be implemented in a future update.
         """
         pass
 
-    def _on_show_item(self, sender, target):
+    def _on_show_item(self, sender, target) -> None:
         if not target.value: # opened tab
             return
         self.doc_bar.children = []
@@ -587,7 +587,7 @@ class DemoWindow(dcg.Window):
                 doc_links += code_section.doc_links
 
             # Add them to the menu bar
-            def _show_documentation(sender, target, value):
+            def _show_documentation(sender, target, value) -> None:
                 # Show the documentation for the selected item
                 ItemDocumentation(self.context, target.user_data, modal=True)
             for link in doc_links:
@@ -598,7 +598,7 @@ class DemoWindow(dcg.Window):
     def _create_tabs_from_hierarchy(self,
                                     _text_sections: OrderedDict,
                                     _code_sections: OrderedDict,
-                                    level: int = 0):
+                                    level: int = 0) -> None:
         """
         Recursively create tabs from the hierarchy.
         """
@@ -652,7 +652,7 @@ class PropertyInfo:
     inherited: bool = False
     
     # Name of the parent class this property is inherited from (if any)
-    inherited_from: Optional[str] = None
+    inherited_from: str | None = None
     
     @property
     def readonly(self) -> bool:
@@ -680,7 +680,7 @@ class MethodInfo:
     inherited: bool = False
     
     # Name of the parent class this method is inherited from (if any)
-    inherited_from: Optional[str] = None
+    inherited_from: str | None = None
 
 class ItemParser:
     """
@@ -691,7 +691,7 @@ class ItemParser:
     any visual components.
     """
     
-    def __init__(self, C: dcg.Context, object_class):
+    def __init__(self, C: dcg.Context, object_class) -> None:
         """
         Initialize the docstring parser for a given class.
         
@@ -704,8 +704,8 @@ class ItemParser:
         self._class_docstring = inspect.getdoc(object_class) or ""
         
         # Properties and methods collections
-        self._property_dict: Dict[str, PropertyInfo] = {}
-        self._method_dict: Dict[str, MethodInfo] = {}
+        self._property_dict: dict[str, PropertyInfo] = {}
+        self._method_dict: dict[str, MethodInfo] = {}
         
         # Parse the class attributes and properties
         self._parse_class_attributes()
@@ -730,7 +730,7 @@ class ItemParser:
         """List of all methods in the class."""
         return list(self._method_dict.values())
     
-    def _parse_class_attributes(self):
+    def _parse_class_attributes(self) -> None:
         """Parse all attributes and organize them by type."""
         if not isinstance(self._object_class, type):
             return
@@ -836,7 +836,7 @@ class PropertyDocNode(dcg.TreeNode):
     A button about a property. When clicked, it opens a documentation window
     for the property.
     """
-    def __init__(self, context, property_info: PropertyInfo, **kwargs):
+    def __init__(self, context, property_info: PropertyInfo, **kwargs) -> None:
         """
         Initialize the button with the property information.
         
@@ -858,7 +858,7 @@ class MethodDocNode(dcg.TreeNode):
     A button about a method. When clicked, it opens a documentation window
     for the method.
     """
-    def __init__(self, context, method_info: MethodInfo, **kwargs):
+    def __init__(self, context, method_info: MethodInfo, **kwargs) -> None:
         """
         Initialize the button with the method information.
         
@@ -879,7 +879,7 @@ class MethodDocNode(dcg.TreeNode):
             MarkDownText(self.context, value=signature)
 
 
-def display_item_documentation(context: dcg.Context, item_class, show_inherited=False):
+def display_item_documentation(context: dcg.Context, item_class, show_inherited=False) -> None:
     """
     Display the documentation for the given item class inside the
     current container.
@@ -932,7 +932,7 @@ class ItemDocumentation(dcg.Window):
     """
     Represents a window that displays documentation for a specific item class.
     """
-    def __init__(self, context, item_class, **kwargs):
+    def __init__(self, context, item_class, **kwargs) -> None:
         """
         Initialize the documentation window.
         
@@ -951,7 +951,7 @@ class ItemDocumentation(dcg.Window):
             dcg.Checkbox(self.context, label="Show all inherited properties", callback=self._toggle_inherited)
             display_item_documentation(self.context, item_class)
 
-    def _toggle_inherited(self, sender, target, value):
+    def _toggle_inherited(self, sender, target, value) -> None:
         """
         Toggle the display of inherited properties and methods.
         """
@@ -1049,7 +1049,7 @@ def create_demo_icon():
 """
 Version without asyncio:
 """
-def launch_demo_noasyncio(title="DearCyGui Demo"):
+def launch_demo_noasyncio(title="DearCyGui Demo") -> None:
     # Main function to run the demo
     context = dcg.Context()
     context.viewport.wait_for_input = True
@@ -1061,7 +1061,7 @@ def launch_demo_noasyncio(title="DearCyGui Demo"):
 
 
         
-def launch_demo(title="DearCyGui Demo"):
+def launch_demo(title="DearCyGui Demo") -> None:
     """
     Create a window displaying all the defined sections.
     """

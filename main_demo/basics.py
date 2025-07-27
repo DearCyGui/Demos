@@ -1347,11 +1347,11 @@ def _positioning(C: dcg.Context):
     dcg.Spacer(C, height=20)
     dcg.Text(C, value="The same applies for y0/y1/y2/y3, but for vertical positioning (y0 = top, y3 = bottom).")
 
+push_group("Styling")
 
-@demosection(dcg.Text, dcg.Button, dcg.ThemeColorImGui, dcg.ThemeStyleImGui, dcg.ChildWindow)
+@demosection(dcg.ThemeColorImGui, dcg.ThemeStyleImGui, dcg.AutoFont, dcg.FontTexture)
 @documented
-@democode
-def _styling(C: dcg.Context):
+def _styling_intro(C: dcg.Context):
     """
     ## Styling Items
     
@@ -1364,6 +1364,19 @@ def _styling(C: dcg.Context):
     
     Themes can be applied to individual items or hierarchically to affect all children.
     All theme values are automatically scaled by the global scale factor.
+
+    In this section we will give a brief overview of the available styling options.
+    More details can be found in the sections related to each item, as well
+    as the themes section.
+    """
+
+
+@demosection(dcg.Text, dcg.Button, dcg.ThemeColorImGui, dcg.ThemeStyleImGui, dcg.ChildWindow)
+@documented
+@democode
+def _editing_item_styles(C: dcg.Context):
+    """
+    ## Changing the item styles, a few examples
     """
     # Individual item styling
     dcg.Text(C, value="Item-specific Styling:")
@@ -1416,19 +1429,194 @@ def _styling(C: dcg.Context):
         
         # You can override the parent theme
         dcg.Text(C, value="This text has its own color", color=(0, 255, 255))
+
+    # Item specific attribute
+    dcg.Button(C, label="Small button", small=True)
+
+
+@demosection(dcg.Font, dcg.AutoFont, dcg.GlyphSet, dcg.FontTexture)
+@documented
+@democode
+def _fonts(C: dcg.Context):
+    """
+    ## Fonts
+
+    Fonts are essentially character images (glyphs) associated with character codes.
+
+    In order to support various scales and sizes, the characters must be rendered at multiple
+    sizes. For instance:
+
+    # Very large font
+    ## large font
+    #### medium font
+
+    These fonts above are rendered at different sizes in order to have a sharp result.
+    The screen DPI (dots per inch) is also taken into account to ensure the text appears
+    at a similar size on different screens, while remaining sharp.
+
+    DearCyGui hides all this complexity behind the `dcg.AutoFont` class, which allows you to
+    create fonts that automatically adjust to the current DPI and scale factor.
+
+    While it is possible to have very fine control over the font rendering in DearCyGui,
+    due to ImGui changes, the low-level API may have to change in the future. Thus in this
+    demo we will focus on the high-level `AutoFont` which will remain API compatible.
+
+    If not given, a default AutoFont is filled in the `font` attribute of the Viewport.
+    When attaching a different font to an item, this item and its children will use the new font.
+
+    A current limitation is that any scale change (`scaling_factor` for UI items, `scale` for Viewport),
+    will impact the size of the font if it is not reattached. A second limitation is that drawing text
+    inside a drawing may not trigger AutoFont to build the sharpest font for the actual rendering scale.
+
+    ## Building fonts
+
+    The default `AutoFont` builds a font using glyphs from the [The Latin Modern Roman fonts](https://www.gust.org.pl/projects/e-foundry/latin-modern).
+    It builds a latin character set including bold, italics, bold-italics and monospaced variants.
+
+    The arguments taken by `AutoFont` are:
+    - `context`: The context to use for the font
+    - `base_size`: The base size of the font in pixels (default is 17)
+    - `font_creator`: This is a callable which must return a `GlyphSet` object. It is called everytime a new size needs to be generated.
+    Additional arguments are passed to `font_creator`.
+
+    The default `font_creator` is `dcg.make_extended_latin_font` which implements the behaviour described above.
+    It accepts the arguments `size` (the target size to render), the font paths: `main_font_path`, `italic_font_path`, `bold_font_path`, `bold_italic_path`, and `mono_font_path`, and well as a `restrict_to` argument which can be:
+    - undefined: Build the bold, italics, bold-italics, monospaced variants, and the base latin set for the main font.
+    - `None`: same as undefined but with an extended latin set.
+    - a sequence of codepoints (integers) to restrict the glyphs to a specific set.
+
+    To support non-latin fonts, you can provide your own `font_creator` function that returns a `GlyphSet` object. Contributions are welcome.
+
+    While it is possible to build fonts directly by calling `AutoFont`, it is recommended to use the shortcut static methods provided by `AutoFont`:
+    - **get_default()**: Same as instantiating AutoFont directly
+    - **get_bold()**: A font with only bold characters
+    - **get_italic()**: A font with only italic characters
+    - **get_bold_italics()**: A font with only bold-italic characters
+    - **get_monospaced()**: A font with only monospaced characters (for displaying code, etc)
+    - **get_digits()**: A font containing only digits (0-9) - useful for displays, counters, etc.
+    - **get_numerics()**: A font containing digits and additional characters for numeric display
+
+    The advantage of these methods, beside making your code easier to read, is that they
+    implement a weak-reference caching mecanism to avoid rebuilding the same font multiple times.
+    """
+    # Basic comparison of different font variants at default size
+    dcg.Text(C, value="Default Font Variants (base size = 17):")
+    
+    # Create a container to display font samples
+    with dcg.ChildWindow(C, width="fillx", auto_resize_y=True, border=True):
+        # Default font (has all variants built in)
+        default_font = dcg.AutoFont.get_default(C)
+        # Use dcg.make_* to get the unicode codepoints used for bold, italic, etc
+        dcg.Text(C, value=f"Default font - {dcg.make_bold('supports')} {dcg.make_italic('all')} "
+                          f"{dcg.make_monospaced('variants')} in {dcg.make_bold_italic('one')} font", font=default_font)
+
+        # Show specialized font variants
+        bold_font = dcg.AutoFont.get_bold(C)
+        italic_font = dcg.AutoFont.get_italic(C)
+        bold_italic_font = dcg.AutoFont.get_bold_italics(C)
+        monospaced_font = dcg.AutoFont.get_monospaced(C)
+        
+        dcg.Text(C, value="Bold only font", font=bold_font)
+        dcg.Text(C, value="Italic only font", font=italic_font)
+        dcg.Text(C, value="Bold-italic only font", font=bold_italic_font)
+        dcg.Text(C, value="Monospaced only font", font=monospaced_font)
     
     dcg.Spacer(C, height=20)
     
-    # Font styling example
-    dcg.Text(C, value="Font Styling:")
+    # Numeric fonts demonstration
+    dcg.Text(C, value="Numeric Font Variants:")
     
-    # In a real application, you might create a custom font:
-    # custom_font = dcg.AutoFont(C, base_size=24)
-    # dcg.Text(C, value="Text with custom font", font=custom_font)
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
+        # Regular digits font
+        with dcg.VerticalLayout(C, width=300):
+            dcg.Text(C, value="Digits Font (Regular):")
+            digits_font = dcg.AutoFont.get_digits(C, base_size=40)
+            dcg.Text(C, value="0123456789", font=digits_font)
+            dcg.Text(C, value="Memory efficient: contains only digits")
+            
+        # Monospaced digits font
+        with dcg.VerticalLayout(C, width=300):
+            dcg.Text(C, value="Digits Font (Monospaced):")
+            mono_digits_font = dcg.AutoFont.get_digits(C, monospaced=True, base_size=40)
+            dcg.Text(C, value="0123456789", font=mono_digits_font)
+            dcg.Text(C, value="Evenly spaced digits, ideal for counters")
     
-    # For this demo, we'll just show a text describing font options
-    dcg.Text(C, value="Fonts can be created with dcg.AutoFont()")
-    dcg.Text(C, value="Example: custom_font = dcg.AutoFont(C, base_size=24)")
+    dcg.Spacer(C, height=20)
+    
+    # Numerics font (with additional characters)
+    dcg.Text(C, value="Numerics Font Variants:")
+    
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
+        # Regular numerics font
+        with dcg.VerticalLayout(C, width=300):
+            dcg.Text(C, value="Numerics Font (Regular):")
+            numerics_font = dcg.AutoFont.get_numerics(C, base_size=30)
+            dcg.Text(C, value="0123456789.,-+/*()", font=numerics_font)
+            dcg.Text(C, value="Includes additional characters for numeric display")
+            
+        # Monospaced numerics font
+        with dcg.VerticalLayout(C, width=300):
+            dcg.Text(C, value="Numerics Font (Monospaced):")
+            mono_numerics_font = dcg.AutoFont.get_numerics(C, monospaced=True, base_size=30)
+            dcg.Text(C, value="0123456789.,-+/*()", font=mono_numerics_font)
+            dcg.Text(C, value="Monospaced version for aligned numeric output")
+    
+    dcg.Spacer(C, height=20)
+    
+    # Size comparison example
+    dcg.Text(C, value="Font Size Comparison:")
+    with dcg.HorizontalLayout(C, alignment_mode=dcg.Alignment.JUSTIFIED):
+        with dcg.ChildWindow(C, auto_resize_x=True, auto_resize_y=True, border=True):
+            # Different sizes of the default font
+            small_font = dcg.AutoFont.get_default(C, base_size=12)
+            medium_font = dcg.AutoFont.get_default(C, base_size=24)
+            large_font = dcg.AutoFont.get_default(C, base_size=36)
+            
+            dcg.Text(C, value="Small font (12px)", font=small_font)
+            dcg.Text(C, value="Medium font (24px)", font=medium_font)
+            dcg.Text(C, value="Large font (36px)", font=large_font)
+
+        # Prefer this variant, which reuses fonts more efficiently:
+        with dcg.ChildWindow(C, auto_resize_x=True, auto_resize_y=True, border=True):
+            dcg.Text(C, value="Small font (12px)", font=dcg.AutoFont.get_default(C), scaling_factor=12/17)
+            dcg.Text(C, value="Medium font (24px)", font=dcg.AutoFont.get_default(C), scaling_factor=24/17)
+            dcg.Text(C, value="Large font (36px)", font=dcg.AutoFont.get_default(C), scaling_factor=36/17)
+
+    # Demonstrating visualizing the content of the font textures.
+    # This API will likely break in the future and should not be relied upon for production code.
+    def show_font_textures():
+        def display_tabs_for_font(auto_font: dcg.AutoFont) -> None:
+            fonts = auto_font.fonts
+            dcg.Text(C, value="Recent scales seen during rendering:")
+            dcg.Text(C, value=str([round(scale * 10) / 10 for scale in auto_font.recent_scales]))
+            with dcg.TabBar(C):
+                for font in fonts:
+                    texture = font.texture.texture
+                    with dcg.Tab(C, label=f"Size {font.texture[0].size:.0f} (H={texture.height}, W={texture.width})"):
+                        texture_ratio = texture.width/texture.height
+                        dcg.Image(C, texture=texture, x="parent.xc - self.width/2.",
+                                    width=f"min(self.height * {texture_ratio}, {texture.width})", height=f"min(filly, {texture.height})")
+        with dcg.Window(C, label="Font Texture", width="0.8*parent.width", height="0.8*parent.height",
+                        x="0.1*parent.width", y="0.1*parent.height", no_move=True, no_resize=True):
+            with dcg.TabBar(C):
+                with dcg.Tab(C, label="Default Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_default(C))
+                with dcg.Tab(C, label="Bold Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_bold(C))
+                with dcg.Tab(C, label="Italic Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_italic(C))
+                with dcg.Tab(C, label="Bold Italic Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_bold_italics(C))
+                with dcg.Tab(C, label="Monospaced Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_monospaced(C))
+                with dcg.Tab(C, label="Digits Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_digits(C))
+                with dcg.Tab(C, label="Numerics Font"):
+                    display_tabs_for_font(dcg.AutoFont.get_numerics(C))
+                    
+    dcg.Button(C, label="Show Font Textures", callback=show_font_textures)
+
+pop_group()  # End of the styling group
 
 
 if __name__ == "__main__":
