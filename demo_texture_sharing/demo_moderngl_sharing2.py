@@ -270,13 +270,15 @@ def demo_moderngl_sharing():
     frame_times = deque(maxlen=600)  # Store last 600 frames
     last_time = time.perf_counter()
 
+    while not C.viewport.render_frame() and C.running:
+        pass
+
     while C.running:
         current_time = time.perf_counter()
         frame_time = current_time - last_time
         frame_times.append(frame_time)
         last_time = current_time
-        while not C.viewport.render_frame():
-            pass
+        C.viewport.render_frame()
         rendering_type_value = rendering_type.value
         if rendering_type_value == "glFinish":
             cube.render_finish(angle1.value, angle2.value, angle3.value)
@@ -289,6 +291,10 @@ def demo_moderngl_sharing():
         avg_frame_time = sum(frame_times) / len(frame_times)
         fps = 1.0 / avg_frame_time if avg_frame_time > 0 else 0
         text.value = fps
+        C.viewport.wake() # indicate changed content
+    C.viewport.delete_item()
+    del cube
+    C.viewport.destroy()
 
 if __name__ == "__main__":
     demo_moderngl_sharing()
