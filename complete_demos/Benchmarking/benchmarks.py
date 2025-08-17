@@ -968,8 +968,10 @@ async def event_loop_callback_performance(C: dcg.Context):
         async_start_time = monotonic()
 
         try:
-            async with asyncio.timeout(0.05):
-                await run_viewport_loop(C.viewport, frame_rate=math.inf)
+            await asyncio.wait_for(
+                run_viewport_loop(C.viewport, frame_rate=math.inf),
+                timeout=0.05
+            )
         except asyncio.TimeoutError:
             pass
         except Exception as e:

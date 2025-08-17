@@ -735,7 +735,10 @@ class ItemParser:
         if not isinstance(self._object_class, type):
             return
         # Get class attributes (static)
-        class_attributes = [v[0] for v in inspect.getmembers_static(self._object_class)]
+        try:
+            class_attributes = [v[0] for v in inspect.getmembers_static(self._object_class)]
+        except:
+            class_attributes = [] # < python 3.11
         
         # Get base classes (for inheritance tracking)
         base_classes = self._object_class.__mro__[1:]  # Skip self
