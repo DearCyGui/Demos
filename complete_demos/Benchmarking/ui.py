@@ -369,11 +369,10 @@ async def start_benchmark(sender: dcg.baseItem):
                 stop_button.delete_item()
 
             # Close the benchmark context
-            bench_C.viewport.children = []
+            bench_C.viewport.delete_item()
             bench_C.running = False
-            bench_C.viewport.visible = False
-            # Process the viewport events.
-            context_pool.submit(lambda: bench_C.viewport.wait_events(timeout_ms=0))
+            # destroy the viewport
+            context_pool.submit(lambda: bench_C.viewport.destroy())
 
 
 async def ui_loop(viewport: dcg.Viewport):

@@ -1026,8 +1026,10 @@ async def run_benchmark_with_timeout(benchmark_info, duration=10.):
             await asyncio.sleep(0.)
     finally:
         # Clean up resources
-        C.viewport.children = []
         C.running = False
+        C.queue.shutdown()
+        C.viewport.delete_item()
+        C.viewport.destroy()
         gc.collect()
     
     return metrics
