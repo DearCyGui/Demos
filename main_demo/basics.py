@@ -838,9 +838,10 @@ def _multiviewport(C: dcg.Context):
             run_viewport_loop(new_context.viewport),  # Run the viewport loop
             star_loop(new_context, stars)  # Run the star animation
         )
-        # Hide the viewport right away rather than wait garbage collection
-        new_context.viewport.visible = False
-        new_context.viewport.wait_events(0) # process the visibility change
+        # Properly clean up the viewport
+        new_context.queue.shutdown()
+        new_context.viewport.delete_item()
+        new_context.viewport.destroy()
 
     # Create a button to trigger the creation of a new viewport
     dcg.Button(C, label="Create New Viewport", callback=lambda: create_viewport())
@@ -863,7 +864,7 @@ def Programing(C: dcg.Context):
     - Animation loop using asyncio not in a callback
     """
     # Make font with huge digits only
-    font = dcg.AutoFont.get_digits(C, base_size=200, monospace=True)
+    font = dcg.AutoFont.get_digits(C, base_size=200, monospaced=True)
 
     # 1. Animation loop using asyncio in a callback
     def create_asyncio_callback_clock(width: 'dcg.DynamicSizeT' = 200, running=threading.Event()):

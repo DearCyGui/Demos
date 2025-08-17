@@ -1010,8 +1010,9 @@ def _custom_viewport_decorations(C: dcg.Context):
         await run_viewport_loop(new_context.viewport)
         
         # Clean up
-        new_context.viewport.visible = False
-        new_context.viewport.wait_events(0)
+        new_context.queue.shutdown()
+        new_context.viewport.delete_item()
+        new_context.viewport.destroy()
     
     # Button to create the custom viewport
     dcg.Button(C, label="Create Custom Decorated Window", 

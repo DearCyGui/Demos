@@ -1111,5 +1111,10 @@ def launch_demo(title="DearCyGui Demo") -> None:
     temp_window.delete_item()
 
     loop.run_until_complete(run_viewport_loop(context.viewport))
+
+    # Not mandatory but will accelerate exit
+    context.queue.shutdown()
+    context.viewport.delete_item()
+    context.viewport.destroy()
     
 
