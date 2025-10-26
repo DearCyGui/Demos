@@ -1070,7 +1070,8 @@ def launch_demo(title="DearCyGui Demo") -> None:
     """
     # Main function to run the demo
     context = dcg.Context()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     context.queue = AsyncPoolExecutor()
     # refresh only when needed
     context.viewport.wait_for_input = True
