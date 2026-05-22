@@ -599,6 +599,11 @@ def _child_windows(C: dcg.Context):
     with dcg.ChildWindow(C, width=300, height=100, border=False, label="No Border"):
         dcg.Text(C, value="This child window has no visible border")
         dcg.Button(C, label="Button in borderless child")
+
+    # Child window with no border no background
+    with dcg.ChildWindow(C, width=500, height=100, border=False, label="No Border No Background", no_background=True):
+        dcg.Text(C, value="This child window has no visible border or background")
+        dcg.Button(C, label="Button in transparent child")
     
     # Child window with auto-resize
     with dcg.ChildWindow(C, auto_resize_x=True, height=100, border=True, no_scrollbar=True,
