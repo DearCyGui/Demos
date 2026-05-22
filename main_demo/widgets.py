@@ -925,17 +925,23 @@ def _dashboards(C: dcg.Context):
 
     dcg.Text(C, value="Same example with custom draggable sections:")
     
-    with dcg.VerticalLayout(C) as col1:
+    with dcg.VerticalLayout(C, no_newline=True) as col1:
         dcg.ChildWindow(C, width="fillx", height=200,
                         border=True, resizable_y=True, resizable_x=False)
         dcg.ChildWindow(C, width="fillx", height=200,
                         border=True, resizable_y=True, resizable_x=False)
         dcg.ChildWindow(C, width="fillx", height="filly",
                         border=True, resizable_y=False, resizable_x=False)
-    with dcg.VerticalLayout(C) as col2:
+
+    sep1 = dcg.utils.DraggableBar(C, vertical=True, position=0.2, no_newline=True)
+
+    with dcg.VerticalLayout(C, no_newline=True) as col2:
         dcg.ChildWindow(C, width="fillx", height=300, border=True,
                         resizable_y=True, resizable_x=False)
         dcg.ChildWindow(C, width="fillx", height="filly", border=True)
+
+    sep2 = dcg.utils.DraggableBar(C, vertical=True, position=0.6, no_newline=True)
+
     with dcg.VerticalLayout(C) as col3:
         dcg.ChildWindow(C, width="fillx", height=200,
                         border=True, resizable_y=True, resizable_x=False)
@@ -944,17 +950,17 @@ def _dashboards(C: dcg.Context):
         dcg.ChildWindow(C, width="fillx", height="filly",
                         border=True, resizable_y=False, resizable_x=False)
 
-    # Custom resize sections between columns
-    sep1 = dcg.utils.DraggableBar(C, vertical=True, position=0.2, no_newline=True)
-    sep2 = dcg.utils.DraggableBar(C, vertical=True, position=0.6, no_newline=True)
+    # Link widths
     col1.x = 0
-    col1.width = "sep1.x1 - self.x1"
-    col1.no_newline = True
+    col1.width = "max(1, sep1.x1 - self.x0)"
+
     col2.x = "sep1.x2"
-    col2.width = "sep2.x1 - self.x1"
-    col2.no_newline = True
+    col2.width = "max(1, sep2.x1 - sep1.x2)"
+
     col3.x = "sep2.x2"
     col3.width = "fillx"
+
+    # Link top
     sep1.y = col1.y
     sep2.y = col1.y
 
