@@ -1094,8 +1094,9 @@ def launch_demo(title="DearCyGui Demo") -> None:
         pass
 
     # Show a temporary centered window while the demo is loading
-    with dcg.Window(context, x="viewport.width/2 - self.width/2",
-                    y="viewport.height/2 - self.height/2",
+    with dcg.Window(context,
+                    x="viewport.width/2 - 0.9*viewport.width/2",
+                    y="viewport.height/2 - 0.9*viewport.height/2",
                     width="0.9*viewport.width",
                     height="0.9*viewport.height") as temp_window:
         with dcg.VerticalLayout(context, alignment_mode=dcg.Alignment.CENTER):
